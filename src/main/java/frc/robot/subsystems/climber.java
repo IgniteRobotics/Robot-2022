@@ -18,15 +18,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ClimbConstants;
 
 public class Climber extends SubsystemBase {
-  public static final double CLIMB_EFFORT_UP = 1;
-  public static final double CLIMB_EFFORT_DOWN_ENGAGE = 0.2;
-  public static final double CLIMB_EFFORT_DOWN = 1;
 
   private WPI_TalonFX climberLeader;
   private WPI_TalonFX climberFollower;
-
-  public static final int CLIMBER_FORWARD_LIMIT = 290000;
-  public static final int CLIMBER_REVERSE_LIMIT = 10000;
 
   private final int kTimeoutMs = 30;
   private final int kSlotIdx = 0;
@@ -39,10 +33,6 @@ public class Climber extends SubsystemBase {
   private boolean leaderCurrentStopped;
   private boolean followerCurrentStopped;
 
-  public static final double safeReduceEffort = 0.08;
-  public static final double safeStatorLimit = 0.3;
-
-  public static final double rampDownFrames = 25;
   private int framesSinceRamp = 0;
   private double initialRampingEffort = 0;
   private boolean isRampingDown = false;
@@ -62,18 +52,18 @@ public class Climber extends SubsystemBase {
     climberLeader.setNeutralMode(NeutralMode.Brake);
     climberFollower.setNeutralMode(NeutralMode.Brake);
 
-    climberLeader.configForwardSoftLimitThreshold(CLIMBER_FORWARD_LIMIT);
-    climberLeader.configReverseSoftLimitThreshold(CLIMBER_REVERSE_LIMIT);
+    climberLeader.configForwardSoftLimitThreshold(ClimbConstants.CLIMBER_FORWARD_LIMIT);
+    climberLeader.configReverseSoftLimitThreshold(ClimbConstants.CLIMBER_REVERSE_LIMIT);
     climberLeader.configForwardSoftLimitEnable(true, 0);
     climberLeader.configReverseSoftLimitEnable(true, 0);
 
-    climberFollower.configForwardSoftLimitThreshold(CLIMBER_FORWARD_LIMIT);
-    climberFollower.configReverseSoftLimitThreshold(CLIMBER_REVERSE_LIMIT);
+    climberFollower.configForwardSoftLimitThreshold(ClimbConstants.CLIMBER_FORWARD_LIMIT);
+    climberFollower.configReverseSoftLimitThreshold(ClimbConstants.CLIMBER_REVERSE_LIMIT);
     climberFollower.configForwardSoftLimitEnable(true, 0);
     climberFollower.configReverseSoftLimitEnable(true, 0);
     
-    //addChild("climberLeader- Climber", climberLeader);
-    //addChild("climberFollower- Climber", climberFollower);
+    addChild("climberLeader- Climber", climberLeader);
+    addChild("climberFollower- Climber", climberFollower);
   }
 
   @Override
@@ -81,12 +71,12 @@ public class Climber extends SubsystemBase {
     if(isRampingDown) {
       framesSinceRamp++;
 
-      if(framesSinceRamp >= rampDownFrames) {
+      if(framesSinceRamp >= ClimbConstants.rampDownFrames) {
         isRampingDown = false;
         stop();
       } else {
-        climberLeader.set(ControlMode.PercentOutput, (1 - framesSinceRamp / (double) rampDownFrames) * initialRampingEffort);
-        climberFollower.set(ControlMode.PercentOutput, (1 - framesSinceRamp / (double) rampDownFrames) * initialRampingEffort);
+        climberLeader.set(ControlMode.PercentOutput, (1 - framesSinceRamp / (double) ClimbConstants.rampDownFrames) * initialRampingEffort);
+        climberFollower.set(ControlMode.PercentOutput, (1 - framesSinceRamp / (double) ClimbConstants.rampDownFrames) * initialRampingEffort);
       }
     }
   }
@@ -109,19 +99,19 @@ public class Climber extends SubsystemBase {
 
   public void goUp() {
     // TODO make this shuffleboard changeable
-    climberLeader.set(ControlMode.PercentOutput, CLIMB_EFFORT_UP);
-    climberFollower.set(ControlMode.PercentOutput, CLIMB_EFFORT_UP);
+    climberLeader.set(ControlMode.PercentOutput, ClimbConstants.CLIMB_EFFORT_UP);
+    climberFollower.set(ControlMode.PercentOutput, ClimbConstants.CLIMB_EFFORT_UP);
   }
 
   public void goDown() {
     isRampingDown = false;
-    climberLeader.set(ControlMode.PercentOutput, -CLIMB_EFFORT_DOWN);
-    climberFollower.set(ControlMode.PercentOutput, -CLIMB_EFFORT_DOWN);
+    climberLeader.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN);
+    climberFollower.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN);
   }
 
   public void goDownEngage() {
-    climberLeader.set(ControlMode.PercentOutput, -CLIMB_EFFORT_DOWN_ENGAGE);
-    climberFollower.set(ControlMode.PercentOutput, -CLIMB_EFFORT_DOWN_ENGAGE);
+    climberLeader.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN_ENGAGE);
+    climberFollower.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN_ENGAGE);
   }
 
   public void go(double effort) {
@@ -135,20 +125,20 @@ public class Climber extends SubsystemBase {
 
   public void reduceMaxSafe() {
     if(!leaderCurrentStopped) {
-      climberLeader.set(ControlMode.PercentOutput, -safeReduceEffort);
+      climberLeader.set(ControlMode.PercentOutput, -ClimbConstants.safeReduceEffort);
     }
 
     if(!followerCurrentStopped) {
-      climberFollower.set(ControlMode.PercentOutput, -safeReduceEffort);
+      climberFollower.set(ControlMode.PercentOutput, -ClimbConstants.safeReduceEffort);
     }
 
-    if(climberLeader.getSupplyCurrent() > safeStatorLimit) {
+    if(climberLeader.getSupplyCurrent() > ClimbConstants.safeStatorLimit) {
       leaderCurrentStopped = true;
       climberLeader.stopMotor();
       climberLeader.setSelectedSensorPosition(0);
     }
 
-    if(climberFollower.getSupplyCurrent() > safeStatorLimit) {
+    if(climberFollower.getSupplyCurrent() > ClimbConstants.safeStatorLimit) {
       followerCurrentStopped = true;
       climberFollower.stopMotor();
       climberFollower.setSelectedSensorPosition(0);
