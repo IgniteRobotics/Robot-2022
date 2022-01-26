@@ -48,8 +48,8 @@ public class Climber extends SubsystemBase {
   private boolean isRampingDown = false;
 
   public Climber() {
-    climberLeader = new WPI_TalonFX(MotorConstants.kLeftClimberMotorPort);
-    climberFollower = new WPI_TalonFX(MotorConstants.kRightClimberMotorPort);
+    climberLeader = new WPI_TalonFX(ClimbConstants.LeftMotorPort);
+    climberFollower = new WPI_TalonFX(ClimbConstants.RightMotorPort);
 
     climberLeader.configFactoryDefault();
     climberFollower.configFactoryDefault();
