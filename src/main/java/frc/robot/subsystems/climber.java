@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ClimbConstants;
 
-public class Climber extends SubsystemBase {
+public class climber extends SubsystemBase {
 
   private WPI_TalonFX climberLeader;
   private WPI_TalonFX climberFollower;
@@ -37,7 +37,7 @@ public class Climber extends SubsystemBase {
   private double initialRampingEffort = 0;
   private boolean isRampingDown = false;
 
-  public Climber() {
+  public climber() {
     climberLeader = new WPI_TalonFX(ClimbConstants.LeftMotorPort);
     climberFollower = new WPI_TalonFX(ClimbConstants.RightMotorPort);
 
