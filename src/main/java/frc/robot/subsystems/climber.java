@@ -30,8 +30,8 @@ public class climber extends SubsystemBase {
   private final double  kD = 0;
   private final int kPIDLoopIdx = 0;
 
-  private boolean leaderCurrentStopped;
-  private boolean followerCurrentStopped;
+  private boolean leftCurrentStopped;
+  private boolean rightCurrentStopped;
 
   private int framesSinceRamp = 0;
   private double initialRampingEffort = 0;
@@ -62,8 +62,8 @@ public class climber extends SubsystemBase {
     climberRight.configForwardSoftLimitEnable(true, 0);
     climberRight.configReverseSoftLimitEnable(true, 0);
     
-    addChild("climberLeader- Climber", climberLeft);
-    addChild("climberFollower- Climber", climberRight);
+    addChild("climberLeft- Climber", climberLeft);
+    addChild("climberRight- Climber", climberRight);
   }
 
   @Override
@@ -124,22 +124,22 @@ public class climber extends SubsystemBase {
   }
 
   //public void reduceMaxSafe() {
-  //  if(!leaderCurrentStopped) {
+  //  if(!leftCurrentStopped) {
   //    climberLeft.set(ControlMode.PercentOutput, -ClimbConstants.safeReduceEffort);
   //  }
 
-  //  if(!followerCurrentStopped) {
+  //  if(!rightCurrentStopped) {
   //    climberRight.set(ControlMode.PercentOutput, -ClimbConstants.safeReduceEffort);
   //  }
 
     //if(climberLeft.getSupplyCurrent() > ClimbConstants.safeStatorLimit) {
-    //  leaderCurrentStopped = true;
+    //  leftCurrentStopped = true;
     //  climberLeft.stopMotor();
     //  climberLeft.setSelectedSensorPosition(0);
     //}
 
     //if(climberRight.getSupplyCurrent() > ClimbConstants.safeStatorLimit) {
-    //  followerCurrentStopped = true;
+    //  rightCurrentStopped = true;
     //  climberRight.stopMotor();
     //  climberRight.setSelectedSensorPosition(0);
     //}
@@ -161,7 +161,7 @@ public class climber extends SubsystemBase {
   }
 
   public boolean bothCurrentStopped() {
-    return leaderCurrentStopped && followerCurrentStopped;
+    return leftCurrentStopped && rightCurrentStopped;
   }
 
   public void setOpenLoop(double percentage, double deadband) {
@@ -176,7 +176,7 @@ public class climber extends SubsystemBase {
   }
 
   public boolean isMotionMagicDone() {
-    // return Math.abs(climberLeader.getClosedLoopTarget() - this.getEncoderPos())
+    // return Math.abs(climberLeft.getClosedLoopTarget() - this.getEncoderPos())
     // <= TOLERANCE;
     // motion magic is a little too much for this, let's focus on this later
     return true;
@@ -224,7 +224,7 @@ public class climber extends SubsystemBase {
   }
 
   public void resetCurrentLimits() {
-    leaderCurrentStopped = followerCurrentStopped = false;
+    leftCurrentStopped = rightCurrentStopped = false;
   }
 
   public void stopWithRamping() {
