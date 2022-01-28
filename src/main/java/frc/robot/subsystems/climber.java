@@ -19,8 +19,8 @@ import frc.robot.constants.ClimbConstants;
 
 public class climber extends SubsystemBase {
 
-  private WPI_TalonFX climberLeader;
-  private WPI_TalonFX climberFollower;
+  private WPI_TalonFX climberLeft;
+  private WPI_TalonFX climberRight;
 
   private final int kTimeoutMs = 30;
   private final int kSlotIdx = 0;
@@ -38,32 +38,32 @@ public class climber extends SubsystemBase {
   private boolean isRampingDown = false;
 
   public climber() {
-    climberLeader = new WPI_TalonFX(ClimbConstants.LeftMotorPort);
-    climberFollower = new WPI_TalonFX(ClimbConstants.RightMotorPort);
+    climberLeft = new WPI_TalonFX(ClimbConstants.LeftMotorPort);
+    climberRight = new WPI_TalonFX(ClimbConstants.RightMotorPort);
 
-    climberLeader.configFactoryDefault();
-    climberFollower.configFactoryDefault();
+    climberLeft.configFactoryDefault();
+    climberRight.configFactoryDefault();
 
-    // climberLeader.configOpenloopRamp(1);
-    // climberFollower.configOpenloopRamp(1);
+    // climberLeft.configOpenloopRamp(1);
+    // climberRight.configOpenloopRamp(1);
 
-    climberFollower.setInverted(true);
+    climberRight.setInverted(true);
 
-    climberLeader.setNeutralMode(NeutralMode.Brake);
-    climberFollower.setNeutralMode(NeutralMode.Brake);
+    climberLeft.setNeutralMode(NeutralMode.Brake);
+    climberRight.setNeutralMode(NeutralMode.Brake);
 
-    climberLeader.configForwardSoftLimitThreshold(ClimbConstants.CLIMBER_FORWARD_LIMIT);
-    climberLeader.configReverseSoftLimitThreshold(ClimbConstants.CLIMBER_REVERSE_LIMIT);
-    climberLeader.configForwardSoftLimitEnable(true, 0);
-    climberLeader.configReverseSoftLimitEnable(true, 0);
+    climberLeft.configForwardSoftLimitThreshold(ClimbConstants.CLIMBER_FORWARD_LIMIT);
+    climberLeft.configReverseSoftLimitThreshold(ClimbConstants.CLIMBER_REVERSE_LIMIT);
+    climberLeft.configForwardSoftLimitEnable(true, 0);
+    climberLeft.configReverseSoftLimitEnable(true, 0);
 
-    climberFollower.configForwardSoftLimitThreshold(ClimbConstants.CLIMBER_FORWARD_LIMIT);
-    climberFollower.configReverseSoftLimitThreshold(ClimbConstants.CLIMBER_REVERSE_LIMIT);
-    climberFollower.configForwardSoftLimitEnable(true, 0);
-    climberFollower.configReverseSoftLimitEnable(true, 0);
+    climberRight.configForwardSoftLimitThreshold(ClimbConstants.CLIMBER_FORWARD_LIMIT);
+    climberRight.configReverseSoftLimitThreshold(ClimbConstants.CLIMBER_REVERSE_LIMIT);
+    climberRight.configForwardSoftLimitEnable(true, 0);
+    climberRight.configReverseSoftLimitEnable(true, 0);
     
-    addChild("climberLeader- Climber", climberLeader);
-    addChild("climberFollower- Climber", climberFollower);
+    addChild("climberLeader- Climber", climberLeft);
+    addChild("climberFollower- Climber", climberRight);
   }
 
   @Override
@@ -75,75 +75,75 @@ public class climber extends SubsystemBase {
         isRampingDown = false;
         stop();
       } else {
-        climberLeader.set(ControlMode.PercentOutput, (1 - framesSinceRamp / (double) ClimbConstants.rampDownFrames) * initialRampingEffort);
-        climberFollower.set(ControlMode.PercentOutput, (1 - framesSinceRamp / (double) ClimbConstants.rampDownFrames) * initialRampingEffort);
+        climberLeft.set(ControlMode.PercentOutput, (1 - framesSinceRamp / (double) ClimbConstants.rampDownFrames) * initialRampingEffort);
+        climberRight.set(ControlMode.PercentOutput, (1 - framesSinceRamp / (double) ClimbConstants.rampDownFrames) * initialRampingEffort);
       }
     }
   }
 
   private void configureMotionMagic() {
-    climberLeader.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, 30);
-    climberLeader.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 30);
+    climberLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, 30);
+    climberLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 30);
     
-    climberFollower.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, 30);
-    climberFollower.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 30);
+    climberRight.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, 30);
+    climberRight.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 30);
     
-    climberLeader.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
-		climberLeader.config_kF(kSlotIdx, kF, kTimeoutMs);
-		climberLeader.config_kP(kSlotIdx, kP, kTimeoutMs);
-		climberLeader.config_kI(kSlotIdx, kI, kTimeoutMs);
-		climberLeader.config_kD(kSlotIdx, kD, kTimeoutMs);
-		climberLeader.configMotionCruiseVelocity(5525, kTimeoutMs);
-		climberLeader.configMotionAcceleration(5525, kTimeoutMs);
+    climberLeft.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
+		climberLeft.config_kF(kSlotIdx, kF, kTimeoutMs);
+		climberLeft.config_kP(kSlotIdx, kP, kTimeoutMs);
+		climberLeft.config_kI(kSlotIdx, kI, kTimeoutMs);
+		climberLeft.config_kD(kSlotIdx, kD, kTimeoutMs);
+		climberLeft.configMotionCruiseVelocity(5525, kTimeoutMs);
+		climberLeft.configMotionAcceleration(5525, kTimeoutMs);
   }
 
   public void goUp() {
     // TODO make this shuffleboard changeable
-    climberLeader.set(ControlMode.PercentOutput, ClimbConstants.CLIMB_EFFORT_UP);
-    climberFollower.set(ControlMode.PercentOutput, ClimbConstants.CLIMB_EFFORT_UP);
+    climberLeft.set(ControlMode.PercentOutput, ClimbConstants.CLIMB_EFFORT_UP);
+    climberRight.set(ControlMode.PercentOutput, ClimbConstants.CLIMB_EFFORT_UP);
   }
 
   public void goDown() {
     isRampingDown = false;
-    climberLeader.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN);
-    climberFollower.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN);
+    climberLeft.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN);
+    climberRight.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN);
   }
 
   public void goDownEngage() {
-    climberLeader.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN_ENGAGE);
-    climberFollower.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN_ENGAGE);
+    climberLeft.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN_ENGAGE);
+    climberRight.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN_ENGAGE);
   }
 
   public void go(double effort) {
-    climberLeader.set(ControlMode.PercentOutput, effort);
-    climberFollower.set(ControlMode.PercentOutput, effort);
+    climberLeft.set(ControlMode.PercentOutput, effort);
+    climberRight.set(ControlMode.PercentOutput, effort);
   }
 
   public void setOpenLoop(double percentage) {
-    climberLeader.set(ControlMode.PercentOutput, percentage);
+    climberLeft.set(ControlMode.PercentOutput, percentage);
   }
 
-  public void reduceMaxSafe() {
-    if(!leaderCurrentStopped) {
-      climberLeader.set(ControlMode.PercentOutput, -ClimbConstants.safeReduceEffort);
-    }
+  //public void reduceMaxSafe() {
+  //  if(!leaderCurrentStopped) {
+  //    climberLeft.set(ControlMode.PercentOutput, -ClimbConstants.safeReduceEffort);
+  //  }
 
-    if(!followerCurrentStopped) {
-      climberFollower.set(ControlMode.PercentOutput, -ClimbConstants.safeReduceEffort);
-    }
+  //  if(!followerCurrentStopped) {
+  //    climberRight.set(ControlMode.PercentOutput, -ClimbConstants.safeReduceEffort);
+  //  }
 
-    if(climberLeader.getSupplyCurrent() > ClimbConstants.safeStatorLimit) {
-      leaderCurrentStopped = true;
-      climberLeader.stopMotor();
-      climberLeader.setSelectedSensorPosition(0);
-    }
+    //if(climberLeft.getSupplyCurrent() > ClimbConstants.safeStatorLimit) {
+    //  leaderCurrentStopped = true;
+    //  climberLeft.stopMotor();
+    //  climberLeft.setSelectedSensorPosition(0);
+    //}
 
-    if(climberFollower.getSupplyCurrent() > ClimbConstants.safeStatorLimit) {
-      followerCurrentStopped = true;
-      climberFollower.stopMotor();
-      climberFollower.setSelectedSensorPosition(0);
-    }
-  }
+    //if(climberRight.getSupplyCurrent() > ClimbConstants.safeStatorLimit) {
+    //  followerCurrentStopped = true;
+    //  climberRight.stopMotor();
+    //  climberRight.setSelectedSensorPosition(0);
+    //}
+  //}
 
   /**
    * Disables and enables soft limits on climber, depending on parameter set. 
@@ -153,11 +153,11 @@ public class climber extends SubsystemBase {
    * @param set
    */
   public void setNoLimits(boolean set) {
-    climberLeader.configForwardSoftLimitEnable(!set, 0);
-    climberLeader.configReverseSoftLimitEnable(!set, 0);
+    climberLeft.configForwardSoftLimitEnable(!set, 0);
+    climberLeft.configReverseSoftLimitEnable(!set, 0);
 
-    climberFollower.configForwardSoftLimitEnable(!set, 0);
-    climberFollower.configReverseSoftLimitEnable(!set, 0);
+    climberRight.configForwardSoftLimitEnable(!set, 0);
+    climberRight.configReverseSoftLimitEnable(!set, 0);
   }
 
   public boolean bothCurrentStopped() {
@@ -172,7 +172,7 @@ public class climber extends SubsystemBase {
   }
 
   public void setMotionMagicPosition(double position) {
-    climberLeader.set(ControlMode.MotionMagic, position);
+    climberLeft.set(ControlMode.MotionMagic, position);
   }
 
   public boolean isMotionMagicDone() {
@@ -183,44 +183,44 @@ public class climber extends SubsystemBase {
 
   }
   public void zeroEncoders() {
-    climberLeader.setSelectedSensorPosition(0);
-    climberFollower.setSelectedSensorPosition(0);
+    climberLeft.setSelectedSensorPosition(0);
+    climberRight.setSelectedSensorPosition(0);
   }
 
   public int getEncoderPos() {
-    return (int) climberLeader.getSelectedSensorPosition();
+    return (int) climberLeft.getSelectedSensorPosition();
   }
 
   public double getEncoderVel() {
-    return climberLeader.getSelectedSensorVelocity();
+    return climberLeft.getSelectedSensorVelocity();
   }
 
   public double getMasterVoltage() {
-    return climberLeader.getMotorOutputVoltage();
+    return climberLeft.getMotorOutputVoltage();
   }
 
   public double getFollowerVoltage() {
-    return climberFollower.getMotorOutputVoltage();
+    return climberRight.getMotorOutputVoltage();
   }
 
   public double getPercentOutput() {
-    return climberLeader.getMotorOutputPercent();
+    return climberLeft.getMotorOutputPercent();
   }
 
   public double getMasterCurrent() {
-    return climberLeader.getOutputCurrent();
+    return climberLeft.getOutputCurrent();
   }
 
   public void zeroSensors() {
-    climberLeader.setSelectedSensorPosition(0);
+    climberLeft.setSelectedSensorPosition(0);
   }
 
   public boolean isFwdLimitTripped() {
-    return climberLeader.getSensorCollection().isFwdLimitSwitchClosed() != 0;
+    return climberLeft.getSensorCollection().isFwdLimitSwitchClosed() != 0;
   }
 
   public boolean isRevLimitTripped() {
-    return climberLeader.getSensorCollection().isRevLimitSwitchClosed() != 0;
+    return climberLeft.getSensorCollection().isRevLimitSwitchClosed() != 0;
   }
 
   public void resetCurrentLimits() {
@@ -232,12 +232,12 @@ public class climber extends SubsystemBase {
       isRampingDown = true;
 
       framesSinceRamp = 0;
-      initialRampingEffort = climberLeader.get();
+      initialRampingEffort = climberLeft.get();
     }
   }
 
   public void stop() {
-    climberLeader.stopMotor();
-    climberFollower.stopMotor();
+    climberLeft.stopMotor();
+    climberRight.stopMotor();
   }
 }
