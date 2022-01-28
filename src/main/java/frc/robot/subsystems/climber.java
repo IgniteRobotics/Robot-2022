@@ -38,6 +38,7 @@ public class climber extends SubsystemBase {
   private boolean isRampingDown = false;
 
   public climber() {
+    //Assigns motorports to motors
     climberLeft = new WPI_TalonFX(ClimbConstants.LeftMotorPort);
     climberRight = new WPI_TalonFX(ClimbConstants.RightMotorPort);
 
@@ -47,8 +48,10 @@ public class climber extends SubsystemBase {
     // climberLeft.configOpenloopRamp(1);
     // climberRight.configOpenloopRamp(1);
 
+    //Inverts the right climber to make both climbers work in sinc
     climberRight.setInverted(true);
 
+    //Sets motors to automatically break
     climberLeft.setNeutralMode(NeutralMode.Brake);
     climberRight.setNeutralMode(NeutralMode.Brake);
 
@@ -67,6 +70,7 @@ public class climber extends SubsystemBase {
   }
 
   @Override
+  //makes climber smoothly raise
   public void periodic() {
     if(isRampingDown) {
       framesSinceRamp++;
@@ -97,18 +101,21 @@ public class climber extends SubsystemBase {
 		climberLeft.configMotionAcceleration(5525, kTimeoutMs);
   }
 
+  //Control to make climber extend
   public void goUp() {
     // TODO make this shuffleboard changeable
     climberLeft.set(ControlMode.PercentOutput, ClimbConstants.CLIMB_EFFORT_UP);
     climberRight.set(ControlMode.PercentOutput, ClimbConstants.CLIMB_EFFORT_UP);
   }
 
+  //control to make climber pull robot up
   public void goDown() {
     isRampingDown = false;
     climberLeft.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN);
     climberRight.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN);
   }
 
+  //control to make climber pull robot up slowly
   public void goDownEngage() {
     climberLeft.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN_ENGAGE);
     climberRight.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN_ENGAGE);
