@@ -1,9 +1,6 @@
 package frc.robot.constants;
 //contains all constants present in the climber
 public class ClimbConstants {
-    //Motor ports
-    public static final int LeftMotorPort = 1;
-    public static final int RightMotorPort = 2;
 
     //Climb limits
     public static final int CLIMBER_FORWARD_LIMIT = 290000;
