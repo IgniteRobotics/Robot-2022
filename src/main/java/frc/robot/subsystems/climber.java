@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ClimbConstants;
+import frc.robot.constants.PortConstants;
 
 public class climber extends SubsystemBase {
 
@@ -39,8 +40,8 @@ public class climber extends SubsystemBase {
 
   public climber() {
     //Assigns motorports to motors
-    climberLeft = new WPI_TalonFX(ClimbConstants.LeftMotorPort);
-    climberRight = new WPI_TalonFX(ClimbConstants.RightMotorPort);
+    climberLeft = new WPI_TalonFX(PortConstants.LeftMotorPort);
+    climberRight = new WPI_TalonFX(PortConstants.RightMotorPort);
 
     climberLeft.configFactoryDefault();
     climberRight.configFactoryDefault();
