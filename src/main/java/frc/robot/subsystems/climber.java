@@ -171,24 +171,24 @@ public class climber extends SubsystemBase {
     return leftCurrentStopped && rightCurrentStopped;
   }
 
-  public void setOpenLoop(double percentage, double deadband) {
+  //public void setOpenLoop(double percentage, double deadband) {
     // percentage = Util.applyDeadband(percentage, Constants.CLIMBER_JOG_DEADBAND);
     // We'll worry about deadband here later. Besides, it makes more sense
     // to use the built-in falon motor deadbands
-    setOpenLoop(percentage);
-  }
+  //  setOpenLoop(percentage);
+  //}
 
   public void setMotionMagicPosition(double position) {
     climberLeft.set(ControlMode.MotionMagic, position);
   }
 
-  public boolean isMotionMagicDone() {
+  //public boolean isMotionMagicDone() {
     // return Math.abs(climberLeft.getClosedLoopTarget() - this.getEncoderPos())
     // <= TOLERANCE;
     // motion magic is a little too much for this, let's focus on this later
-    return true;
+  //  return true;
 
-  }
+  //}
   public void zeroEncoders() {
     climberLeft.setSelectedSensorPosition(0);
     climberRight.setSelectedSensorPosition(0);
