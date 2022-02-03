@@ -40,8 +40,8 @@ public class climber extends SubsystemBase {
 
   public climber() {
     //Assigns motorports to motors
-    climberLeft = new WPI_TalonFX(PortConstants.LeftMotorPort);
-    climberRight = new WPI_TalonFX(PortConstants.RightMotorPort);
+    climberLeft = new WPI_TalonFX(PortConstants.ClimbLeftMotorPort);
+    climberRight = new WPI_TalonFX(PortConstants.ClimbRightMotorPort);
 
     climberLeft.configFactoryDefault();
     climberRight.configFactoryDefault();

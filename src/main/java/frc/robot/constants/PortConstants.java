@@ -14,6 +14,6 @@ package frc.robot.constants;
  */
 public final class PortConstants {
     //Motor ports
-    public static final int LeftMotorPort = 1;
-    public static final int RightMotorPort = 2;
+    public static final int ClimbLeftMotorPort = 1;
+    public static final int ClimbRightMotorPort = 2;
 }
