@@ -13,7 +13,23 @@ package frc.robot.constants;
  * constants are needed, to reduce verbosity.
  */
 public final class PortConstants {
-    //Motor ports
-    public static final int ClimbLeftMotorPort = 1;
-    public static final int ClimbRightMotorPort = 2;
+
+    //Controller ports
+    public static final int DRIVER_CONTROLLER_PORT = 0;
+    public static final int MANIPULATOR_CONTROLLER_PORT = 1;
+
+
+    //Climber Motors
+    //TODO:  Set these ports correctly.  They were conflicting with the drivetrain.
+    public static final int ClimbLeftMotorPort = 0;
+    public static final int ClimbRightMotorPort = 0;
+
+    //Drivetrain Motors
+    public static final int driveTrainLeftLeaderPort = 2;
+    public static final int driveTrainLeftFollowerPort = 4;
+    
+    public static final int driveTrainRightLeaderPort = 1;
+    public static final int driveTrainRightFollowerPort = 3;
+
+
 }
