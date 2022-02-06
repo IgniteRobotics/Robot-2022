@@ -16,4 +16,9 @@ public final class PortConstants {
     //Motor ports
     public static final int ClimbLeftMotorPort = 1;
     public static final int ClimbRightMotorPort = 2;
+    //These are the Intake Ports
+    //TODO Confirm that these I.Ds are right
+    public static final int kIntakeMotorPort = 8;
+    public static final int kIntakeSolenoidForwardPort = 2;
+    public static final int kIntakeSolenoidReversePort = 3;
 }
