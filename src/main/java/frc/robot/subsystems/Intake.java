@@ -17,6 +17,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.PortConstants;
 
 public class Intake extends SubsystemBase {
+
+    private static final double INTAKE_SPEED = 0.5;
+
     private final CANSparkMax intakeMotor;
     private DoubleSolenoid intakePistonSolenoid;
 
@@ -59,6 +62,10 @@ public class Intake extends SubsystemBase {
 
     public void spin(double speed) {
         intakeMotor.set(speed);
+    }
+
+    public void spin(){
+        this.spin(INTAKE_SPEED);
     }
 
     public void stop() {
