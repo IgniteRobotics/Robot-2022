@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ClimbConstants;
 import frc.robot.constants.PortConstants;
 
-public class climber extends SubsystemBase {
+public class Climber extends SubsystemBase {
 
   private WPI_TalonFX climberLeft;
   private WPI_TalonFX climberRight;
@@ -38,7 +38,7 @@ public class climber extends SubsystemBase {
   private double initialRampingEffort = 0;
   private boolean isRampingDown = false;
 
-  public climber() {
+  public Climber() {
     //Assigns motorports to motors
     climberLeft = new WPI_TalonFX(PortConstants.ClimbLeftMotorPort);
     climberRight = new WPI_TalonFX(PortConstants.ClimbRightMotorPort);
@@ -56,6 +56,7 @@ public class climber extends SubsystemBase {
     climberLeft.setNeutralMode(NeutralMode.Brake);
     climberRight.setNeutralMode(NeutralMode.Brake);
 
+    //Sets a limit for the climber motor
     climberLeft.configForwardSoftLimitThreshold(ClimbConstants.CLIMBER_FORWARD_LIMIT);
     climberLeft.configReverseSoftLimitThreshold(ClimbConstants.CLIMBER_REVERSE_LIMIT);
     climberLeft.configForwardSoftLimitEnable(true, 0);
