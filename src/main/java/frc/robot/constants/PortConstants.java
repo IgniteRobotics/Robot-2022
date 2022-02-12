@@ -35,4 +35,16 @@ public final class PortConstants {
     public static final int driveTrainRightLeaderPort = 1;
     public static final int driveTrainRightFollowerPort = 3;
 
+    //Indexer Motors
+    //TODO: set IDs
+    public static final int indexerMotorPort = 0;
+    public static final int indexerKickupMotorPort = 0;
+ 
+    //Indexer sensor ports
+    //TODO: set IDs
+    public static final int initialIndexerBeamBreakPort = 0;
+    public static final int kickupIndexerBeamBreakPort = 0;
+    public static final int indexerColorSensorPort = 0;
+
+
 }
