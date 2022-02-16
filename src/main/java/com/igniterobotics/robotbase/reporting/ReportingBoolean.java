@@ -2,13 +2,13 @@ package com.igniterobotics.robotbase.reporting;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class ReportingNumber extends ReportingType<Double> {
-    public ReportingNumber(String name, ReportingLevel level) {
+public class ReportingBoolean extends ReportingType<Boolean> {
+    public ReportingBoolean(String name, ReportingLevel level) {
         super(name, level);
     }
 
     @Override
     public void put() {
-        SmartDashboard.putNumber(name, value);
+        SmartDashboard.putBoolean(name, value);
     }
 }
