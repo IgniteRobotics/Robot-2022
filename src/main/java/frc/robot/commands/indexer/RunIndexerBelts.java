@@ -8,10 +8,13 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Indexer;
 
 public class RunIndexerBelts extends CommandBase {
-  private Indexer indexer;
+  private final Indexer indexer;
+  private final boolean advance;
+
   /** Creates a new RunIndexerBelts. */
-  public RunIndexerBelts(Indexer indexer) {
+  public RunIndexerBelts(Indexer indexer, boolean advance) {
     this.indexer = indexer;
+    this.advance = advance;
 
     addRequirements(indexer);
     // Use addRequirements() here to declare subsystem dependencies.
@@ -19,12 +22,17 @@ public class RunIndexerBelts extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    indexer.advanceBelt();
+    if (advance) {
+      indexer.advanceBelt();
+    } else {
+      indexer.retreatBelt();
+    }
   }
 
   // Called once the command ends or is interrupted.
