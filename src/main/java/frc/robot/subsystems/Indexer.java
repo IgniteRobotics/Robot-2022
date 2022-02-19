@@ -7,8 +7,18 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import frc.robot.constants.PortConstants;
+//Color sensor stuff. We borrowed from willtoth on Github
+
+
+import com.revrobotics.ColorMatch;
+import com.revrobotics.ColorMatchResult;
+
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.util.Color;
+import com.revrobotics.ColorSensorV3;
+
 
 public class Indexer extends SubsystemBase {
 
@@ -25,7 +35,17 @@ public class Indexer extends SubsystemBase {
 
   private DigitalInput initialIndexerBeamBreak;
   private DigitalInput kickupIndexerBeamBreak;
+  private final I2C.Port i2cPort = I2C.Port.kOnboard;
 
+  /**
+   * A Rev Color Sensor V3 object is constructed with an I2C port as a 
+   * parameter. The device will be automatically initialized with default 
+   * parameters.
+   */
+  private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
+  private final Color kBlueTarget = new Color(0.143, 0.427, 0.429);
+  private final Color kRedTarget = new Color(0.561, 0.232, 0.114);
+  private final ColorMatch m_colorMatcher = new ColorMatch();
 
   public Indexer() {
 
@@ -33,7 +53,8 @@ public class Indexer extends SubsystemBase {
     kickupMotor = new CANSparkMax(PortConstants.indexerKickupMotorPort, MotorType.kBrushless);
     initialIndexerBeamBreak = new DigitalInput(PortConstants.initialIndexerBeamBreakPort);
     kickupIndexerBeamBreak = new DigitalInput(PortConstants.kickupIndexerBeamBreakPort);
-
+    m_colorMatcher.addColorMatch(kBlueTarget);
+    m_colorMatcher.addColorMatch(kRedTarget);
     //TODO:  verify inversion
     indexerMotor.setInverted(false);
     indexerMotor.burnFlash();
@@ -71,6 +92,7 @@ public class Indexer extends SubsystemBase {
     this.stopKickup();
   }
 
+  // Gets the value of the digital input.  Normally returns true if the circuit is open, but we negate it.
   public boolean getInitialIndexerBeamBreak() {
     return !initialIndexerBeamBreak.get();
   }
@@ -79,7 +101,34 @@ public class Indexer extends SubsystemBase {
     return !kickupIndexerBeamBreak.get();
   }
 
+  public void colorsensorstuff()
+  {
+    Color detectedColor = m_colorSensor.getColor();
 
+    /**
+     * Run the color match algorithm on our detected color
+     */
+    String colorString;
+    ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
+
+    if (match.color == kBlueTarget) {
+      colorString = "Blue";
+    } else if (match.color == kRedTarget) {
+      colorString = "Red";
+    }  else {
+      colorString = "Unknown";
+    }
+
+    /**
+     * Open Smart Dashboard or Shuffleboard to see the color detected by the 
+     * sensor.
+     */
+    SmartDashboard.putNumber("Red", detectedColor.red);
+    SmartDashboard.putNumber("Green", detectedColor.green);
+    SmartDashboard.putNumber("Blue", detectedColor.blue);
+    SmartDashboard.putNumber("Confidence", match.confidence);
+    SmartDashboard.putString("Detected Color", colorString);
+  }
   @Override
   public void periodic() {
 
