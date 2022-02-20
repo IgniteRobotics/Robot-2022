@@ -30,7 +30,7 @@ public class RobotContainer {
 
   //subsystems
   private Drivetrain m_driveTrain = new Drivetrain();
-  private Indexer m_indexer = new Indexer();
+  //private Indexer m_indexer = new Indexer();
 
   //comands
   private ArcadeDrive arcadeDriveCommand = new ArcadeDrive(m_driveController, m_driveTrain);
@@ -54,8 +54,8 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    btn_retreatIndexer.whileHeld(new RunIndexerBelts(m_indexer, false));
-    btn_advanceIndexer.whileHeld(new RunIndexerBelts(m_indexer, true));
+    //btn_retreatIndexer.whileHeld(new RunIndexerBelts(m_indexer, false));
+    //btn_advanceIndexer.whileHeld(new RunIndexerBelts(m_indexer, true));
   }
 
   /**
