@@ -10,8 +10,10 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
+import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.kauailabs.navx.frc.AHRS;
 
 // import badlog.lib.BadLog;
@@ -114,22 +116,24 @@ public class Drivetrain extends SubsystemBase {
 
         setNeutralMode(NeutralMode.Brake);
 
-        leftLeader.setInverted(false);
-        leftFollower.setInverted(false);
+
+        leftFollower.follow(leftLeader);
+        rightFollower.follow(rightLeader);
+
+        leftLeader.setInverted(TalonFXInvertType.Clockwise);
+        leftFollower.setInverted(InvertType.FollowMaster);
 
         leftLeader.overrideLimitSwitchesEnable(false);
         rightLeader.overrideLimitSwitchesEnable(false);        
 
-        leftFollower.follow(leftLeader);
-        rightFollower.follow(rightLeader);
 
         m_driveTrain = new DifferentialDrive(leftLeader, rightLeader);
     }
 
     @Override
     public void periodic() {
-        m_odometry.update(navX.getRotation2d(), sensorProfile.uToRev(getLeftEncoderPosition()) * WHEEL_CIRCUMFERENCE_METERS,
-                      sensorProfile.uToRev(-getRightEncoderPosition()) * WHEEL_CIRCUMFERENCE_METERS);
+        m_odometry.update(navX.getRotation2d(), sensorProfile.uToRev(-getLeftEncoderPosition()) * WHEEL_CIRCUMFERENCE_METERS,
+                      sensorProfile.uToRev(getRightEncoderPosition()) * WHEEL_CIRCUMFERENCE_METERS);
         leftEncoderPosition.set(getLeftEncoderPosition());              
         rightEncoderPosition.set(getRightEncoderPosition());    
         leftEncoderVelocity.set(getLeftEncoderVel());    
@@ -176,8 +180,8 @@ public class Drivetrain extends SubsystemBase {
 
     // used to drive trajectories
     public void tankDriveVolts(double leftVolts, double rightVolts) {
-        this.leftLeader.setVoltage(leftVolts);
-        this.rightLeader.setVoltage(-rightVolts);
+        this.leftLeader.setVoltage(-leftVolts);
+        this.rightLeader.setVoltage(rightVolts);
         m_driveTrain.feed();
     }
 
@@ -290,7 +294,7 @@ public class Drivetrain extends SubsystemBase {
     // Right now it's sort of a hack
     public void driveDistance(double setpointTicks) {
         // I don't think the arbitary feed forward is really that helpful here
-        leftLeader.set(TalonFXControlMode.Position, setpointTicks, DemandType.ArbitraryFeedForward, 0.0007);
-        rightLeader.set(TalonFXControlMode.Position, -setpointTicks, DemandType.ArbitraryFeedForward, 0.0007);
+        leftLeader.set(TalonFXControlMode.Position, -setpointTicks, DemandType.ArbitraryFeedForward, 0.0007);
+        rightLeader.set(TalonFXControlMode.Position, setpointTicks, DemandType.ArbitraryFeedForward, 0.0007);
     }
 }
