@@ -7,11 +7,14 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.drivetrain.ArcadeDrive;
+import frc.robot.commands.indexer.RunIndexerBelts;
 import frc.robot.constants.PortConstants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.Indexer;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -27,10 +30,16 @@ public class RobotContainer {
 
   //subsystems
   private Drivetrain m_driveTrain = new Drivetrain();
+  private Indexer m_indexer = new Indexer();
 
   //comands
   private ArcadeDrive arcadeDriveCommand = new ArcadeDrive(m_driveController, m_driveTrain);
 
+  private JoystickButton btn_advanceIndexer = new JoystickButton(m_driveController, XboxController.Button.kA.value);
+  private JoystickButton btn_retreatIndexer = new JoystickButton(m_driveController, XboxController.Button.kB.value);
+
+
+  /** The container for the robot. Contains subsystems, OI devices, and commands. */
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
@@ -44,7 +53,10 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {}
+  private void configureButtonBindings() {
+    btn_retreatIndexer.whileHeld(new RunIndexerBelts(m_indexer, false));
+    btn_advanceIndexer.whileHeld(new RunIndexerBelts(m_indexer, true));
+  }
 
   /**
    * Use this method to configure default commands for subsystems
