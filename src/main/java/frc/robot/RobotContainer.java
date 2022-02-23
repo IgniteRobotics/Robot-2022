@@ -11,10 +11,12 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.drivetrain.ArcadeDrive;
 import frc.robot.commands.indexer.RunIndexerBelts;
+import frc.robot.commands.intake.RetractIntake;
 import frc.robot.constants.PortConstants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Intake;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -30,10 +32,12 @@ public class RobotContainer {
 
   //subsystems
   private Drivetrain m_driveTrain = new Drivetrain();
+  private Intake m_intake = new Intake();
   //private Indexer m_indexer = new Indexer();
 
   //comands
   private ArcadeDrive arcadeDriveCommand = new ArcadeDrive(m_driveController, m_driveTrain);
+  private RetractIntake retractIntakeCommand = new RetractIntake(m_intake);
 
   private JoystickButton btn_advanceIndexer = new JoystickButton(m_driveController, XboxController.Button.kA.value);
   private JoystickButton btn_retreatIndexer = new JoystickButton(m_driveController, XboxController.Button.kB.value);
@@ -63,6 +67,7 @@ public class RobotContainer {
    */
   private void configureSubsystemCommands() {
     m_driveTrain.setDefaultCommand(arcadeDriveCommand);
+    m_intake.setDefaultCommand(retractIntakeCommand);
   }
 
   /**

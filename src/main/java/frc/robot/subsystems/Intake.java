@@ -42,12 +42,14 @@ public class Intake extends SubsystemBase {
 
     public void extendIntake() {
         isExtended = true;
-        intakePistonSolenoid.set(Value.kForward);
+        //retracting the piston actually extends the intake!
+        intakePistonSolenoid.set(Value.kReverse);
     }
 
     public void retractIntake() {
         isExtended = false;
-        intakePistonSolenoid.set(Value.kReverse);
+        //extending the piston actually retracts the intake!
+        intakePistonSolenoid.set(Value.kForward);
     }
     //idk what that means haha 
 
@@ -74,6 +76,10 @@ public class Intake extends SubsystemBase {
 
     public boolean isExtended() {
         return isExtended;
+    }
+
+    public boolean isRunning() {
+        return intakeMotor.get() != 0.0;
     }
 
     @Override
