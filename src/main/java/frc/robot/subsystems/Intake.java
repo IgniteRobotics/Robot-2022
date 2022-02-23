@@ -18,7 +18,8 @@ import frc.robot.constants.PortConstants;
 
 public class Intake extends SubsystemBase {
 
-    private static final double INTAKE_SPEED = 0.5;
+    public static final double INTAKE_SPEED = 0.5;
+    public static final double OUTTAKE_SPEED = -0.5;
 
     private final CANSparkMax intakeMotor;
     private DoubleSolenoid intakePistonSolenoid;
@@ -72,6 +73,7 @@ public class Intake extends SubsystemBase {
 
     public void stop() {
         intakeMotor.set(0);
+        this.retractIntake();
     }
 
     public boolean isExtended() {

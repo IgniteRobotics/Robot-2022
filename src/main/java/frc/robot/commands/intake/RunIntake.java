@@ -5,17 +5,18 @@
 package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 
-public class IntakeCargo extends CommandBase {
-  private Indexer indexer;
+public class RunIntake extends CommandBase {
   private Intake intake;
+  //true == intake.  false == outtake
+  private boolean direction = true;
+
   /** Creates a new IntakeCargo. */
-  public IntakeCargo(Intake intake, Indexer indexer) {
-    this.indexer = indexer;
+  public RunIntake(Intake intake, boolean direction) {
     this.intake = intake;
-    addRequirements(indexer, intake);
+    this.direction = direction;
+    addRequirements(intake);
   }
 
   // Called when the command is initially scheduled.
@@ -28,26 +29,22 @@ public class IntakeCargo extends CommandBase {
     if (!intake.isExtended()) {
       intake.extendIntake();
     }
-    if (!indexer.getKickupIndexerBeamBreak()){
-      indexer.advanceKickUp();
+    if (this.direction){
+      intake.spin(Intake.INTAKE_SPEED);
+    } else {
+      intake.spin(Intake.OUTTAKE_SPEED);
     }
-    if (!indexer.getInitialIndexerBeamBreak() || !indexer.getKickupIndexerBeamBreak()){
-      indexer.advanceBelt();
-    }
-    intake.spin();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    indexer.stopAll();
     intake.stop();
-    indexer.stopAll();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return indexer.getKickupIndexerBeamBreak() && indexer.getInitialIndexerBeamBreak();
+    return false;
   }
 }
