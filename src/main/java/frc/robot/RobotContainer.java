@@ -10,8 +10,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.drivetrain.ArcadeDrive;
+import frc.robot.commands.indexer.IndexCargo;
 import frc.robot.commands.indexer.RunIndexerBelts;
 import frc.robot.commands.intake.RetractIntake;
+import frc.robot.commands.intake.RunIntake;
 import frc.robot.constants.PortConstants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -33,15 +35,18 @@ public class RobotContainer {
   //subsystems
   private Drivetrain m_driveTrain = new Drivetrain();
   private Intake m_intake = new Intake();
-  //private Indexer m_indexer = new Indexer();
+  private Indexer m_indexer = new Indexer();
 
   //comands
   private ArcadeDrive arcadeDriveCommand = new ArcadeDrive(m_driveController, m_driveTrain);
   private RetractIntake retractIntakeCommand = new RetractIntake(m_intake);
 
+  private RunIntake runIntakeCommand = new RunIntake(m_intake, true);
+  private IndexCargo indexCargoCommand = new IndexCargo(m_indexer);
+
   private JoystickButton btn_advanceIndexer = new JoystickButton(m_driveController, XboxController.Button.kA.value);
   private JoystickButton btn_retreatIndexer = new JoystickButton(m_driveController, XboxController.Button.kB.value);
-
+  private JoystickButton btn_intakeCargo = new JoystickButton(m_driveController, XboxController.Button.kX.value);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -58,8 +63,10 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    //btn_retreatIndexer.whileHeld(new RunIndexerBelts(m_indexer, false));
-    //btn_advanceIndexer.whileHeld(new RunIndexerBelts(m_indexer, true));
+    btn_retreatIndexer.whileHeld(new RunIndexerBelts(m_indexer, false));
+    btn_advanceIndexer.whileHeld(new RunIndexerBelts(m_indexer, true));
+    //NOTE:  this is whenHeld so it runs once per hold
+    btn_intakeCargo.whenHeld(runIntakeCommand.raceWith(indexCargoCommand));
   }
 
   /**
