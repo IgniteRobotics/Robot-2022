@@ -16,17 +16,16 @@ import com.revrobotics.ColorMatchResult;
 
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.util.Color;
 import com.revrobotics.ColorSensorV3;
 
 
 public class Indexer extends SubsystemBase {
 
   ////////// Constants //////////
-  private static final double INDEXER_BELT_FWD_SPEED = 0.5;
-  private static final double INDEXER_BELT_REV_SPEED = -0.5;
-  private static final double INDEXER_KICKUP_FWD_SPEED = 0.5;
-  private static final double INDEXER_KICKUP_REV_SPEED = -0.5;
+  private static final double INDEXER_BELT_FWD_SPEED = -0.5;
+  private static final double INDEXER_BELT_REV_SPEED = 0.5;
+  private static final double INDEXER_KICKUP_FWD_SPEED = -0.5;
+  private static final double INDEXER_KICKUP_REV_SPEED = 0.5;
 
 
   ////////// instance variables /////////
@@ -55,7 +54,7 @@ public class Indexer extends SubsystemBase {
     kickupIndexerBeamBreak = new DigitalInput(PortConstants.kickupIndexerBeamBreakPort);
     m_colorMatcher.addColorMatch(kBlueTarget);
     m_colorMatcher.addColorMatch(kRedTarget);
-    //TODO:  verify inversion
+    //TODO:  invert the motors instead of negative power!
     indexerMotor.setInverted(false);
     indexerMotor.burnFlash();
 
