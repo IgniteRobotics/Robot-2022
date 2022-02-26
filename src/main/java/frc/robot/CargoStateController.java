@@ -7,7 +7,7 @@ public class CargoStateController {
     private boolean firstPositionBreak = false;
     private boolean secondPositionBreak = false;
 
-    private Indexer.BallColor[] ballColors = {BallColor.UNKNOWN, BallColor.UNKNOWN};
+    private Indexer.BallColor[] ballColors = { BallColor.UNKNOWN, BallColor.UNKNOWN };
 
     private static CargoStateController _instance = new CargoStateController();
 
@@ -20,7 +20,7 @@ public class CargoStateController {
     }
 
     public boolean runSecondPosition() {
-        return !firstPositionBreak || !secondPositionBreak; 
+        return !firstPositionBreak || !secondPositionBreak;
     }
 
     public void setFirstPositionBreak(boolean broken) {
@@ -32,12 +32,18 @@ public class CargoStateController {
     }
 
     public void addBall(BallColor ballColor) {
-        ballColors[0] = ballColors[1];
+        if (ballColors[1] != BallColor.UNKNOWN && ballColors[0] != BallColor.UNKNOWN) {
+            ballColors[0] = ballColors[1];
+        }
         ballColors[1] = ballColor;
     }
 
     public String getBallColorsString() {
         return "[" + ballColors[0] + ", " + ballColors[1] + "]";
+    }
+
+    public BallColor[] getBallColors() {
+        return ballColors;
     }
 
     public static CargoStateController getInstance() {

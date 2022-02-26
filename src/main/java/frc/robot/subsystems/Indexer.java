@@ -56,6 +56,10 @@ public class Indexer extends SubsystemBase {
       ReportingLevel.TEST);
   private final ReportingString ballColorReporting = new ReportingString("Indexer/Ball Color",
       ReportingLevel.COMPETITON);
+  private final ReportingString position1ColorReporting = new ReportingString("Indexer/Pos 1 Color",
+      ReportingLevel.COMPETITON);
+  private final ReportingString position2ColorReporting = new ReportingString("Indexer/Pos 2 Color",
+      ReportingLevel.COMPETITON);
 
   public enum BallColor {
     BLUE, RED, UNKNOWN
@@ -164,6 +168,7 @@ public class Indexer extends SubsystemBase {
     }
 
     lastColor = getDetectedColor();
-    System.out.println(stateController.getBallColorsString());
+    position1ColorReporting.set(stateController.getBallColors()[0].toString());
+    position2ColorReporting.set(stateController.getBallColors()[1].toString());
   }
 }

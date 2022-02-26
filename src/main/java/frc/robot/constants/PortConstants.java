@@ -46,5 +46,7 @@ public final class PortConstants {
     public static final int kickupIndexerBeamBreakPort = 8;
     public static final int indexerColorSensorPort = 2;
 
-
+    public static final int shooterLeaderPort = 15;
+    public static final int shooterFollowerPort = 16;
+    public static final int shooterFeedPort = 14;
 }
