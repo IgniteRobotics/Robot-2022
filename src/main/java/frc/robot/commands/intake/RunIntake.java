@@ -26,9 +26,6 @@ public class RunIntake extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (!intake.isExtended()) {
-      intake.extendIntake();
-    }
     if (this.direction){
       intake.spin(Intake.INTAKE_SPEED);
     } else {

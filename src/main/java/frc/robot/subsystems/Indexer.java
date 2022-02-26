@@ -1,9 +1,13 @@
 
 package frc.robot.subsystems;
 
+import java.util.Arrays;
+
 import com.igniterobotics.robotbase.preferences.DoublePreference;
 import com.igniterobotics.robotbase.reporting.ReportingBoolean;
 import com.igniterobotics.robotbase.reporting.ReportingLevel;
+import com.igniterobotics.robotbase.reporting.ReportingNumber;
+import com.igniterobotics.robotbase.reporting.ReportingString;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -14,14 +18,12 @@ import frc.robot.CargoStateController;
 import frc.robot.constants.PortConstants;
 //Color sensor stuff. We borrowed from willtoth on Github
 
-
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
 
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.I2C;
 import com.revrobotics.ColorSensorV3;
-
 
 public class Indexer extends SubsystemBase {
   private final DoublePreference indexerBeltSpeed = new DoublePreference("Indexer/Belt Speed");
@@ -34,9 +36,11 @@ public class Indexer extends SubsystemBase {
   private DigitalInput kickupIndexerBeamBreak;
   private final I2C.Port i2cPort = I2C.Port.kOnboard;
 
+  private BallColor lastColor;
+
   /**
-   * A Rev Color Sensor V3 object is constructed with an I2C port as a 
-   * parameter. The device will be automatically initialized with default 
+   * A Rev Color Sensor V3 object is constructed with an I2C port as a
+   * parameter. The device will be automatically initialized with default
    * parameters.
    */
   private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
@@ -44,8 +48,18 @@ public class Indexer extends SubsystemBase {
   private final Color kRedTarget = new Color(0.561, 0.232, 0.114);
   private final ColorMatch m_colorMatcher = new ColorMatch();
 
-  private final ReportingBoolean initalBeamBreakReporting = new ReportingBoolean("Indexer/Initial Beam (2nd pos)", ReportingLevel.COMPETITON);
-  private final ReportingBoolean kickupBeamBreakReporting = new ReportingBoolean("Indexer/Kickup Beam (1st pos)", ReportingLevel.COMPETITON);
+  private final ReportingBoolean initalBeamBreakReporting = new ReportingBoolean("Indexer/Initial Beam (2nd pos)",
+      ReportingLevel.COMPETITON);
+  private final ReportingBoolean kickupBeamBreakReporting = new ReportingBoolean("Indexer/Kickup Beam (1st pos)",
+      ReportingLevel.COMPETITON);
+  private final ReportingNumber proximityReporting = new ReportingNumber("Indexer/Color Proximity",
+      ReportingLevel.TEST);
+  private final ReportingString ballColorReporting = new ReportingString("Indexer/Ball Color",
+      ReportingLevel.COMPETITON);
+
+  public enum BallColor {
+    BLUE, RED, UNKNOWN
+  }
 
   public Indexer() {
     indexerMotor = new CANSparkMax(PortConstants.indexerMotorPort, MotorType.kBrushless);
@@ -54,7 +68,7 @@ public class Indexer extends SubsystemBase {
     kickupIndexerBeamBreak = new DigitalInput(PortConstants.kickupIndexerBeamBreakPort);
     m_colorMatcher.addColorMatch(kBlueTarget);
     m_colorMatcher.addColorMatch(kRedTarget);
-    //TODO:  invert the motors instead of negative power!
+    // TODO: invert the motors instead of negative power!
     indexerMotor.setInverted(false);
     indexerMotor.burnFlash();
 
@@ -64,13 +78,13 @@ public class Indexer extends SubsystemBase {
 
   public void indexBall() {
     CargoStateController stateController = CargoStateController.getInstance();
-    if(stateController.runFirstPosition()) {
+    if (stateController.runFirstPosition()) {
       advanceKickUp();
     } else {
       stopKickup();
     }
 
-    if(stateController.runSecondPosition()) {
+    if (stateController.runSecondPosition()) {
       advanceBelt();
     } else {
       stopBelt();
@@ -106,7 +120,8 @@ public class Indexer extends SubsystemBase {
     this.stopKickup();
   }
 
-  // Gets the value of the digital input.  Normally returns true if the circuit is open, but we negate it.
+  // Gets the value of the digital input. Normally returns true if the circuit is
+  // open, but we negate it.
   public boolean getInitialIndexerBeamBreak() {
     return !initialIndexerBeamBreak.get();
   }
@@ -115,28 +130,21 @@ public class Indexer extends SubsystemBase {
     return !kickupIndexerBeamBreak.get();
   }
 
-  public void colorsensorstuff()
-  {
+  public BallColor getDetectedColor() {
     Color detectedColor = m_colorSensor.getColor();
 
-    /**
-     * Run the color match algorithm on our detected color
-     */
-    String colorString;
+    BallColor ballColor = BallColor.UNKNOWN;
     ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
 
-    if (match.color == kBlueTarget) {
-      colorString = "Blue";
-    } else if (match.color == kRedTarget) {
-      colorString = "Red";
-    }  else {
-      colorString = "Unknown";
+    if (m_colorSensor.getProximity() >= 300) {
+      if (match.color == kBlueTarget) {
+        ballColor = BallColor.BLUE;
+      } else if (match.color == kRedTarget) {
+        ballColor = BallColor.RED;
+      }
     }
 
-    /**
-     * Open Smart Dashboard or Shuffleboard to see the color detected by the 
-     * sensor.
-     */
+    return ballColor;
   }
 
   @Override
@@ -147,5 +155,15 @@ public class Indexer extends SubsystemBase {
 
     initalBeamBreakReporting.set(getInitialIndexerBeamBreak());
     kickupBeamBreakReporting.set(getKickupIndexerBeamBreak());
+    ballColorReporting.set(getDetectedColor().toString());
+
+    proximityReporting.set((double) m_colorSensor.getProximity());
+
+    if(getDetectedColor() != BallColor.UNKNOWN && getDetectedColor() != lastColor) {
+      stateController.addBall(getDetectedColor());
+    }
+
+    lastColor = getDetectedColor();
+    System.out.println(stateController.getBallColorsString());
   }
 }

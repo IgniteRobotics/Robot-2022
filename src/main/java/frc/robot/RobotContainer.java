@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.drivetrain.ArcadeDrive;
@@ -15,6 +16,7 @@ import frc.robot.commands.indexer.RunIndexerBelts;
 import frc.robot.commands.intake.IndexBall;
 import frc.robot.commands.intake.RetractIntake;
 import frc.robot.commands.intake.RunIntake;
+import frc.robot.commands.intake.SetIntake;
 import frc.robot.constants.PortConstants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -35,15 +37,22 @@ public class RobotContainer {
 
   //subsystems
   // private Drivetrain m_driveTrain = new Drivetrain();
-  // private Intake m_intake = new Intake();
+  private Intake m_intake = new Intake();
   private Indexer m_indexer = new Indexer();
 
   //comands
   // private ArcadeDrive arcadeDriveCommand = new ArcadeDrive(m_driveController, m_driveTrain);
   // private RetractIntake retractIntakeCommand = new RetractIntake(m_intake);
 
-  // private RunIntake runIntakeCommand = new RunIntake(m_intake, true);
-  private IndexCargo indexCargoCommand = new IndexCargo(m_indexer);
+  private RunIntake runIntakeCommand = new RunIntake(m_intake, true);
+  private IndexBall indexBallCommand = new IndexBall(m_indexer);
+  private SetIntake updateIntake = new SetIntake(m_intake, () -> {
+    CargoStateController controller = CargoStateController.getInstance();
+    return controller.runFirstPosition() || controller.runSecondPosition();
+  });
+
+  private ParallelRaceGroup indexerIntakeGroup = new ParallelRaceGroup(indexBallCommand, runIntakeCommand);
+  // private IndexCargo indexCargoCommand = new IndexCargo(m_indexer);
 
   private JoystickButton btn_advanceIndexer = new JoystickButton(m_driveController, XboxController.Button.kA.value);
   private JoystickButton btn_retreatIndexer = new JoystickButton(m_driveController, XboxController.Button.kB.value);
@@ -64,10 +73,10 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    btn_retreatIndexer.whileHeld(new IndexBall(m_indexer));
+    btn_retreatIndexer.whileHeld(indexerIntakeGroup);
     btn_advanceIndexer.whileHeld(new RunIndexerBelts(m_indexer, false));
     //NOTE:  this is whenHeld so it runs once per hold
-    // btn_intakeCargo.whenHeld(runIntakeCommand.raceWith(indexCargoCommand));
+    btn_intakeCargo.whenHeld(updateIntake);
   }
 
   /**
