@@ -1,12 +1,16 @@
 
 package frc.robot.subsystems;
 
+import com.igniterobotics.robotbase.preferences.DoublePreference;
+import com.igniterobotics.robotbase.reporting.ReportingBoolean;
+import com.igniterobotics.robotbase.reporting.ReportingLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.CargoStateController;
 import frc.robot.constants.PortConstants;
 //Color sensor stuff. We borrowed from willtoth on Github
 
@@ -20,15 +24,9 @@ import com.revrobotics.ColorSensorV3;
 
 
 public class Indexer extends SubsystemBase {
+  private final DoublePreference indexerBeltSpeed = new DoublePreference("Indexer/Belt Speed");
+  private final DoublePreference indexerKickupSpeed = new DoublePreference("Indexer/Belt Speed");
 
-  ////////// Constants //////////
-  private static final double INDEXER_BELT_FWD_SPEED = -0.5;
-  private static final double INDEXER_BELT_REV_SPEED = 0.5;
-  private static final double INDEXER_KICKUP_FWD_SPEED = -0.5;
-  private static final double INDEXER_KICKUP_REV_SPEED = 0.5;
-
-
-  ////////// instance variables /////////
   private CANSparkMax indexerMotor;
   private CANSparkMax kickupMotor;
 
@@ -46,8 +44,10 @@ public class Indexer extends SubsystemBase {
   private final Color kRedTarget = new Color(0.561, 0.232, 0.114);
   private final ColorMatch m_colorMatcher = new ColorMatch();
 
-  public Indexer() {
+  private final ReportingBoolean initalBeamBreakReporting = new ReportingBoolean("Indexer/Initial Beam (2nd pos)", ReportingLevel.COMPETITON);
+  private final ReportingBoolean kickupBeamBreakReporting = new ReportingBoolean("Indexer/Kickup Beam (1st pos)", ReportingLevel.COMPETITON);
 
+  public Indexer() {
     indexerMotor = new CANSparkMax(PortConstants.indexerMotorPort, MotorType.kBrushless);
     kickupMotor = new CANSparkMax(PortConstants.indexerKickupMotorPort, MotorType.kBrushless);
     initialIndexerBeamBreak = new DigitalInput(PortConstants.initialIndexerBeamBreakPort);
@@ -62,12 +62,27 @@ public class Indexer extends SubsystemBase {
     kickupMotor.burnFlash();
   }
 
+  public void indexBall() {
+    CargoStateController stateController = CargoStateController.getInstance();
+    if(stateController.runFirstPosition()) {
+      advanceKickUp();
+    } else {
+      stopKickup();
+    }
+
+    if(stateController.runSecondPosition()) {
+      advanceBelt();
+    } else {
+      stopBelt();
+    }
+  }
+
   public void advanceBelt() {
-    indexerMotor.set(INDEXER_BELT_FWD_SPEED);
+    indexerMotor.set(-Math.abs(indexerBeltSpeed.getValue()));
   }
 
   public void retreatBelt() {
-    indexerMotor.set(INDEXER_BELT_REV_SPEED);
+    indexerMotor.set(Math.abs(indexerBeltSpeed.getValue()));
   }
 
   public void stopBelt() {
@@ -75,11 +90,11 @@ public class Indexer extends SubsystemBase {
   }
 
   public void advanceKickUp() {
-    kickupMotor.set(INDEXER_KICKUP_FWD_SPEED);
+    kickupMotor.set(-Math.abs(indexerKickupSpeed.getValue()));
   }
 
   public void retreatKickup() {
-    kickupMotor.set(INDEXER_KICKUP_REV_SPEED);
+    kickupMotor.set(Math.abs(indexerKickupSpeed.getValue()));
   }
 
   public void stopKickup() {
@@ -122,16 +137,15 @@ public class Indexer extends SubsystemBase {
      * Open Smart Dashboard or Shuffleboard to see the color detected by the 
      * sensor.
      */
-    SmartDashboard.putNumber("Red", detectedColor.red);
-    SmartDashboard.putNumber("Green", detectedColor.green);
-    SmartDashboard.putNumber("Blue", detectedColor.blue);
-    SmartDashboard.putNumber("Confidence", match.confidence);
-    SmartDashboard.putString("Detected Color", colorString);
   }
+
   @Override
   public void periodic() {
+    CargoStateController stateController = CargoStateController.getInstance();
+    stateController.setFirstPositionBreak(getKickupIndexerBeamBreak());
+    stateController.setSecondPositionBreak(getInitialIndexerBeamBreak());
 
-    SmartDashboard.putBoolean("Initial Indexer Sensor", this.getInitialIndexerBeamBreak());
-    SmartDashboard.putBoolean("Kickup Indexer Sensor", this.getKickupIndexerBeamBreak());
+    initalBeamBreakReporting.set(getInitialIndexerBeamBreak());
+    kickupBeamBreakReporting.set(getKickupIndexerBeamBreak());
   }
 }

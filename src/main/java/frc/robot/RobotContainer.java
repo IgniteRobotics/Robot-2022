@@ -12,6 +12,7 @@ import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.drivetrain.ArcadeDrive;
 import frc.robot.commands.indexer.IndexCargo;
 import frc.robot.commands.indexer.RunIndexerBelts;
+import frc.robot.commands.intake.IndexBall;
 import frc.robot.commands.intake.RetractIntake;
 import frc.robot.commands.intake.RunIntake;
 import frc.robot.constants.PortConstants;
@@ -33,15 +34,15 @@ public class RobotContainer {
   private XboxController m_driveController = new XboxController(PortConstants.DRIVER_CONTROLLER_PORT);
 
   //subsystems
-  private Drivetrain m_driveTrain = new Drivetrain();
-  private Intake m_intake = new Intake();
+  // private Drivetrain m_driveTrain = new Drivetrain();
+  // private Intake m_intake = new Intake();
   private Indexer m_indexer = new Indexer();
 
   //comands
-  private ArcadeDrive arcadeDriveCommand = new ArcadeDrive(m_driveController, m_driveTrain);
-  private RetractIntake retractIntakeCommand = new RetractIntake(m_intake);
+  // private ArcadeDrive arcadeDriveCommand = new ArcadeDrive(m_driveController, m_driveTrain);
+  // private RetractIntake retractIntakeCommand = new RetractIntake(m_intake);
 
-  private RunIntake runIntakeCommand = new RunIntake(m_intake, true);
+  // private RunIntake runIntakeCommand = new RunIntake(m_intake, true);
   private IndexCargo indexCargoCommand = new IndexCargo(m_indexer);
 
   private JoystickButton btn_advanceIndexer = new JoystickButton(m_driveController, XboxController.Button.kA.value);
@@ -63,18 +64,18 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    btn_retreatIndexer.whileHeld(new RunIndexerBelts(m_indexer, false));
-    btn_advanceIndexer.whileHeld(new RunIndexerBelts(m_indexer, true));
+    btn_retreatIndexer.whileHeld(new IndexBall(m_indexer));
+    btn_advanceIndexer.whileHeld(new RunIndexerBelts(m_indexer, false));
     //NOTE:  this is whenHeld so it runs once per hold
-    btn_intakeCargo.whenHeld(runIntakeCommand.raceWith(indexCargoCommand));
+    // btn_intakeCargo.whenHeld(runIntakeCommand.raceWith(indexCargoCommand));
   }
 
   /**
    * Use this method to configure default commands for subsystems
    */
   private void configureSubsystemCommands() {
-    m_driveTrain.setDefaultCommand(arcadeDriveCommand);
-    m_intake.setDefaultCommand(retractIntakeCommand);
+    // m_driveTrain.setDefaultCommand(arcadeDriveCommand);
+    // m_intake.setDefaultCommand(retractIntakeCommand);
   }
 
   /**

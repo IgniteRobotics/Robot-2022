@@ -42,8 +42,8 @@ public final class PortConstants {
  
     //Indexer sensor ports
     //TODO: set IDs
-    public static final int initialIndexerBeamBreakPort = 0;
-    public static final int kickupIndexerBeamBreakPort = 1;
+    public static final int initialIndexerBeamBreakPort = 9;
+    public static final int kickupIndexerBeamBreakPort = 8;
     public static final int indexerColorSensorPort = 2;
 
 
