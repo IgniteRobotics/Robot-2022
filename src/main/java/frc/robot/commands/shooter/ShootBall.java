@@ -5,19 +5,18 @@
 package frc.robot.commands.shooter;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.RobotStateController;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Shooter;
 
 public class ShootBall extends CommandBase {
   private Shooter shooter;
-  private Indexer indexer;
 
   /** Creates a new ShootBall. */
-  public ShootBall(Shooter shooter, Indexer indexer) {
+  public ShootBall(Shooter shooter) {
     this.shooter = shooter;
-    this.indexer = indexer;
 
-    addRequirements(shooter, indexer);
+    addRequirements(shooter);
   }
 
   // Called when the command is initially scheduled.
@@ -29,16 +28,13 @@ public class ShootBall extends CommandBase {
   public void execute() {
     shooter.runFeed();
     shooter.runShooter();
-
-    indexer.advanceBelt();
-    indexer.advanceKickUp();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     shooter.stop();
-    indexer.stopAll();
+    RobotStateController.getInstance().Reset();
   }
 
   // Returns true when the command should end.

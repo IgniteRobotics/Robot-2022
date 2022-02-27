@@ -7,6 +7,10 @@
 
 package frc.robot.subsystems;
 
+import com.igniterobotics.robotbase.preferences.DoublePreference;
+import com.igniterobotics.robotbase.reporting.ReportingBoolean;
+import com.igniterobotics.robotbase.reporting.ReportingLevel;
+import com.igniterobotics.robotbase.reporting.ReportingNumber;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -17,13 +21,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.PortConstants;
 
 public class Intake extends SubsystemBase {
-    public static final double INTAKE_SPEED = -0.5;
-    public static final double OUTTAKE_SPEED = 0.5;
+    private final DoublePreference intakeSpeed = new DoublePreference("Intake Speed");
 
     private final CANSparkMax intakeMotor;
     private DoubleSolenoid intakePistonSolenoid;
 
     private boolean isExtended;
+
+    private final ReportingBoolean extendedReporting = new ReportingBoolean("Intake Extended", ReportingLevel.TEST);
 
     /**
      * Creates a new Intake.
@@ -36,7 +41,7 @@ public class Intake extends SubsystemBase {
 
         isExtended = false;
 
-        intakePistonSolenoid = new DoubleSolenoid(44, PneumaticsModuleType.CTREPCM,
+        intakePistonSolenoid = new DoubleSolenoid(21, PneumaticsModuleType.REVPH,
                 PortConstants.kIntakeSolenoidForwardPort, PortConstants.kIntakeSolenoidReversePort);
 
     }
@@ -44,13 +49,15 @@ public class Intake extends SubsystemBase {
     public void extendIntake() {
         isExtended = true;
         // retracting the piston actually extends the intake!
-        intakePistonSolenoid.set(Value.kReverse);
+        extendedReporting.set(isExtended);
+        intakePistonSolenoid.set(Value.kForward);
     }
 
     public void retractIntake() {
         isExtended = false;
+        extendedReporting.set(isExtended);
         // extending the piston actually retracts the intake!
-        intakePistonSolenoid.set(Value.kForward);
+        intakePistonSolenoid.set(Value.kReverse);
     }
     // idk what that means haha
 
@@ -68,7 +75,7 @@ public class Intake extends SubsystemBase {
     }
 
     public void spin() {
-        this.spin(INTAKE_SPEED);
+        this.spin(-Math.abs(intakeSpeed.getValue()));
     }
 
     public void stop() {
@@ -77,6 +84,7 @@ public class Intake extends SubsystemBase {
     }
 
     public boolean isExtended() {
+        extendedReporting.set(isExtended);
         return isExtended;
     }
 

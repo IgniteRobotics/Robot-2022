@@ -14,7 +14,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.CargoStateController;
+import frc.robot.RobotStateController;
 import frc.robot.constants.PortConstants;
 //Color sensor stuff. We borrowed from willtoth on Github
 
@@ -27,7 +27,7 @@ import com.revrobotics.ColorSensorV3;
 
 public class Indexer extends SubsystemBase {
   private final DoublePreference indexerBeltSpeed = new DoublePreference("Indexer/Belt Speed");
-  private final DoublePreference indexerKickupSpeed = new DoublePreference("Indexer/Belt Speed");
+  private final DoublePreference indexerKickupSpeed = new DoublePreference("Indexer/Kickup Speed");
 
   private CANSparkMax indexerMotor;
   private CANSparkMax kickupMotor;
@@ -37,6 +37,7 @@ public class Indexer extends SubsystemBase {
   private final I2C.Port i2cPort = I2C.Port.kOnboard;
 
   private BallColor lastColor;
+  private RobotStateController stateController;
 
   /**
    * A Rev Color Sensor V3 object is constructed with an I2C port as a
@@ -66,6 +67,9 @@ public class Indexer extends SubsystemBase {
   }
 
   public Indexer() {
+
+    stateController = RobotStateController.getInstance();
+
     indexerMotor = new CANSparkMax(PortConstants.indexerMotorPort, MotorType.kBrushless);
     kickupMotor = new CANSparkMax(PortConstants.indexerKickupMotorPort, MotorType.kBrushless);
     initialIndexerBeamBreak = new DigitalInput(PortConstants.initialIndexerBeamBreakPort);
@@ -78,21 +82,29 @@ public class Indexer extends SubsystemBase {
 
     kickupMotor.setInverted(false);
     kickupMotor.burnFlash();
+    position1ColorReporting.set(stateController.FirstPositionColor().toString());
+    position2ColorReporting.set(stateController.SecondPositionColor().toString());
   }
 
   public void indexBall() {
-    CargoStateController stateController = CargoStateController.getInstance();
-    if (stateController.runFirstPosition()) {
+    
+    if (!getKickupIndexerBeamBreak()) {
       advanceKickUp();
-    } else {
-      stopKickup();
-    }
-
-    if (stateController.runSecondPosition()) {
       advanceBelt();
     } else {
-      stopBelt();
+      stopKickup();
+      if (!getInitialIndexerBeamBreak()) {
+        advanceBelt();
+      } else {
+        stopBelt();
+      }
     }
+
+    // if (!getInitialIndexerBeamBreak() && !getKickupIndexerBeamBreak()) {
+    //   advanceBelt();
+    // } else {
+    //   stopBelt();
+    // }
   }
 
   public void advanceBelt() {
@@ -153,9 +165,9 @@ public class Indexer extends SubsystemBase {
 
   @Override
   public void periodic() {
-    CargoStateController stateController = CargoStateController.getInstance();
-    stateController.setFirstPositionBreak(getKickupIndexerBeamBreak());
-    stateController.setSecondPositionBreak(getInitialIndexerBeamBreak());
+    RobotStateController stateController = RobotStateController.getInstance();
+    //stateController.setFirstPositionBreak(getKickupIndexerBeamBreak());
+    //stateController.setSecondPositionBreak(getInitialIndexerBeamBreak());
 
     initalBeamBreakReporting.set(getInitialIndexerBeamBreak());
     kickupBeamBreakReporting.set(getKickupIndexerBeamBreak());
@@ -164,11 +176,12 @@ public class Indexer extends SubsystemBase {
     proximityReporting.set((double) m_colorSensor.getProximity());
 
     if(getDetectedColor() != BallColor.UNKNOWN && getDetectedColor() != lastColor) {
-      stateController.addBall(getDetectedColor());
+      //stateController.addBall(getDetectedColor());
+      stateController.AddCargo(getDetectedColor());
     }
 
     lastColor = getDetectedColor();
-    position1ColorReporting.set(stateController.getBallColors()[0].toString());
-    position2ColorReporting.set(stateController.getBallColors()[1].toString());
+    position1ColorReporting.set(stateController.FirstPositionColor().toString());
+    position2ColorReporting.set(stateController.SecondPositionColor().toString());
   }
 }

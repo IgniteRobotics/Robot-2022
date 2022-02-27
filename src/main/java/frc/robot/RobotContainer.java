@@ -7,11 +7,14 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.drivetrain.ArcadeDrive;
-import frc.robot.commands.indexer.IndexCargo;
+import frc.robot.commands.indexer.RunIndexerAndKickup;
 import frc.robot.commands.indexer.RunIndexerBelts;
 import frc.robot.commands.intake.IndexBall;
 import frc.robot.commands.intake.RetractIntake;
@@ -46,22 +49,19 @@ public class RobotContainer {
   //comands
   // private ArcadeDrive arcadeDriveCommand = new ArcadeDrive(m_driveController, m_driveTrain);
   // private RetractIntake retractIntakeCommand = new RetractIntake(m_intake);
-
+  RobotStateController controller = RobotStateController.getInstance();
   private RunIntake runIntakeCommand = new RunIntake(m_intake, true);
   private IndexBall indexBallCommand = new IndexBall(m_indexer);
-  private SetIntake updateIntake = new SetIntake(m_intake, () -> {
-    CargoStateController controller = CargoStateController.getInstance();
-    return controller.runFirstPosition() || controller.runSecondPosition();
-  });
 
-  private ShootBall shootBallCommand = new ShootBall(m_shooter, m_indexer);
+  private ShootBall shootBallCommand = new ShootBall(m_shooter);
 
-  private ParallelRaceGroup indexerIntakeGroup = new ParallelRaceGroup(indexBallCommand, runIntakeCommand);
-  // private IndexCargo indexCargoCommand = new IndexCargo(m_indexer);
+  private ParallelRaceGroup indexerIntakeGroup = new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake, true));
+  private ParallelRaceGroup shootGroup = new ParallelRaceGroup(new SequentialCommandGroup(new WaitCommand(0.25), new RunIndexerAndKickup(m_indexer, true)), new ShootBall(m_shooter).withTimeout(1.75));
 
   private JoystickButton btn_driveA = new JoystickButton(m_driveController, XboxController.Button.kA.value);
   private JoystickButton btn_driveB = new JoystickButton(m_driveController, XboxController.Button.kB.value);
   private JoystickButton btn_driveX = new JoystickButton(m_driveController, XboxController.Button.kX.value);
+  private JoystickButton bumper_driveR = new JoystickButton(m_driveController, XboxController.Button.kRightBumper.value);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -78,8 +78,9 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    btn_driveX.whileHeld(indexerIntakeGroup);
+    bumper_driveR.whileHeld(indexerIntakeGroup, true);
     btn_driveA.whileHeld(shootBallCommand);
+    btn_driveB.whenHeld(shootGroup);
   }
 
   /**

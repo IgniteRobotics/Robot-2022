@@ -2,22 +2,19 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.intake;
+package frc.robot.commands.indexer;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.RobotStateController;
 import frc.robot.subsystems.Indexer;
-import frc.robot.subsystems.Intake;
 
-public class IndexBall extends CommandBase {
-  private Indexer indexer;
-  private RobotStateController robotState = RobotStateController.getInstance();
-  
+public class RunIndexerAndKickup extends CommandBase {
+  private final Indexer indexer;
+  private final boolean advance;
 
-
-  /** Creates a new IntakeBall. */
-  public IndexBall(Indexer indexer) {
+  /** Creates a new RunIndexerBelts. */
+  public RunIndexerAndKickup(Indexer indexer, boolean advance) {
     this.indexer = indexer;
+    this.advance = advance;
 
     addRequirements(indexer);
     // Use addRequirements() here to declare subsystem dependencies.
@@ -25,23 +22,31 @@ public class IndexBall extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    indexer.indexBall();
+    if (advance) {
+      indexer.advanceBelt();
+      indexer.advanceKickUp();
+    } else {
+      indexer.retreatBelt();
+      indexer.retreatKickup();
+    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    indexer.stopAll();
+    indexer.stopBelt();
+    indexer.stopKickup();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return robotState.IsIndexerFull();
+    return false;
   }
 }
