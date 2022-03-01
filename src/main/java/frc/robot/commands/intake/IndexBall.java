@@ -7,7 +7,6 @@ package frc.robot.commands.intake;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotStateController;
 import frc.robot.subsystems.Indexer;
-import frc.robot.subsystems.Intake;
 
 public class IndexBall extends CommandBase {
   private Indexer indexer;

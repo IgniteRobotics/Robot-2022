@@ -10,7 +10,6 @@ package frc.robot.subsystems;
 import com.igniterobotics.robotbase.preferences.DoublePreference;
 import com.igniterobotics.robotbase.reporting.ReportingBoolean;
 import com.igniterobotics.robotbase.reporting.ReportingLevel;
-import com.igniterobotics.robotbase.reporting.ReportingNumber;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMax.IdleMode;

@@ -4,11 +4,6 @@
 
 package frc.robot.commands.intake;
 
-import javax.swing.text.StyledEditorKit.BoldAction;
-
-import com.igniterobotics.robotbase.reporting.ReportingBoolean;
-import com.igniterobotics.robotbase.reporting.ReportingLevel;
-import com.igniterobotics.robotbase.reporting.ReportingString;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotStateController;
