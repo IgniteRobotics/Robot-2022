@@ -1,8 +1,6 @@
 
 package frc.robot.subsystems;
 
-import java.util.Arrays;
-
 import com.igniterobotics.robotbase.preferences.DoublePreference;
 import com.igniterobotics.robotbase.reporting.ReportingBoolean;
 import com.igniterobotics.robotbase.reporting.ReportingLevel;
@@ -12,7 +10,6 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotStateController;
 import frc.robot.constants.PortConstants;

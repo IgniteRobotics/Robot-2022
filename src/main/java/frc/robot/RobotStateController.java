@@ -3,8 +3,6 @@ package frc.robot;
 import com.igniterobotics.robotbase.reporting.ReportingLevel;
 import com.igniterobotics.robotbase.reporting.ReportingString;
 
-import org.opencv.ml.EM;
-
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.BallColor;
 
@@ -33,7 +31,7 @@ public class RobotStateController {
     private Indexer.BallColor[] heldCargo = { BallColor.UNKNOWN, BallColor.UNKNOWN };
 
     // Color of alliance to know if the cargo in First Position can be shoot when we try to score.
-    private Indexer.BallColor allianceColor = BallColor.BLUE;
+    //private Indexer.BallColor allianceColor = BallColor.BLUE;
 
     private static RobotStateController _instance = new RobotStateController();
 

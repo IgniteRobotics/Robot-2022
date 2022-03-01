@@ -13,15 +13,12 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
 
 public class ArcadeDrive extends CommandBase { //TODO Figure out how to make a button trigger slow mode
     private DoublePreference turnMultiplier = new DoublePreference("Turn Multiplier", 0.844);
     private Drivetrain m_driveTrain = null;
     private XboxController driverController = null;
 
-    private boolean isSlowMode = false; //Figure out a button for this.
     private boolean isReversed = false;
 
     /**
