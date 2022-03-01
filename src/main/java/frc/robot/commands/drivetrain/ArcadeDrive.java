@@ -7,6 +7,8 @@
 
 package frc.robot.commands.drivetrain;
 
+import com.igniterobotics.robotbase.preferences.DoublePreference;
+
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -15,7 +17,7 @@ import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 
 public class ArcadeDrive extends CommandBase { //TODO Figure out how to make a button trigger slow mode
-
+    private DoublePreference turnMultiplier = new DoublePreference("Turn Multiplier", 0.844);
     private Drivetrain m_driveTrain = null;
     private XboxController driverController = null;
 
@@ -57,7 +59,7 @@ public class ArcadeDrive extends CommandBase { //TODO Figure out how to make a b
         // if(m_driveTrain.isSlowMode) {
         //   rotation *= Constants.SLOW_MODE_SPEED_MODIFIER;
         // }
-        return rotation;
+        return rotation * turnMultiplier.getValue();
     }
 
 

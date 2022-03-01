@@ -93,6 +93,8 @@ public class Drivetrain extends SubsystemBase {
 
         leftLeader.configFactoryDefault();
         rightLeader.configFactoryDefault();
+        leftFollower.configFactoryDefault();
+        rightFollower.configFactoryDefault();
 
         TalonFXConfiguration talonConfig = new TalonFXConfiguration();
         talonConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
