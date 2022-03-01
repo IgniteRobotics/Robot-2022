@@ -166,8 +166,8 @@ public class Indexer extends SubsystemBase {
   @Override
   public void periodic() {
     RobotStateController stateController = RobotStateController.getInstance();
-    //stateController.setFirstPositionBreak(getKickupIndexerBeamBreak());
-    //stateController.setSecondPositionBreak(getInitialIndexerBeamBreak());
+    stateController.setFirstPositionBreak(getKickupIndexerBeamBreak());
+    stateController.setSecondPositionBreak(getInitialIndexerBeamBreak());
 
     initalBeamBreakReporting.set(getInitialIndexerBeamBreak());
     kickupBeamBreakReporting.set(getKickupIndexerBeamBreak());

@@ -3,12 +3,18 @@ package frc.robot;
 import com.igniterobotics.robotbase.reporting.ReportingLevel;
 import com.igniterobotics.robotbase.reporting.ReportingString;
 
+import org.opencv.ml.EM;
+
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.BallColor;
 
 public class RobotStateController {
-    // private boolean firstPositionBreak = false;
-    // private boolean secondPositionBreak = false;
+    public static final char EMPTY = 1 << 0;
+    public static final char POS1 = 1 << 1;
+    public static final char POS2 = 1 << 2;
+
+    private boolean firstPositionBreak = false;
+    private boolean secondPositionBreak = false;
 
     // private Indexer.BallColor[] ballColors = { BallColor.UNKNOWN, BallColor.UNKNOWN };
 
@@ -35,16 +41,17 @@ public class RobotStateController {
 
     }
 
-    
     public void Reset() {
         heldCargo[0] = BallColor.UNKNOWN;
         heldCargo[1] = BallColor.UNKNOWN;
     }
+
     public boolean IsIndexerFull() {
-        if (heldCargo[1] == BallColor.UNKNOWN)
-            return false;
-        else
-            return true;
+        return firstPositionBreak && secondPositionBreak;
+    }
+
+    public boolean isEmpty() {
+        return heldCargo[1] == BallColor.UNKNOWN;
     }
 
     //When indexer gets a new cargo, in first position if possible, otherwise add to second position
@@ -92,13 +99,17 @@ public class RobotStateController {
     //     return !firstPositionBreak || !secondPositionBreak;
     // }
 
-    // public void setFirstPositionBreak(boolean broken) {
-    //     this.firstPositionBreak = broken;
-    // }
+    public void setFirstPositionBreak(boolean broken) {
+        this.firstPositionBreak = broken;
+    }
 
-    // public void setSecondPositionBreak(boolean broken) {
-    //     this.secondPositionBreak = broken;
-    // }
+    public void setSecondPositionBreak(boolean broken) {
+        this.secondPositionBreak = broken;
+    }
+
+    public boolean isBreaksClear() {
+        return !firstPositionBreak && !secondPositionBreak;
+    }
 
     // public void addBall(BallColor ballColor) {
     //     if (ballColors[1] != BallColor.UNKNOWN && ballColors[0] != BallColor.UNKNOWN) {

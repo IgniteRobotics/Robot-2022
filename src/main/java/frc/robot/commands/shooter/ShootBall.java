@@ -11,6 +11,7 @@ import frc.robot.subsystems.Shooter;
 
 public class ShootBall extends CommandBase {
   private Shooter shooter;
+  private int emptyFrames = 0;
 
   /** Creates a new ShootBall. */
   public ShootBall(Shooter shooter) {
@@ -21,13 +22,21 @@ public class ShootBall extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    emptyFrames = 0;
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     shooter.runFeed();
     shooter.runShooter();
+
+    if(RobotStateController.getInstance().isBreaksClear()) {
+      emptyFrames++;
+    } else {
+      emptyFrames = 0;
+    }
   }
 
   // Called once the command ends or is interrupted.

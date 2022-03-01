@@ -32,8 +32,8 @@ public final class PortConstants {
     public static final int driveTrainLeftLeaderPort = 2;
     public static final int driveTrainLeftFollowerPort = 4;
     
-    public static final int driveTrainRightLeaderPort = 1;
-    public static final int driveTrainRightFollowerPort = 3;
+    public static final int driveTrainRightLeaderPort = 3;
+    public static final int driveTrainRightFollowerPort = 1;
 
     //Indexer Motors
     //TODO: set IDs

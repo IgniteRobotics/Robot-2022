@@ -41,13 +41,13 @@ public class RobotContainer {
   private XboxController m_driveController = new XboxController(PortConstants.DRIVER_CONTROLLER_PORT);
 
   //subsystems
-  // private Drivetrain m_driveTrain = new Drivetrain();
+  private Drivetrain m_driveTrain = new Drivetrain();
   private Intake m_intake = new Intake();
   private Indexer m_indexer = new Indexer();
   private Shooter m_shooter = new Shooter();
 
   //comands
-  // private ArcadeDrive arcadeDriveCommand = new ArcadeDrive(m_driveController, m_driveTrain);
+  private ArcadeDrive arcadeDriveCommand = new ArcadeDrive(m_driveController, m_driveTrain);
   // private RetractIntake retractIntakeCommand = new RetractIntake(m_intake);
   RobotStateController controller = RobotStateController.getInstance();
   private RunIntake runIntakeCommand = new RunIntake(m_intake, true);
@@ -56,12 +56,13 @@ public class RobotContainer {
   private ShootBall shootBallCommand = new ShootBall(m_shooter);
 
   private ParallelRaceGroup indexerIntakeGroup = new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake, true));
-  private ParallelRaceGroup shootGroup = new ParallelRaceGroup(new SequentialCommandGroup(new WaitCommand(0.25), new RunIndexerAndKickup(m_indexer, true)), new ShootBall(m_shooter).withTimeout(1.75));
+  private ParallelRaceGroup shootGroup = new ParallelRaceGroup(new SequentialCommandGroup(new WaitCommand(0.25), new RunIndexerAndKickup(m_indexer, true)), new ShootBall(m_shooter).withTimeout(1.5));
 
   private JoystickButton btn_driveA = new JoystickButton(m_driveController, XboxController.Button.kA.value);
   private JoystickButton btn_driveB = new JoystickButton(m_driveController, XboxController.Button.kB.value);
   private JoystickButton btn_driveX = new JoystickButton(m_driveController, XboxController.Button.kX.value);
-  private JoystickButton bumper_driveR = new JoystickButton(m_driveController, XboxController.Button.kRightBumper.value);
+  private JoystickButton bumper_driveR = new JoystickButton(m_driveController, XboxController.Button.kRightBumper.value);   
+  private JoystickButton bumper_driveL = new JoystickButton(m_driveController, XboxController.Button.kLeftBumper.value);   
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -79,6 +80,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     bumper_driveR.whileHeld(indexerIntakeGroup, true);
+    bumper_driveL.whileHeld(new RunIntake(m_intake, false));
     btn_driveA.whileHeld(shootBallCommand);
     btn_driveB.whenHeld(shootGroup);
   }
@@ -87,7 +89,7 @@ public class RobotContainer {
    * Use this method to configure default commands for subsystems
    */
   private void configureSubsystemCommands() {
-    // m_driveTrain.setDefaultCommand(arcadeDriveCommand);
+    m_driveTrain.setDefaultCommand(arcadeDriveCommand);
     // m_intake.setDefaultCommand(retractIntakeCommand);
   }
 
