@@ -144,12 +144,12 @@ public class Indexer extends SubsystemBase {
   }
 
   public BallColor getDetectedColor() {
-    Color detectedColor = m_colorSensor.getColor();
 
     BallColor ballColor = BallColor.UNKNOWN;
-    ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
 
     if (m_colorSensor.getProximity() >= 300) {
+      Color detectedColor = m_colorSensor.getColor();
+      ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
       if (match.color == kBlueTarget) {
         ballColor = BallColor.BLUE;
       } else if (match.color == kRedTarget) {
@@ -160,6 +160,22 @@ public class Indexer extends SubsystemBase {
     return ballColor;
   }
 
+  public void updateColorInfo() {
+    BallColor color = getDetectedColor();
+    ballColorReporting.set(color.toString());
+
+    proximityReporting.set((double) m_colorSensor.getProximity());
+
+    if(color != BallColor.UNKNOWN && color != lastColor) {
+      //stateController.addBall(getDetectedColor());
+      stateController.AddCargo(color);
+    }
+
+    lastColor = color;
+    position1ColorReporting.set(stateController.FirstPositionColor().toString());
+    position2ColorReporting.set(stateController.SecondPositionColor().toString());
+  }
+
   @Override
   public void periodic() {
     RobotStateController stateController = RobotStateController.getInstance();
@@ -168,17 +184,6 @@ public class Indexer extends SubsystemBase {
 
     initalBeamBreakReporting.set(getInitialIndexerBeamBreak());
     kickupBeamBreakReporting.set(getKickupIndexerBeamBreak());
-    ballColorReporting.set(getDetectedColor().toString());
-
-    proximityReporting.set((double) m_colorSensor.getProximity());
-
-    if(getDetectedColor() != BallColor.UNKNOWN && getDetectedColor() != lastColor) {
-      //stateController.addBall(getDetectedColor());
-      stateController.AddCargo(getDetectedColor());
-    }
-
-    lastColor = getDetectedColor();
-    position1ColorReporting.set(stateController.FirstPositionColor().toString());
-    position2ColorReporting.set(stateController.SecondPositionColor().toString());
+    
   }
 }

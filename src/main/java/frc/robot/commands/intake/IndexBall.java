@@ -30,6 +30,7 @@ public class IndexBall extends CommandBase {
   @Override
   public void execute() {
     indexer.indexBall();
+    indexer.updateColorInfo();
   }
 
   // Called once the command ends or is interrupted.
