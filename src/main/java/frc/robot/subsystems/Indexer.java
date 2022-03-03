@@ -79,8 +79,8 @@ public class Indexer extends SubsystemBase {
 
     kickupMotor.setInverted(false);
     kickupMotor.burnFlash();
-    position1ColorReporting.set(stateController.FirstPositionColor().toString());
-    position2ColorReporting.set(stateController.SecondPositionColor().toString());
+    position1ColorReporting.set(stateController.getFirstPositionColor().toString());
+    position2ColorReporting.set(stateController.getSecondPositionColor().toString());
   }
 
   public void indexBall() {
@@ -168,12 +168,12 @@ public class Indexer extends SubsystemBase {
 
     if(color != BallColor.UNKNOWN && color != lastColor) {
       //stateController.addBall(getDetectedColor());
-      stateController.AddCargo(color);
+      stateController.addCargo(color);
     }
 
     lastColor = color;
-    position1ColorReporting.set(stateController.FirstPositionColor().toString());
-    position2ColorReporting.set(stateController.SecondPositionColor().toString());
+    position1ColorReporting.set(stateController.getFirstPositionColor().toString());
+    position2ColorReporting.set(stateController.getSecondPositionColor().toString());
   }
 
   @Override

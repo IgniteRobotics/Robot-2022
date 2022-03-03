@@ -59,7 +59,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     RobotStateController robotState = RobotStateController.getInstance();
-    robotState.Reset();
+    robotState.reset();
   }
 
   @Override

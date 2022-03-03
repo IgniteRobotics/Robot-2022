@@ -44,7 +44,7 @@ public class RunIntake extends CommandBase {
   @Override
   public void execute() {
 
-    if (robotState.IsIndexerFull()) {
+    if (robotState.isIndexerFull()) {
       return;
     } else {
       if (!intake.isExtended()) {
