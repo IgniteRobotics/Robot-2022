@@ -5,11 +5,14 @@
 package frc.robot.commands.indexer;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.RobotStateController;
 import frc.robot.subsystems.Indexer;
 
 public class RunIndexerAndKickup extends CommandBase {
   private final Indexer indexer;
   private final boolean advance;
+
+  private RobotStateController robotState = RobotStateController.getInstance();
 
   /** Creates a new RunIndexerBelts. */
   public RunIndexerAndKickup(Indexer indexer, boolean advance) {
@@ -47,6 +50,6 @@ public class RunIndexerAndKickup extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return robotState.isIndexerEmpty();
   }
 }

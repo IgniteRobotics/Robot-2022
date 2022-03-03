@@ -49,7 +49,9 @@ public class RobotStateController {
     }
 
     public boolean isIndexerEmpty() {
-        return heldCargo[1] == BallColor.UNKNOWN;
+        //return heldCargo[1] == BallColor.UNKNOWN;
+        //changing to use just beam breaks for now until the color sensor is proven.
+        return firstPositionBreak && secondPositionBreak;
     }
 
     //When indexer gets a new cargo, in first position if possible, otherwise add to second position
