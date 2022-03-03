@@ -42,7 +42,7 @@ public class ShootBall extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     shooter.stop();
-    RobotStateController.getInstance().Reset();
+    RobotStateController.getInstance().reset();
   }
 
   // Returns true when the command should end.

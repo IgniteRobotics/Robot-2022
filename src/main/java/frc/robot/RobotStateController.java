@@ -39,21 +39,23 @@ public class RobotStateController {
 
     }
 
-    public void Reset() {
+    public void reset() {
         heldCargo[0] = BallColor.UNKNOWN;
         heldCargo[1] = BallColor.UNKNOWN;
     }
 
-    public boolean IsIndexerFull() {
+    public boolean isIndexerFull() {
         return firstPositionBreak && secondPositionBreak;
     }
 
-    public boolean isEmpty() {
-        return heldCargo[1] == BallColor.UNKNOWN;
+    public boolean isIndexerEmpty() {
+        //return heldCargo[1] == BallColor.UNKNOWN;
+        //changing to use just beam breaks for now until the color sensor is proven.
+        return !firstPositionBreak && !secondPositionBreak;
     }
 
     //When indexer gets a new cargo, in first position if possible, otherwise add to second position
-    public void AddCargo(BallColor ballColor)
+    public void addCargo(BallColor ballColor)
     {
         if (heldCargo[0] == BallColor.UNKNOWN) {
             stateReporting.set("Setting 0");
@@ -66,17 +68,17 @@ public class RobotStateController {
     }
 
     //When shooting, advancing cargo will remove first positition and move the second potion into the first position
-    public void AdvanceCargo() {
+    public void advanceCargo() {
         heldCargo[0] = heldCargo[1];
         heldCargo[1] = BallColor.UNKNOWN;
         
     }
     
-    public BallColor FirstPositionColor() {
+    public BallColor getFirstPositionColor() {
         return heldCargo[0];
     }
 
-    public BallColor SecondPositionColor() {
+    public BallColor getSecondPositionColor() {
         return heldCargo[1];
     }
 
