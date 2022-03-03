@@ -50,9 +50,12 @@ public class RobotContainer {
   private IndexBall indexBallCommand = new IndexBall(m_indexer);
 
   private ShootBall shootBallCommand = new ShootBall(m_shooter);
-
+  //command group that runs the indexer and the intake until the indexer is full.
   private ParallelRaceGroup indexerIntakeGroup = new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake, true));
-  private ParallelRaceGroup shootGroup = new ParallelRaceGroup(new SequentialCommandGroup(new WaitCommand(0.25), new RunIndexerAndKickup(m_indexer, true)), new ShootBall(m_shooter).withTimeout(1.5));
+  //command group to feed the shooter.  ends 500ms after the indexer is empty.
+  private SequentialCommandGroup feedShooterGroup = new SequentialCommandGroup(new WaitCommand(0.25), new RunIndexerAndKickup(m_indexer, true), new WaitCommand(0.5));
+  //command group to shoot.  ends either when the shooter is done, or the indexer is empty
+  private ParallelRaceGroup shootGroup = new ParallelRaceGroup(feedShooterGroup, new ShootBall(m_shooter).withTimeout(1.5));
 
   private JoystickButton btn_driveA = new JoystickButton(m_driveController, XboxController.Button.kA.value);
   private JoystickButton btn_driveB = new JoystickButton(m_driveController, XboxController.Button.kB.value);
