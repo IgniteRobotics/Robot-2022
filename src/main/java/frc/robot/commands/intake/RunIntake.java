@@ -43,14 +43,13 @@ public class RunIntake extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
     if (robotState.isIndexerFull()) {
       return;
     } else {
       if (!intake.isExtended()) {
         intake.extendIntake();
       }
-
+      
       intake.spin();
     }
     // if (this.direction){

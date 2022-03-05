@@ -77,6 +77,10 @@ public class Intake extends SubsystemBase {
         this.spin(-Math.abs(intakeSpeed.getValue()));
     }
 
+    public void outtake() {
+        this.spin(Math.abs(intakeSpeed.getValue()));
+    }
+
     public void stop() {
         intakeMotor.set(0);
         this.retractIntake();

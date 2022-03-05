@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.igniterobotics.robotbase.preferences.DoublePreference;
+import com.igniterobotics.robotbase.reporting.ReportingBoolean;
 import com.igniterobotics.robotbase.reporting.ReportingLevel;
 import com.igniterobotics.robotbase.reporting.ReportingNumber;
 import com.revrobotics.CANSparkMax;
@@ -18,6 +19,7 @@ import frc.robot.constants.PortConstants;
 
 public class Shooter extends SubsystemBase {
   private final DoublePreference shooterFeedEffort = new DoublePreference("Shooter Feed Effort");
+  private final ReportingBoolean isSetpointMet = new ReportingBoolean("Setpoint Met", ReportingLevel.COMPETITON);
   private final ReportingNumber shooterVelocityReporter = new ReportingNumber("Shooter Actual Velocity", ReportingLevel.COMPETITON);
   private final ReportingNumber shooterCurrent = new ReportingNumber("Shooter Current", ReportingLevel.COMPETITON);
 
@@ -67,6 +69,7 @@ public class Shooter extends SubsystemBase {
   public void periodic() {
     shooterVelocityReporter.set(leaderMotor.getSelectedSensorVelocity());
     shooterCurrent.set(leaderMotor.getSupplyCurrent());
+    isSetpointMet.set(isSetpointMet());
   }
 
   public boolean isSetpointMet() {

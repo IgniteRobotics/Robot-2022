@@ -19,6 +19,7 @@ import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.drivetrain.ArcadeDrive;
 import frc.robot.commands.indexer.IndexBall;
 import frc.robot.commands.indexer.RunIndexerAndKickup;
+import frc.robot.commands.intake.OuttakeIntake;
 import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.shooter.RunTurret;
 import frc.robot.commands.shooter.ShootSetVelocity;
@@ -71,6 +72,8 @@ public class RobotContainer {
   private JoystickButton bumper_driveR = new JoystickButton(m_driveController, XboxController.Button.kRightBumper.value);   
   private JoystickButton bumper_driveL = new JoystickButton(m_driveController, XboxController.Button.kLeftBumper.value);   
 
+  private JoystickButton bumper_manipR = new JoystickButton(m_manipController, XboxController.Button.kRightBumper.value);   
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -90,6 +93,8 @@ public class RobotContainer {
     bumper_driveL.whileHeld(new RunIntake(m_intake, false));
     btn_driveA.whileHeld(shootVelocityCommand);
     btn_driveB.whenHeld(shootGroup);
+
+    bumper_manipR.whileHeld(new OuttakeIntake(m_intake));
   }
 
   /**
