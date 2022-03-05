@@ -89,7 +89,6 @@ public class Indexer extends SubsystemBase {
   }
 
   public void indexBall() {
-    
     if (!getKickupIndexerBeamBreak()) {
       advanceKickUp();
       advanceBelt();

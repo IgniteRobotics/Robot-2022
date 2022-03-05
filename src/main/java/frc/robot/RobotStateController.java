@@ -7,10 +7,6 @@ import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.BallColor;
 
 public class RobotStateController {
-    public static final char EMPTY = 1 << 0;
-    public static final char POS1 = 1 << 1;
-    public static final char POS2 = 1 << 2;
-
     private boolean firstPositionBreak = false;
     private boolean secondPositionBreak = false;
     private boolean blindSpotBreak = false;
@@ -113,7 +109,7 @@ public class RobotStateController {
     }
 
     public boolean isBreaksClear() {
-        return !firstPositionBreak && !secondPositionBreak;
+        return !firstPositionBreak && !secondPositionBreak && !blindSpotBreak;
     }
 
     // public void addBall(BallColor ballColor) {

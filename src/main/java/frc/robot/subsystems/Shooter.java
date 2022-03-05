@@ -19,7 +19,7 @@ import frc.robot.constants.PortConstants;
 public class Shooter extends SubsystemBase {
   private final DoublePreference shooterVelocity = new DoublePreference("Shooter Set Velocity");
   private final DoublePreference shooterFeedEffort = new DoublePreference("Shooter Feed Effort");
-  private final ReportingNumber shooterVelocityReporter = new ReportingNumber("Shooter Velocity", ReportingLevel.COMPETITON);
+  private final ReportingNumber shooterVelocityReporter = new ReportingNumber("Shooter Actual Velocity", ReportingLevel.COMPETITON);
   private final ReportingNumber shooterCurrent = new ReportingNumber("Shooter Current", ReportingLevel.COMPETITON);
 
   private WPI_TalonFX leaderMotor = new WPI_TalonFX(PortConstants.shooterLeaderPort); //shooter

@@ -9,6 +9,8 @@ import frc.robot.RobotStateController;
 import frc.robot.subsystems.Shooter;
 
 public class ShootSetVelocity extends CommandBase {
+  private RobotStateController stateController = RobotStateController.getInstance();
+
   private Shooter shooter;
   private double velocity;
 
@@ -36,12 +38,12 @@ public class ShootSetVelocity extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     shooter.stop();
-    RobotStateController.getInstance().reset();
+    stateController.reset();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return stateController.isBreaksClear();
   }
 }
