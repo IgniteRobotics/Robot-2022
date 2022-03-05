@@ -13,6 +13,7 @@ public class RobotStateController {
 
     private boolean firstPositionBreak = false;
     private boolean secondPositionBreak = false;
+    private boolean blindSpotBreak = false;
 
     // private Indexer.BallColor[] ballColors = { BallColor.UNKNOWN, BallColor.UNKNOWN };
 
@@ -51,7 +52,7 @@ public class RobotStateController {
     public boolean isIndexerEmpty() {
         //return heldCargo[1] == BallColor.UNKNOWN;
         //changing to use just beam breaks for now until the color sensor is proven.
-        return !firstPositionBreak && !secondPositionBreak;
+        return !firstPositionBreak && !secondPositionBreak && !blindSpotBreak;
     }
 
     //When indexer gets a new cargo, in first position if possible, otherwise add to second position
@@ -105,6 +106,10 @@ public class RobotStateController {
 
     public void setSecondPositionBreak(boolean broken) {
         this.secondPositionBreak = broken;
+    }
+
+    public void setBlindSpotBreak(boolean broken) {
+        this.blindSpotBreak = broken;
     }
 
     public boolean isBreaksClear() {

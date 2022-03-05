@@ -40,7 +40,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void runShooter() {
-    leaderMotor.set(ControlMode.Velocity, shooterVelocity.getValue());
+    leaderMotor.set(ControlMode.Velocity, -shooterVelocity.getValue());
   }
 
   public void runVelocity(double velocity) {

@@ -31,6 +31,8 @@ public class Indexer extends SubsystemBase {
 
   private DigitalInput initialIndexerBeamBreak;
   private DigitalInput kickupIndexerBeamBreak;
+  private DigitalInput blindSpotBeamBreak;
+
   private final I2C.Port i2cPort = I2C.Port.kOnboard;
 
   private BallColor lastColor;
@@ -49,6 +51,8 @@ public class Indexer extends SubsystemBase {
   private final ReportingBoolean initalBeamBreakReporting = new ReportingBoolean("Indexer/Initial Beam (2nd pos)",
       ReportingLevel.COMPETITON);
   private final ReportingBoolean kickupBeamBreakReporting = new ReportingBoolean("Indexer/Kickup Beam (1st pos)",
+      ReportingLevel.COMPETITON);
+      private final ReportingBoolean blindBeamBreakReporting = new ReportingBoolean("Blind Spot Beam",
       ReportingLevel.COMPETITON);
   private final ReportingNumber proximityReporting = new ReportingNumber("Indexer/Color Proximity",
       ReportingLevel.TEST);
@@ -71,6 +75,7 @@ public class Indexer extends SubsystemBase {
     kickupMotor = new CANSparkMax(PortConstants.indexerKickupMotorPort, MotorType.kBrushless);
     initialIndexerBeamBreak = new DigitalInput(PortConstants.initialIndexerBeamBreakPort);
     kickupIndexerBeamBreak = new DigitalInput(PortConstants.kickupIndexerBeamBreakPort);
+    blindSpotBeamBreak = new DigitalInput(PortConstants.blindSpotBeamBreakPort);
     m_colorMatcher.addColorMatch(kBlueTarget);
     m_colorMatcher.addColorMatch(kRedTarget);
     // TODO: invert the motors instead of negative power!
@@ -102,6 +107,10 @@ public class Indexer extends SubsystemBase {
     // } else {
     //   stopBelt();
     // }
+  }
+
+  public boolean isFull(){
+    return getInitialIndexerBeamBreak();
   }
 
   public void advanceBelt() {
@@ -143,6 +152,10 @@ public class Indexer extends SubsystemBase {
     return !kickupIndexerBeamBreak.get();
   }
 
+  public boolean getBlindSpotBeamBreak() {
+    return !blindSpotBeamBreak.get();
+  }
+
   public BallColor getDetectedColor() {
 
     BallColor ballColor = BallColor.UNKNOWN;
@@ -181,9 +194,11 @@ public class Indexer extends SubsystemBase {
     RobotStateController stateController = RobotStateController.getInstance();
     stateController.setFirstPositionBreak(getKickupIndexerBeamBreak());
     stateController.setSecondPositionBreak(getInitialIndexerBeamBreak());
+    stateController.setBlindSpotBreak(getBlindSpotBeamBreak());
 
     initalBeamBreakReporting.set(getInitialIndexerBeamBreak());
     kickupBeamBreakReporting.set(getKickupIndexerBeamBreak());
+    blindBeamBreakReporting.set(getBlindSpotBeamBreak());
     
   }
 }
