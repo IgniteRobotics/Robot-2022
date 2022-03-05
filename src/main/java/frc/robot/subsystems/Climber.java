@@ -66,9 +66,6 @@ public class Climber extends SubsystemBase {
     climberRight.configReverseSoftLimitThreshold(ClimbConstants.CLIMBER_REVERSE_LIMIT);
     climberRight.configForwardSoftLimitEnable(true, 0);
     climberRight.configReverseSoftLimitEnable(true, 0);
-    
-    addChild("climberLeft- Climber", climberLeft);
-    addChild("climberRight- Climber", climberRight);
   }
 
   @Override

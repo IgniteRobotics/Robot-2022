@@ -1,15 +1,19 @@
 
 package frc.robot.subsystems;
 
+import com.igniterobotics.robotbase.preferences.DoublePreference;
+import com.igniterobotics.robotbase.reporting.ReportingBoolean;
+import com.igniterobotics.robotbase.reporting.ReportingLevel;
+import com.igniterobotics.robotbase.reporting.ReportingNumber;
+import com.igniterobotics.robotbase.reporting.ReportingString;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotStateController;
 import frc.robot.constants.PortConstants;
 //Color sensor stuff. We borrowed from willtoth on Github
-
 
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
@@ -18,27 +22,25 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.I2C;
 import com.revrobotics.ColorSensorV3;
 
-
 public class Indexer extends SubsystemBase {
+  private final DoublePreference indexerBeltSpeed = new DoublePreference("Indexer/Belt Speed");
+  private final DoublePreference indexerKickupSpeed = new DoublePreference("Indexer/Kickup Speed");
 
-  ////////// Constants //////////
-  private static final double INDEXER_BELT_FWD_SPEED = -0.5;
-  private static final double INDEXER_BELT_REV_SPEED = 0.5;
-  private static final double INDEXER_KICKUP_FWD_SPEED = -0.5;
-  private static final double INDEXER_KICKUP_REV_SPEED = 0.5;
-
-
-  ////////// instance variables /////////
   private CANSparkMax indexerMotor;
   private CANSparkMax kickupMotor;
 
   private DigitalInput initialIndexerBeamBreak;
   private DigitalInput kickupIndexerBeamBreak;
+  private DigitalInput blindSpotBeamBreak;
+
   private final I2C.Port i2cPort = I2C.Port.kOnboard;
 
+  private BallColor lastColor;
+  private RobotStateController stateController;
+
   /**
-   * A Rev Color Sensor V3 object is constructed with an I2C port as a 
-   * parameter. The device will be automatically initialized with default 
+   * A Rev Color Sensor V3 object is constructed with an I2C port as a
+   * parameter. The device will be automatically initialized with default
    * parameters.
    */
   private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
@@ -46,28 +48,77 @@ public class Indexer extends SubsystemBase {
   private final Color kRedTarget = new Color(0.561, 0.232, 0.114);
   private final ColorMatch m_colorMatcher = new ColorMatch();
 
+  private final ReportingBoolean initalBeamBreakReporting = new ReportingBoolean("Indexer/Initial Beam (2nd pos)",
+      ReportingLevel.COMPETITON);
+  private final ReportingBoolean kickupBeamBreakReporting = new ReportingBoolean("Indexer/Kickup Beam (1st pos)",
+      ReportingLevel.COMPETITON);
+      private final ReportingBoolean blindBeamBreakReporting = new ReportingBoolean("Blind Spot Beam",
+      ReportingLevel.COMPETITON);
+  private final ReportingNumber proximityReporting = new ReportingNumber("Indexer/Color Proximity",
+      ReportingLevel.TEST);
+  private final ReportingString ballColorReporting = new ReportingString("Indexer/Ball Color",
+      ReportingLevel.COMPETITON);
+  private final ReportingString position1ColorReporting = new ReportingString("Indexer/Pos 1 Color",
+      ReportingLevel.COMPETITON);
+  private final ReportingString position2ColorReporting = new ReportingString("Indexer/Pos 2 Color",
+      ReportingLevel.COMPETITON);
+
+  public enum BallColor {
+    BLUE, RED, UNKNOWN
+  }
+
   public Indexer() {
+
+    stateController = RobotStateController.getInstance();
 
     indexerMotor = new CANSparkMax(PortConstants.indexerMotorPort, MotorType.kBrushless);
     kickupMotor = new CANSparkMax(PortConstants.indexerKickupMotorPort, MotorType.kBrushless);
     initialIndexerBeamBreak = new DigitalInput(PortConstants.initialIndexerBeamBreakPort);
     kickupIndexerBeamBreak = new DigitalInput(PortConstants.kickupIndexerBeamBreakPort);
+    blindSpotBeamBreak = new DigitalInput(PortConstants.blindSpotBeamBreakPort);
     m_colorMatcher.addColorMatch(kBlueTarget);
     m_colorMatcher.addColorMatch(kRedTarget);
-    //TODO:  invert the motors instead of negative power!
+    // TODO: invert the motors instead of negative power!
     indexerMotor.setInverted(false);
     indexerMotor.burnFlash();
 
     kickupMotor.setInverted(false);
     kickupMotor.burnFlash();
+    position1ColorReporting.set(stateController.getFirstPositionColor().toString());
+    position2ColorReporting.set(stateController.getSecondPositionColor().toString());
+  }
+
+  public void indexBall() {
+    
+    if (!getKickupIndexerBeamBreak()) {
+      advanceKickUp();
+      advanceBelt();
+    } else {
+      stopKickup();
+      if (!getInitialIndexerBeamBreak()) {
+        advanceBelt();
+      } else {
+        stopBelt();
+      }
+    }
+
+    // if (!getInitialIndexerBeamBreak() && !getKickupIndexerBeamBreak()) {
+    //   advanceBelt();
+    // } else {
+    //   stopBelt();
+    // }
+  }
+
+  public boolean isFull(){
+    return getInitialIndexerBeamBreak();
   }
 
   public void advanceBelt() {
-    indexerMotor.set(INDEXER_BELT_FWD_SPEED);
+    indexerMotor.set(-Math.abs(indexerBeltSpeed.getValue()));
   }
 
   public void retreatBelt() {
-    indexerMotor.set(INDEXER_BELT_REV_SPEED);
+    indexerMotor.set(Math.abs(indexerBeltSpeed.getValue()));
   }
 
   public void stopBelt() {
@@ -75,11 +126,11 @@ public class Indexer extends SubsystemBase {
   }
 
   public void advanceKickUp() {
-    kickupMotor.set(INDEXER_KICKUP_FWD_SPEED);
+    kickupMotor.set(-Math.abs(indexerKickupSpeed.getValue()));
   }
 
   public void retreatKickup() {
-    kickupMotor.set(INDEXER_KICKUP_REV_SPEED);
+    kickupMotor.set(Math.abs(indexerKickupSpeed.getValue()));
   }
 
   public void stopKickup() {
@@ -91,7 +142,8 @@ public class Indexer extends SubsystemBase {
     this.stopKickup();
   }
 
-  // Gets the value of the digital input.  Normally returns true if the circuit is open, but we negate it.
+  // Gets the value of the digital input. Normally returns true if the circuit is
+  // open, but we negate it.
   public boolean getInitialIndexerBeamBreak() {
     return !initialIndexerBeamBreak.get();
   }
@@ -100,38 +152,53 @@ public class Indexer extends SubsystemBase {
     return !kickupIndexerBeamBreak.get();
   }
 
-  public void colorsensorstuff()
-  {
-    Color detectedColor = m_colorSensor.getColor();
+  public boolean getBlindSpotBeamBreak() {
+    return !blindSpotBeamBreak.get();
+  }
 
-    /**
-     * Run the color match algorithm on our detected color
-     */
-    String colorString;
-    ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
+  public BallColor getDetectedColor() {
 
-    if (match.color == kBlueTarget) {
-      colorString = "Blue";
-    } else if (match.color == kRedTarget) {
-      colorString = "Red";
-    }  else {
-      colorString = "Unknown";
+    BallColor ballColor = BallColor.UNKNOWN;
+
+    if (m_colorSensor.getProximity() >= 300) {
+      Color detectedColor = m_colorSensor.getColor();
+      ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
+      if (match.color == kBlueTarget) {
+        ballColor = BallColor.BLUE;
+      } else if (match.color == kRedTarget) {
+        ballColor = BallColor.RED;
+      }
     }
 
-    /**
-     * Open Smart Dashboard or Shuffleboard to see the color detected by the 
-     * sensor.
-     */
-    SmartDashboard.putNumber("Red", detectedColor.red);
-    SmartDashboard.putNumber("Green", detectedColor.green);
-    SmartDashboard.putNumber("Blue", detectedColor.blue);
-    SmartDashboard.putNumber("Confidence", match.confidence);
-    SmartDashboard.putString("Detected Color", colorString);
+    return ballColor;
   }
+
+  public void updateColorInfo() {
+    BallColor color = getDetectedColor();
+    ballColorReporting.set(color.toString());
+
+    proximityReporting.set((double) m_colorSensor.getProximity());
+
+    if(color != BallColor.UNKNOWN && color != lastColor) {
+      //stateController.addBall(getDetectedColor());
+      stateController.addCargo(color);
+    }
+
+    lastColor = color;
+    position1ColorReporting.set(stateController.getFirstPositionColor().toString());
+    position2ColorReporting.set(stateController.getSecondPositionColor().toString());
+  }
+
   @Override
   public void periodic() {
+    RobotStateController stateController = RobotStateController.getInstance();
+    stateController.setFirstPositionBreak(getKickupIndexerBeamBreak());
+    stateController.setSecondPositionBreak(getInitialIndexerBeamBreak());
+    stateController.setBlindSpotBreak(getBlindSpotBeamBreak());
 
-    SmartDashboard.putBoolean("Initial Indexer Sensor", this.getInitialIndexerBeamBreak());
-    SmartDashboard.putBoolean("Kickup Indexer Sensor", this.getKickupIndexerBeamBreak());
+    initalBeamBreakReporting.set(getInitialIndexerBeamBreak());
+    kickupBeamBreakReporting.set(getKickupIndexerBeamBreak());
+    blindBeamBreakReporting.set(getBlindSpotBeamBreak());
+    
   }
 }
