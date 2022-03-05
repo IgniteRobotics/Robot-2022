@@ -27,6 +27,9 @@ public class Shooter extends SubsystemBase {
   private CANSparkMax feedMotor = new CANSparkMax(PortConstants.shooterFeedPort, MotorType.kBrushless);
 
   public Shooter() {
+    leaderMotor.configFactoryDefault();
+    followerMotor.configFactoryDefault();
+
     leaderMotor.setNeutralMode(NeutralMode.Coast);
     followerMotor.setNeutralMode(NeutralMode.Coast);
 
@@ -34,14 +37,11 @@ public class Shooter extends SubsystemBase {
     leaderMotor.config_kP(0, 0.30);
 
     feedMotor.setInverted(true);
+
     leaderMotor.setInverted(false);
     followerMotor.setInverted(true);
 
     followerMotor.follow(leaderMotor);
-  }
-
-  public void runShooter() {
-    leaderMotor.set(ControlMode.Velocity, 0.5);
   }
 
   public void runVelocity(double velocity) {
@@ -54,6 +54,7 @@ public class Shooter extends SubsystemBase {
 
   public void stop() {
     leaderMotor.set(ControlMode.PercentOutput, 0);
+    followerMotor.set(ControlMode.PercentOutput, 0);
     feedMotor.set(0);
   }
 

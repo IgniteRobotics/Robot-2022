@@ -9,6 +9,7 @@ import com.igniterobotics.robotbase.preferences.DoublePreference;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -56,9 +57,9 @@ public class RobotContainer {
   //command group that runs the indexer and the intake until the indexer is full.
   private ParallelRaceGroup indexerIntakeGroup = new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake, true));
   //command group to feed the shooter.  ends 500ms after the indexer is empty.
-  private SequentialCommandGroup feedShooterGroup = new SequentialCommandGroup(new WaitCommand(0.75), new RunIndexerAndKickup(m_indexer, true), new WaitCommand(0.5));
+  private SequentialCommandGroup feedShooterGroup = new SequentialCommandGroup(new WaitCommand(1.25), new RunIndexerAndKickup(m_indexer, true), new WaitCommand(0.5));
   //command group to shoot.  ends either when the shooter is done, or the indexer is empty
-  private ParallelRaceGroup shootGroup = new ParallelRaceGroup(feedShooterGroup, new ShootSetVelocity(m_shooter, shooterVelocityPreference).withTimeout(2.5));
+  private ParallelDeadlineGroup shootGroup = new ParallelDeadlineGroup(new ShootSetVelocity(m_shooter, shooterVelocityPreference), feedShooterGroup);
 
   private JoystickButton btn_driveA = new JoystickButton(m_driveController, XboxController.Button.kA.value);
   private JoystickButton btn_driveB = new JoystickButton(m_driveController, XboxController.Button.kB.value);

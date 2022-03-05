@@ -44,7 +44,7 @@ public class ArcadeDrive extends CommandBase { //TODO Figure out how to make a b
     }
 
     private double getSpeed() {
-        double speed = driverController.getLeftY() * (isReversed ? 1 : -1);
+        double speed = driverController.getLeftY() * (isReversed ? 1 : -1) * 0.8;
         // if(m_driveTrain.isSlowMode) {
         //   speed *= Constants.SLOW_MODE_SPEED_MODIFIER;
         // }

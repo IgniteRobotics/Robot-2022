@@ -29,13 +29,6 @@ public class ShootBall extends CommandBase {
   @Override
   public void execute() {
     shooter.runFeed();
-    shooter.runShooter();
-
-    if(RobotStateController.getInstance().isBreaksClear()) {
-      emptyFrames++;
-    } else {
-      emptyFrames = 0;
-    }
   }
 
   // Called once the command ends or is interrupted.

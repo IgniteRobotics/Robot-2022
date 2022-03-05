@@ -23,8 +23,8 @@ import edu.wpi.first.wpilibj.I2C;
 import com.revrobotics.ColorSensorV3;
 
 public class Indexer extends SubsystemBase {
-  private final DoublePreference indexerBeltSpeed = new DoublePreference("Indexer/Belt Speed");
-  private final DoublePreference indexerKickupSpeed = new DoublePreference("Indexer/Kickup Speed");
+  private final DoublePreference indexerBeltSpeed = new DoublePreference("Indexer/Belt Speed", 1);
+  private final DoublePreference indexerKickupSpeed = new DoublePreference("Indexer/Kickup Speed", 1);
 
   private CANSparkMax indexerMotor;
   private CANSparkMax kickupMotor;
