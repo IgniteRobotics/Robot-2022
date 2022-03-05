@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.PortConstants;
 
 public class Shooter extends SubsystemBase {
-  private final DoublePreference shooterVelocity = new DoublePreference("Shooter Set Velocity");
   private final DoublePreference shooterFeedEffort = new DoublePreference("Shooter Feed Effort");
   private final ReportingNumber shooterVelocityReporter = new ReportingNumber("Shooter Actual Velocity", ReportingLevel.COMPETITON);
   private final ReportingNumber shooterCurrent = new ReportingNumber("Shooter Current", ReportingLevel.COMPETITON);
@@ -31,20 +30,22 @@ public class Shooter extends SubsystemBase {
     leaderMotor.setNeutralMode(NeutralMode.Coast);
     followerMotor.setNeutralMode(NeutralMode.Coast);
 
-    leaderMotor.config_kF(0, 0.07);
+    leaderMotor.config_kF(0, 0.047);
+    leaderMotor.config_kP(0, 0.30);
 
     feedMotor.setInverted(true);
-    leaderMotor.setInverted(true);
+    leaderMotor.setInverted(false);
+    followerMotor.setInverted(true);
 
     followerMotor.follow(leaderMotor);
   }
 
   public void runShooter() {
-    leaderMotor.set(ControlMode.Velocity, -shooterVelocity.getValue());
+    leaderMotor.set(ControlMode.Velocity, 0.5);
   }
 
   public void runVelocity(double velocity) {
-    leaderMotor.set(ControlMode.Velocity, velocity);
+    leaderMotor.set(ControlMode.Velocity, Math.abs(velocity));
   }
 
   public void runFeed() {

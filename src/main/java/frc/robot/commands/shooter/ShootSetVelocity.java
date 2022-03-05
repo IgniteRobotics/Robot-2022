@@ -4,6 +4,9 @@
 
 package frc.robot.commands.shooter;
 
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotStateController;
 import frc.robot.subsystems.Shooter;
@@ -12,15 +15,21 @@ public class ShootSetVelocity extends CommandBase {
   private RobotStateController stateController = RobotStateController.getInstance();
 
   private Shooter shooter;
-  private double velocity;
+  private Supplier<Double> vSupplier;
+  private boolean autoEnd = true;
 
   /** Creates a new ShootSetVelocity. */
-  public ShootSetVelocity(Shooter shooter, double velocity) {
+  public ShootSetVelocity(Shooter shooter, Supplier<Double> vSupplier) {
     this.shooter = shooter;
-    this.velocity = velocity;
+    this.vSupplier = vSupplier;
 
     addRequirements(shooter);
     // Use addRequirements() here to declare subsystem dependencies.
+  }
+
+  public ShootSetVelocity(Shooter shooter, Supplier<Double> vSupplier, boolean autoEnd) {
+    this(shooter, vSupplier);
+    this.autoEnd = autoEnd;
   }
 
   // Called when the command is initially scheduled.
@@ -31,7 +40,7 @@ public class ShootSetVelocity extends CommandBase {
   @Override
   public void execute() {
     shooter.runFeed();
-    shooter.runVelocity(velocity);
+    shooter.runVelocity(vSupplier.get());
   }
 
   // Called once the command ends or is interrupted.
@@ -44,6 +53,6 @@ public class ShootSetVelocity extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return stateController.isBreaksClear();
+    return stateController.isBreaksClear() && autoEnd;
   }
 }

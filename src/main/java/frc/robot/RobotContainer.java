@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.igniterobotics.robotbase.preferences.DoublePreference;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,6 +19,7 @@ import frc.robot.commands.indexer.IndexBall;
 import frc.robot.commands.indexer.RunIndexerAndKickup;
 import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.shooter.ShootBall;
+import frc.robot.commands.shooter.ShootSetVelocity;
 import frc.robot.constants.PortConstants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -31,7 +34,8 @@ import frc.robot.subsystems.Shooter;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
+  private RobotStateController controller = RobotStateController.getInstance();
+  private DoublePreference shooterVelocityPreference = new DoublePreference("Shooter Set Velocity", 0);
 
   //controllers
   private XboxController m_driveController = new XboxController(PortConstants.DRIVER_CONTROLLER_PORT);
@@ -45,17 +49,16 @@ public class RobotContainer {
   //comands
   private ArcadeDrive arcadeDriveCommand = new ArcadeDrive(m_driveController, m_driveTrain);
   // private RetractIntake retractIntakeCommand = new RetractIntake(m_intake);
-  RobotStateController controller = RobotStateController.getInstance();
   private RunIntake runIntakeCommand = new RunIntake(m_intake, true);
   private IndexBall indexBallCommand = new IndexBall(m_indexer);
 
-  private ShootBall shootBallCommand = new ShootBall(m_shooter);
+  private ShootSetVelocity shootVelocityCommand = new ShootSetVelocity(m_shooter, shooterVelocityPreference, false);
   //command group that runs the indexer and the intake until the indexer is full.
   private ParallelRaceGroup indexerIntakeGroup = new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake, true));
   //command group to feed the shooter.  ends 500ms after the indexer is empty.
   private SequentialCommandGroup feedShooterGroup = new SequentialCommandGroup(new WaitCommand(0.75), new RunIndexerAndKickup(m_indexer, true), new WaitCommand(0.5));
   //command group to shoot.  ends either when the shooter is done, or the indexer is empty
-  private ParallelRaceGroup shootGroup = new ParallelRaceGroup(feedShooterGroup, new ShootBall(m_shooter).withTimeout(2.5));
+  private ParallelRaceGroup shootGroup = new ParallelRaceGroup(feedShooterGroup, new ShootSetVelocity(m_shooter, shooterVelocityPreference).withTimeout(2.5));
 
   private JoystickButton btn_driveA = new JoystickButton(m_driveController, XboxController.Button.kA.value);
   private JoystickButton btn_driveB = new JoystickButton(m_driveController, XboxController.Button.kB.value);
@@ -80,7 +83,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     bumper_driveR.whileHeld(indexerIntakeGroup, true);
     bumper_driveL.whileHeld(new RunIntake(m_intake, false));
-    btn_driveA.whileHeld(shootBallCommand);
+    btn_driveA.whileHeld(shootVelocityCommand);
     btn_driveB.whenHeld(shootGroup);
   }
 
