@@ -26,6 +26,9 @@ public class Shooter extends SubsystemBase {
 
   private CANSparkMax feedMotor = new CANSparkMax(PortConstants.shooterFeedPort, MotorType.kBrushless);
 
+  private double setpointVelocity;
+  private static final double SETPOINT_TOLERANCE = 250;
+
   public Shooter() {
     leaderMotor.configFactoryDefault();
     followerMotor.configFactoryDefault();
@@ -33,7 +36,7 @@ public class Shooter extends SubsystemBase {
     leaderMotor.setNeutralMode(NeutralMode.Coast);
     followerMotor.setNeutralMode(NeutralMode.Coast);
 
-    leaderMotor.config_kF(0, 0.047);
+    leaderMotor.config_kF(0, 0.052);
     leaderMotor.config_kP(0, 0.30);
 
     feedMotor.setInverted(true);
@@ -45,6 +48,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void runVelocity(double velocity) {
+    this.setpointVelocity = velocity;
     leaderMotor.set(ControlMode.Velocity, Math.abs(velocity));
   }
 
@@ -56,11 +60,16 @@ public class Shooter extends SubsystemBase {
     leaderMotor.set(ControlMode.PercentOutput, 0);
     followerMotor.set(ControlMode.PercentOutput, 0);
     feedMotor.set(0);
+    setpointVelocity = 0;
   }
 
   @Override
   public void periodic() {
     shooterVelocityReporter.set(leaderMotor.getSelectedSensorVelocity());
     shooterCurrent.set(leaderMotor.getSupplyCurrent());
+  }
+
+  public boolean isSetpointMet() {
+    return setpointVelocity - SETPOINT_TOLERANCE < leaderMotor.getSelectedSensorVelocity(0) && leaderMotor.getSelectedSensorVelocity(0) < setpointVelocity + SETPOINT_TOLERANCE && setpointVelocity > 0;
   }
 }

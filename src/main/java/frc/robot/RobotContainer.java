@@ -13,13 +13,14 @@ import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.drivetrain.ArcadeDrive;
 import frc.robot.commands.indexer.IndexBall;
 import frc.robot.commands.indexer.RunIndexerAndKickup;
 import frc.robot.commands.intake.RunIntake;
-import frc.robot.commands.shooter.ShootBall;
+import frc.robot.commands.shooter.RunTurret;
 import frc.robot.commands.shooter.ShootSetVelocity;
 import frc.robot.constants.PortConstants;
 import frc.robot.subsystems.Drivetrain;
@@ -27,6 +28,7 @@ import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Turret;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -40,12 +42,14 @@ public class RobotContainer {
 
   //controllers
   private XboxController m_driveController = new XboxController(PortConstants.DRIVER_CONTROLLER_PORT);
+  private XboxController m_manipController = new XboxController(PortConstants.MANIPULATOR_CONTROLLER_PORT);
 
   //subsystems
   private Drivetrain m_driveTrain = new Drivetrain();
   private Intake m_intake = new Intake();
   private Indexer m_indexer = new Indexer();
   private Shooter m_shooter = new Shooter();
+  private Turret m_turret = new Turret();
 
   //comands
   private ArcadeDrive arcadeDriveCommand = new ArcadeDrive(m_driveController, m_driveTrain);
@@ -57,7 +61,7 @@ public class RobotContainer {
   //command group that runs the indexer and the intake until the indexer is full.
   private ParallelRaceGroup indexerIntakeGroup = new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake, true));
   //command group to feed the shooter.  ends 500ms after the indexer is empty.
-  private SequentialCommandGroup feedShooterGroup = new SequentialCommandGroup(new WaitCommand(1.25), new RunIndexerAndKickup(m_indexer, true), new WaitCommand(0.5));
+  private SequentialCommandGroup feedShooterGroup = new SequentialCommandGroup(new WaitUntilCommand(m_shooter::isSetpointMet).andThen(new WaitCommand(0.25)), new RunIndexerAndKickup(m_indexer, true));
   //command group to shoot.  ends either when the shooter is done, or the indexer is empty
   private ParallelDeadlineGroup shootGroup = new ParallelDeadlineGroup(new ShootSetVelocity(m_shooter, shooterVelocityPreference), feedShooterGroup);
 

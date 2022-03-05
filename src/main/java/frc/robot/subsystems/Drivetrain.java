@@ -39,7 +39,7 @@ public class Drivetrain extends SubsystemBase {
 
     /////////////////// CONSTANTS /////////////////// 
 
-    public static final double SPEED_RATE_LIMIT_ARCADE = 3;
+    public static final double SPEED_RATE_LIMIT_ARCADE = 2.5;
     public static final double ROTATION_RATE_LIMIT_ARCADE = 3.0;
 
     public static final double SLOW_MODE_SPEED_MODIFIER = 0.5;
