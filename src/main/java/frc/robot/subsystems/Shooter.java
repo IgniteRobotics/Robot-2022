@@ -51,8 +51,8 @@ public class Shooter extends SubsystemBase {
 
     followerMotor.follow(leaderMotor);
 
-    leaderMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
-    followerMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
+    leaderMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
+    followerMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
     feedMotor.setSmartCurrentLimit(CURRENT_LIMIT);
   }
 
@@ -75,7 +75,7 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     shooterVelocityReporter.set(leaderMotor.getSelectedSensorVelocity());
-    shooterCurrent.set(leaderMotor.getSupplyCurrent());
+    shooterCurrent.set(leaderMotor.getStatorCurrent());
     isSetpointMet.set(isSetpointMet());
   }
 
