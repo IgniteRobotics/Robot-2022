@@ -6,20 +6,20 @@ package frc.robot.commands.shooter;
 
 import java.util.function.Supplier;
 
-import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.Hood;
 
-public class RunTurret extends CommandBase {
-  private Turret turret;
-  private Supplier<Double> speedSupplier;
+public class SetHoodPosition extends CommandBase {
+  private Hood hood;
+  private Supplier<Double> positionSupplier;
 
-  /** Creates a new RunTurret. */
-  public RunTurret(Turret turret, Supplier<Double> speedSupplier) {
-    this.turret = turret;
-    this.speedSupplier = speedSupplier;
-    
-    addRequirements(turret);
+  /** Creates a new SetHoodPosition. */
+  public SetHoodPosition(Hood hood, Supplier<Double> positionSupplier) {
+    this.hood = hood;
+    this.positionSupplier = positionSupplier;
+
+    addRequirements(hood);
+    // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
@@ -29,19 +29,12 @@ public class RunTurret extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    System.out.println(speedSupplier.get());
-    if(Math.abs(speedSupplier.get()) <= 0.1) {
-      turret.stop();
-    } else {
-      turret.runTurret(speedSupplier.get() * 0.7);
-    }
+    hood.setPosition(positionSupplier.get());
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    turret.stop();
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override

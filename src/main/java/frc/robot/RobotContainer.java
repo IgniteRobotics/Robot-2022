@@ -8,6 +8,7 @@ import com.igniterobotics.robotbase.preferences.DoublePreference;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -21,11 +22,14 @@ import frc.robot.commands.indexer.IndexBall;
 import frc.robot.commands.indexer.RunIndexerAndKickup;
 import frc.robot.commands.intake.OuttakeIntake;
 import frc.robot.commands.intake.RunIntake;
+import frc.robot.commands.shooter.ResetTurretEncoder;
 import frc.robot.commands.shooter.RunTurret;
+import frc.robot.commands.shooter.SetHoodPosition;
 import frc.robot.commands.shooter.ShootSetVelocity;
 import frc.robot.constants.PortConstants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -40,6 +44,7 @@ import frc.robot.subsystems.Turret;
 public class RobotContainer {
   private RobotStateController controller = RobotStateController.getInstance();
   private DoublePreference shooterVelocityPreference = new DoublePreference("Shooter Set Velocity", 0);
+  private DoublePreference hoodPosition = new DoublePreference("Hood Set Position", 0);
 
   //controllers
   private XboxController m_driveController = new XboxController(PortConstants.DRIVER_CONTROLLER_PORT);
@@ -51,12 +56,14 @@ public class RobotContainer {
   private Indexer m_indexer = new Indexer();
   private Shooter m_shooter = new Shooter();
   private Turret m_turret = new Turret();
+  private Hood m_hood = new Hood();
 
   //comands
+  private ResetTurretEncoder resetTurretEncoder = new ResetTurretEncoder(m_turret);
   private ArcadeDrive arcadeDriveCommand = new ArcadeDrive(m_driveController, m_driveTrain);
+  private IndexBall indexBallCommand = new IndexBall(m_indexer);
   // private RetractIntake retractIntakeCommand = new RetractIntake(m_intake);
   private RunIntake runIntakeCommand = new RunIntake(m_intake, true);
-  private IndexBall indexBallCommand = new IndexBall(m_indexer);
 
   private ShootSetVelocity shootVelocityCommand = new ShootSetVelocity(m_shooter, shooterVelocityPreference, false);
   //command group that runs the indexer and the intake until the indexer is full.
@@ -72,6 +79,7 @@ public class RobotContainer {
   private JoystickButton bumper_driveR = new JoystickButton(m_driveController, XboxController.Button.kRightBumper.value);   
   private JoystickButton bumper_driveL = new JoystickButton(m_driveController, XboxController.Button.kLeftBumper.value);   
 
+  private JoystickButton btn_manipA = new JoystickButton(m_manipController, XboxController.Button.kA.value);
   private JoystickButton bumper_manipR = new JoystickButton(m_manipController, XboxController.Button.kRightBumper.value);   
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -80,6 +88,8 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
     configureSubsystemCommands();
+
+    SmartDashboard.putData(resetTurretEncoder);
   }
 
   /**
@@ -94,6 +104,7 @@ public class RobotContainer {
     btn_driveA.whileHeld(shootVelocityCommand);
     btn_driveB.whenHeld(shootGroup);
 
+    btn_manipA.whileHeld(new SetHoodPosition(m_hood, hoodPosition));
     bumper_manipR.whileHeld(new OuttakeIntake(m_intake));
   }
 
@@ -102,6 +113,8 @@ public class RobotContainer {
    */
   private void configureSubsystemCommands() {
     m_driveTrain.setDefaultCommand(arcadeDriveCommand);
+    m_indexer.setDefaultCommand(indexBallCommand.withInterrupt(() -> controller.isBreaksClear()).beforeStarting(new WaitUntilCommand(() -> !controller.isBreaksClear())));
+    // m_turret.setDefaultCommand(new RunTurret(m_turret, m_manipController::getLeftX));
     // m_intake.setDefaultCommand(retractIntakeCommand);
   }
 

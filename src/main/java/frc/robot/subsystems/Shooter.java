@@ -32,9 +32,6 @@ public class Shooter extends SubsystemBase {
   private static final double SETPOINT_TOLERANCE = 250;
 
   public Shooter() {
-    leaderMotor.configFactoryDefault();
-    followerMotor.configFactoryDefault();
-
     leaderMotor.setNeutralMode(NeutralMode.Coast);
     followerMotor.setNeutralMode(NeutralMode.Coast);
 
@@ -43,7 +40,6 @@ public class Shooter extends SubsystemBase {
 
     feedMotor.setInverted(true);
 
-    leaderMotor.setInverted(false);
     followerMotor.setInverted(true);
 
     followerMotor.follow(leaderMotor);

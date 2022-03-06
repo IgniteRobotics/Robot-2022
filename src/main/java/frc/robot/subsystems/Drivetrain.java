@@ -179,14 +179,6 @@ public class Drivetrain extends SubsystemBase {
         m_driveTrain.tankDrive(leftPowerLimited, rightPowerLimited, false);
     }
 
-
-    // used to drive trajectories
-    public void tankDriveVolts(double leftVolts, double rightVolts) {
-        this.leftLeader.setVoltage(-leftVolts);
-        this.rightLeader.setVoltage(rightVolts);
-        m_driveTrain.feed();
-    }
-
     private double safeClamp(final double input) {
         if (Double.isNaN(input)) {
             return 0;
@@ -241,7 +233,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void stop() {
-        tankDriveVolts(0, 0);
+        m_driveTrain.arcadeDrive(0, 0);
     }
 
     public double getLeftEncoderVel() {

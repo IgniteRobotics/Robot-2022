@@ -4,20 +4,15 @@
 
 package frc.robot.commands.shooter;
 
-import java.util.function.Supplier;
-
-import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Turret;
 
-public class RunTurret extends CommandBase {
+public class ResetTurretEncoder extends CommandBase {
   private Turret turret;
-  private Supplier<Double> speedSupplier;
 
-  /** Creates a new RunTurret. */
-  public RunTurret(Turret turret, Supplier<Double> speedSupplier) {
+  /** Creates a new ResetTurretEncoder. */
+  public ResetTurretEncoder(Turret turret) {
     this.turret = turret;
-    this.speedSupplier = speedSupplier;
     
     addRequirements(turret);
   }
@@ -29,23 +24,18 @@ public class RunTurret extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    System.out.println(speedSupplier.get());
-    if(Math.abs(speedSupplier.get()) <= 0.1) {
-      turret.stop();
-    } else {
-      turret.runTurret(speedSupplier.get() * 0.7);
-    }
+    turret.resetEncoder();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    turret.stop();
+    
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return true;
   }
 }
