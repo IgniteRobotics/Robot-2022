@@ -29,7 +29,7 @@ public class SetHoodPosition extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    hood.setPosition(positionSupplier.get());
+    hood.setAngle(positionSupplier.get());
   }
 
   // Called once the command ends or is interrupted.

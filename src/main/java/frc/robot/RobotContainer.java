@@ -20,6 +20,7 @@ import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.drivetrain.ArcadeDrive;
 import frc.robot.commands.indexer.IndexBall;
 import frc.robot.commands.indexer.RunIndexerAndKickup;
+import frc.robot.commands.indexer.RunIndexerBelts;
 import frc.robot.commands.intake.OuttakeIntake;
 import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.shooter.ResetTurretEncoder;
@@ -65,6 +66,8 @@ public class RobotContainer {
   // private RetractIntake retractIntakeCommand = new RetractIntake(m_intake);
   private RunIntake runIntakeCommand = new RunIntake(m_intake, true);
 
+  
+  private ParallelRaceGroup outtakeSingleBall = new ParallelRaceGroup(new RunIndexerBelts(m_indexer, false), new OuttakeIntake(m_intake));
   private ShootSetVelocity shootVelocityCommand = new ShootSetVelocity(m_shooter, shooterVelocityPreference, false);
   //command group that runs the indexer and the intake until the indexer is full.
   private ParallelRaceGroup indexerIntakeGroup = new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake, true));
@@ -81,6 +84,7 @@ public class RobotContainer {
 
   private JoystickButton btn_manipA = new JoystickButton(m_manipController, XboxController.Button.kA.value);
   private JoystickButton bumper_manipR = new JoystickButton(m_manipController, XboxController.Button.kRightBumper.value);   
+  private JoystickButton bumper_manipL = new JoystickButton(m_manipController, XboxController.Button.kLeftBumper.value);   
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -106,6 +110,7 @@ public class RobotContainer {
 
     btn_manipA.whileHeld(new SetHoodPosition(m_hood, hoodPosition));
     bumper_manipR.whileHeld(new OuttakeIntake(m_intake));
+    bumper_manipL.whileHeld(outtakeSingleBall);
   }
 
   /**
@@ -113,7 +118,7 @@ public class RobotContainer {
    */
   private void configureSubsystemCommands() {
     m_driveTrain.setDefaultCommand(arcadeDriveCommand);
-    // m_turret.setDefaultCommand(new RunTurret(m_turret, m_manipController::getLeftX));
+    m_turret.setDefaultCommand(new RunTurret(m_turret, m_manipController::getLeftX));
     // m_intake.setDefaultCommand(retractIntakeCommand);
   }
 
