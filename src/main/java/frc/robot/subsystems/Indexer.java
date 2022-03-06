@@ -23,6 +23,8 @@ import edu.wpi.first.wpilibj.I2C;
 import com.revrobotics.ColorSensorV3;
 
 public class Indexer extends SubsystemBase {
+  public static final int CURRENT_LIMIT = 20;
+
   private final DoublePreference indexerBeltSpeed = new DoublePreference("Indexer/Belt Speed", 1);
   private final DoublePreference indexerKickupSpeed = new DoublePreference("Indexer/Kickup Speed", 1);
 
@@ -86,6 +88,9 @@ public class Indexer extends SubsystemBase {
     kickupMotor.burnFlash();
     position1ColorReporting.set(stateController.getFirstPositionColor().toString());
     position2ColorReporting.set(stateController.getSecondPositionColor().toString());
+
+    indexerMotor.setSmartCurrentLimit(CURRENT_LIMIT);
+    kickupMotor.setSmartCurrentLimit(CURRENT_LIMIT);
   }
 
   public void indexBall() {

@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.PortConstants;
 
 public class Intake extends SubsystemBase {
+    public static final int CURRENT_LIMIT = 20;
     private final DoublePreference intakeSpeed = new DoublePreference("Intake Speed");
 
     private final CANSparkMax intakeMotor;
@@ -37,6 +38,7 @@ public class Intake extends SubsystemBase {
 
         intakeMotor.setInverted(false);
         intakeMotor.setIdleMode(IdleMode.kBrake);
+        intakeMotor.setSmartCurrentLimit(CURRENT_LIMIT);
 
         isExtended = false;
 

@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.kauailabs.navx.frc.AHRS;
@@ -51,6 +52,10 @@ public class Drivetrain extends SubsystemBase {
     public static final double VELOCITY_LIMIT_MULTIPLIER = 1;
     public static final double TURN_RAMP_EXPONENT = 2;
     public static final double TURN_LIMIT_MULTIPLIER = 0.4;
+
+    public static final double CURRENT_LIMIT = 20;
+    public static final double CURRENT_LIMIT_THRESHOLD = 20;
+    public static final double CURRENT_LIMIT_TIME = 1;
 
     public static int WHEEL_DIAMETER_INCHES = 6; //in inches
     public static double WHEEL_DIAMETER_METERS = 0.1524;
@@ -95,6 +100,11 @@ public class Drivetrain extends SubsystemBase {
         rightLeader.configFactoryDefault();
         leftFollower.configFactoryDefault();
         rightFollower.configFactoryDefault();
+
+        leftLeader.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
+        rightLeader.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
+        leftFollower.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
+        rightFollower.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
 
         TalonFXConfiguration talonConfig = new TalonFXConfiguration();
         talonConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;

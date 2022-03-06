@@ -20,13 +20,15 @@ public class Turret extends SubsystemBase {
   private CANSparkMax turretMotor = new CANSparkMax(PortConstants.shooterTurretPort, MotorType.kBrushless);
   private RelativeEncoder turretEncoder = turretMotor.getEncoder();
 
+  public static final int CURRENT_LIMIT = 20;
+
   /** Creates a new Turret. */
   public Turret() {
     turretMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
     turretMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
     turretMotor.setSoftLimit(SoftLimitDirection.kForward, 11.35f);
     turretMotor.setSoftLimit(SoftLimitDirection.kReverse, -11.35f);
-    turretMotor.burnFlash();
+    turretMotor.setSmartCurrentLimit(CURRENT_LIMIT);
   }
 
   public void runTurret(double speed) {
