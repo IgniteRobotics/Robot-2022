@@ -99,7 +99,7 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    bumper_driveR.whileHeld(indexerIntakeGroup, true);
+    bumper_driveR.whileHeld(indexerIntakeGroup, true).whenReleased(new IndexBall(m_indexer).withTimeout(1));
     bumper_driveL.whileHeld(new RunIntake(m_intake, false));
     btn_driveA.whileHeld(shootVelocityCommand);
     btn_driveB.whenHeld(shootGroup);
@@ -113,7 +113,6 @@ public class RobotContainer {
    */
   private void configureSubsystemCommands() {
     m_driveTrain.setDefaultCommand(arcadeDriveCommand);
-    m_indexer.setDefaultCommand(indexBallCommand.withInterrupt(() -> controller.isBreaksClear()).beforeStarting(new WaitUntilCommand(() -> !controller.isBreaksClear())));
     // m_turret.setDefaultCommand(new RunTurret(m_turret, m_manipController::getLeftX));
     // m_intake.setDefaultCommand(retractIntakeCommand);
   }
