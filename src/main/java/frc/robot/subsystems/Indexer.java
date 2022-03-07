@@ -14,13 +14,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotStateController;
 import frc.robot.constants.PortConstants;
 //Color sensor stuff. We borrowed from willtoth on Github
+import frc.robot.util.PicoColorSensor;
+import frc.robot.util.PicoColorSensor.RawColor;
 
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
 
 import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.I2C;
-import com.revrobotics.ColorSensorV3;
+//import edu.wpi.first.wpilibj.I2C;
+//import com.revrobotics.ColorSensorV3;
 
 public class Indexer extends SubsystemBase {
   private final DoublePreference indexerBeltSpeed = new DoublePreference("Indexer/Belt Speed", 1);
@@ -33,7 +35,7 @@ public class Indexer extends SubsystemBase {
   private DigitalInput kickupIndexerBeamBreak;
   private DigitalInput blindSpotBeamBreak;
 
-  private final I2C.Port i2cPort = I2C.Port.kOnboard;
+  //private final I2C.Port i2cPort = I2C.Port.kOnboard;
 
   private BallColor lastColor;
   private RobotStateController stateController;
@@ -43,7 +45,8 @@ public class Indexer extends SubsystemBase {
    * parameter. The device will be automatically initialized with default
    * parameters.
    */
-  private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
+  //private final ColorSensorV3 m_colorSensor = new ColorSensorV3(i2cPort);
+  private final PicoColorSensor m_colorSensor = new PicoColorSensor();
   private final Color kBlueTarget = new Color(0.143, 0.427, 0.429);
   private final Color kRedTarget = new Color(0.561, 0.232, 0.114);
   private final ColorMatch m_colorMatcher = new ColorMatch();
@@ -159,8 +162,9 @@ public class Indexer extends SubsystemBase {
 
     BallColor ballColor = BallColor.UNKNOWN;
 
-    if (m_colorSensor.getProximity() >= 300) {
-      Color detectedColor = m_colorSensor.getColor();
+    if (m_colorSensor.getProximity0() >= 300) {
+      RawColor rawDetectedColor = m_colorSensor.getRawColor0();
+      Color detectedColor = new Color(rawDetectedColor.red, rawDetectedColor.green, rawDetectedColor.blue);
       ColorMatchResult match = m_colorMatcher.matchClosestColor(detectedColor);
       if (match.color == kBlueTarget) {
         ballColor = BallColor.BLUE;
@@ -176,7 +180,7 @@ public class Indexer extends SubsystemBase {
     BallColor color = getDetectedColor();
     ballColorReporting.set(color.toString());
 
-    proximityReporting.set((double) m_colorSensor.getProximity());
+    proximityReporting.set((double) m_colorSensor.getProximity0());
 
     if(color != BallColor.UNKNOWN && color != lastColor) {
       //stateController.addBall(getDetectedColor());
