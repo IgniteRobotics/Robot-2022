@@ -54,6 +54,7 @@ public class Shooter extends SubsystemBase {
     leaderMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
     followerMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
     feedMotor.setSmartCurrentLimit(CURRENT_LIMIT);
+    feedMotor.burnFlash();
   }
 
   public void runVelocity(double velocity) {

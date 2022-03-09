@@ -82,15 +82,18 @@ public class Indexer extends SubsystemBase {
     m_colorMatcher.addColorMatch(kRedTarget);
     // TODO: invert the motors instead of negative power!
     indexerMotor.setInverted(false);
-    indexerMotor.burnFlash();
 
     kickupMotor.setInverted(false);
-    kickupMotor.burnFlash();
     position1ColorReporting.set(stateController.getFirstPositionColor().toString());
     position2ColorReporting.set(stateController.getSecondPositionColor().toString());
 
     indexerMotor.setSmartCurrentLimit(CURRENT_LIMIT);
     kickupMotor.setSmartCurrentLimit(CURRENT_LIMIT);
+    indexerMotor.burnFlash();
+    kickupMotor.burnFlash();
+
+
+    
   }
 
   public void indexBall() {
