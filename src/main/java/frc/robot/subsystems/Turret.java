@@ -51,6 +51,8 @@ public class Turret extends SubsystemBase {
     turretPidController.setD(DEFAULT_KD);
     turretPidController.setIZone(0);
     turretPidController.setOutputRange(-0.5, 0.5);
+
+    turretMotor.burnFlash();
   }
 
   public void runTurret(double speed) {

@@ -45,6 +45,8 @@ public class Intake extends SubsystemBase {
         intakePistonSolenoid = new DoubleSolenoid(21, PneumaticsModuleType.REVPH,
                 PortConstants.kIntakeSolenoidForwardPort, PortConstants.kIntakeSolenoidReversePort);
 
+        intakeMotor.burnFlash();
+
     }
 
     public void extendIntake() {
