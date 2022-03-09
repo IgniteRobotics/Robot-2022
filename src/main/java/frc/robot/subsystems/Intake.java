@@ -56,13 +56,12 @@ public class Intake extends SubsystemBase {
         intakePistonSolenoid.set(Value.kForward);
     }
 
-    public void retractIntake() {
+    private void retractIntake() {
         isExtended = false;
         extendedReporting.set(isExtended);
         // extending the piston actually retracts the intake!
         intakePistonSolenoid.set(Value.kReverse);
     }
-    // idk what that means haha
 
     public void toggleIntake() {
         if (isExtended) {
@@ -71,7 +70,6 @@ public class Intake extends SubsystemBase {
             extendIntake();
         }
     }
-    // intake go in and out or sumn?
 
     public void spin(double speed) {
         intakeMotor.set(speed);

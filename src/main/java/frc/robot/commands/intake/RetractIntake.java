@@ -25,12 +25,7 @@ public class RetractIntake extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (m_intake.isRunning()){
-      m_intake.stop();
-    }
-    if (m_intake.isExtended()) {
-      m_intake.retractIntake();
-    }
+    m_intake.stop();
   }
 
   // Called once the command ends or is interrupted.
@@ -40,6 +35,6 @@ public class RetractIntake extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return m_intake.isExtended() && m_intake.isRunning();
   }
 }

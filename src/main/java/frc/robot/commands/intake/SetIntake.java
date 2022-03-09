@@ -28,7 +28,7 @@ public class SetIntake extends CommandBase {
     if(extendIntake.get()) {
       intake.extendIntake();
     } else {
-      intake.retractIntake();
+      intake.stop();
     }
   }
 
