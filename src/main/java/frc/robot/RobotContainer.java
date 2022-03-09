@@ -23,6 +23,7 @@ import frc.robot.commands.indexer.RunIndexerAndKickup;
 import frc.robot.commands.indexer.RunIndexerBelts;
 import frc.robot.commands.intake.OuttakeIntake;
 import frc.robot.commands.intake.RunIntake;
+import frc.robot.commands.shooter.ReZeroTurret;
 import frc.robot.commands.shooter.ResetTurretEncoder;
 import frc.robot.commands.shooter.RunTurret;
 import frc.robot.commands.shooter.SetHoodPosition;
@@ -49,6 +50,8 @@ public class RobotContainer {
   private RobotStateController controller = RobotStateController.getInstance();
   private DoublePreference shooterVelocityPreference = new DoublePreference("Shooter Set Velocity", 0);
   private DoublePreference hoodPosition = new DoublePreference("Hood Set Position", 0);
+  private DoublePreference initialTurretOffset = new DoublePreference("Initial Turret Offset", 0);
+  private DoublePreference defaultTurrentPosition = new DoublePreference("Default Turret Position", 0);
 
   // controllers
   private XboxController m_driveController = new XboxController(PortConstants.DRIVER_CONTROLLER_PORT);
@@ -64,6 +67,7 @@ public class RobotContainer {
 
   // comands
   private ResetTurretEncoder resetTurretEncoder = new ResetTurretEncoder(m_turret);
+  private ReZeroTurret initializeTurret = new ReZeroTurret(m_turret, initialTurretOffset);
   private ArcadeDrive arcadeDriveCommand = new ArcadeDrive(m_driveController, m_driveTrain);
   private IndexBall indexBallCommand = new IndexBall(m_indexer);
   // private RetractIntake retractIntakeCommand = new RetractIntake(m_intake);
@@ -136,6 +140,8 @@ public class RobotContainer {
   private void configureSubsystemCommands() {
     m_driveTrain.setDefaultCommand(arcadeDriveCommand);
     m_turret.setDefaultCommand(new RunTurret(m_turret, m_manipController::getLeftX));
+    //TODO change to this default command after we verify soft limits are working
+    //m_turret.setDefaultCommand(new ReZeroTurret(m_turret, defaultTurrentPosition));
     // m_intake.setDefaultCommand(retractIntakeCommand);
   }
 
@@ -147,6 +153,6 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
     // TODO: Replace with real auton command. This is just here so it doesn't whine.
-    return new ExampleCommand(new ExampleSubsystem());
+    return new SequentialCommandGroup(initializeTurret);
   }
 }
