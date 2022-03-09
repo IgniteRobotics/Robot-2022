@@ -46,10 +46,7 @@ public class RunIntake extends CommandBase {
     if (robotState.isIndexerFull()) {
       return;
     } else {
-      if (!intake.isExtended()) {
-        intake.extendIntake();
-      }
-      
+      //spin will extend
       intake.spin();
     }
     // if (this.direction){
