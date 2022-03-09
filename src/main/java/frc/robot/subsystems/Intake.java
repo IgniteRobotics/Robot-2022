@@ -72,6 +72,9 @@ public class Intake extends SubsystemBase {
     }
 
     public void spin(double speed) {
+        if (!isExtended){
+            extendIntake();
+        }
         intakeMotor.set(speed);
     }
 
