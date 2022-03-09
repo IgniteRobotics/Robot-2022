@@ -32,8 +32,8 @@ public class OuttakeIntake extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    //stop also retracts!
     intake.stop();
-    intake.retractIntake();
   }
 
   // Returns true when the command should end.
