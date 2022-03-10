@@ -55,8 +55,9 @@ import frc.robot.subsystems.Turret;
 public class RobotContainer {
   private RobotStateController controller = RobotStateController.getInstance();
   private DoublePreference shooterVelocityPreference = new DoublePreference("Shooter Set Velocity", 0);
-  private DoublePreference shooterFenderLowPreference = new DoublePreference("FenderLow Velocity", 3500);
+  private DoublePreference shooterFenderLowPreference = new DoublePreference("FenderLow Velocity", 2500);
   private DoublePreference shooterFenderHighPreference = new DoublePreference("FenderHigh Velocity", 7000);
+  private DoublePreference shooterEjectPreference = new DoublePreference("Eject Velocity", 9000);
 
   public static final double DEFAULT_HOOD = 180;
 
@@ -99,6 +100,7 @@ public class RobotContainer {
 
   private Command shootFenderLow = createShootSetVelocity(shooterFenderLowPreference, () -> 180.0);
   private Command shootFenderHigh = createShootSetVelocity(shooterFenderHighPreference, () -> 0.0);
+  private Command shootEject = createShootSetVelocity(shooterEjectPreference, () -> 180.0);
 
   private Command shootInterpolated = createShootSetVelocity(
       () -> I_CALCULATOR.calculateParameter(m_limelight.getDistance()).vals[0], 
@@ -114,6 +116,7 @@ public class RobotContainer {
 
   private JoystickButton btn_manipA = new JoystickButton(m_manipController, XboxController.Button.kA.value);
   private JoystickButton btn_manipX = new JoystickButton(m_manipController, XboxController.Button.kX.value);
+
   private JoystickButton bumper_manipR = new JoystickButton(m_manipController,
       XboxController.Button.kRightBumper.value);
   private JoystickButton bumper_manipL = new JoystickButton(m_manipController, XboxController.Button.kLeftBumper.value);
@@ -156,10 +159,12 @@ public class RobotContainer {
     btn_driveA.whenHeld(shootFenderLow);
     btn_driveY.whileHeld(shootFenderHigh);
     btn_driveB.whenHeld(shootInterpolated);
-    btn_driveX.whenHeld(shootGroup);
+    btn_driveX.whenHeld(shootEject);
 
     btn_manipA.whileHeld(new SetHoodPosition(m_hood, hoodPosition));
     btn_manipX.whileHeld(new TurretTarget(m_limelight, m_turret));
+
+
     bumper_manipR.whileHeld(new OuttakeIntake(m_intake));
     bumper_manipL.whileHeld(outtakeSingleBall);
   }
