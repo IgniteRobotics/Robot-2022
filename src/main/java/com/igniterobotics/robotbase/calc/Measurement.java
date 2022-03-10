@@ -42,9 +42,29 @@ public class Measurement {
         }
     }
 
+    public double getAsRadians() {
+        switch(unit) {
+            case DEGREES:
+                return Units.degToRad(value);
+            default:
+                return value;
+        }
+    }
+
+    public double getAsDegrees() {
+        switch(unit) {
+            case RADIANS:
+                return Units.radToDeg(value);
+            default:
+                return value;
+        }
+    }
+
     public static enum Unit {
         METERS,
         INCHES,
-        CENTIMETERS
+        CENTIMETERS,
+        RADIANS,
+        DEGREES
     }
 }

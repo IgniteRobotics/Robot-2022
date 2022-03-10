@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.igniterobotics.robotbase.calc.InterCalculator;
+import com.igniterobotics.robotbase.calc.InterParameter;
 import com.igniterobotics.robotbase.preferences.DoublePreference;
 
 import edu.wpi.first.wpilibj.GenericHID;
@@ -34,6 +36,7 @@ import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Turret;
 
@@ -58,12 +61,13 @@ public class RobotContainer {
   private XboxController m_manipController = new XboxController(PortConstants.MANIPULATOR_CONTROLLER_PORT);
 
   // subsystems
-  private Drivetrain m_driveTrain = new Drivetrain();
-  private Intake m_intake = new Intake();
-  private Indexer m_indexer = new Indexer();
-  private Shooter m_shooter = new Shooter();
-  private Turret m_turret = new Turret();
-  private Hood m_hood = new Hood();
+  public final Drivetrain m_driveTrain = new Drivetrain();
+  public final Intake m_intake = new Intake();
+  public final Indexer m_indexer = new Indexer();
+  public final Shooter m_shooter = new Shooter();
+  public final Turret m_turret = new Turret();
+  public final Hood m_hood = new Hood();
+  public final Limelight m_limelight = new Limelight();
 
   // comands
   private ResetTurretEncoder resetTurretEncoder = new ResetTurretEncoder(m_turret);
@@ -155,4 +159,9 @@ public class RobotContainer {
     // TODO: Replace with real auton command. This is just here so it doesn't whine.
     return new SequentialCommandGroup(initializeTurret);
   }
+
+  // DISTANCE, HOOD_ANGLE, VELOCITY
+  public static final InterCalculator I_CALCULATOR = new InterCalculator(
+    new InterParameter(0, 0, 0)
+  );
 }

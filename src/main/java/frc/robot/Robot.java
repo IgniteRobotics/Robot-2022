@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -37,6 +39,7 @@ public class Robot extends TimedRobot {
     pneumaticHub.enableCompressorDigital();
     pneumaticHub.enableCompressorAnalog(100, 120);
     compressor.enableDigital();
+    m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Coast);
   }
 
   /**
@@ -60,6 +63,7 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     RobotStateController robotState = RobotStateController.getInstance();
     robotState.reset();
+    m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Coast);
   }
 
   @Override
@@ -68,6 +72,7 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Brake);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -82,6 +87,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Brake);
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove

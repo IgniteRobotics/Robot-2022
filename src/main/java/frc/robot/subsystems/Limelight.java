@@ -6,10 +6,14 @@ package frc.robot.subsystems;
 
 import javax.naming.ldap.LdapContext;
 
+import com.igniterobotics.robotbase.calc.Measurement;
+import com.igniterobotics.robotbase.calc.Units;
+import com.igniterobotics.robotbase.calc.Measurement.Unit;
 import com.igniterobotics.robotbase.reporting.ReportingBoolean;
 import com.igniterobotics.robotbase.reporting.ReportingLevel;
 import com.igniterobotics.robotbase.reporting.ReportingNumber;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -26,7 +30,12 @@ public class Limelight extends SubsystemBase {
 
   private ReportingNumber tyReporter = new ReportingNumber("Limelight ty", ReportingLevel.TEST);
   private ReportingNumber txReporter = new ReportingNumber("Limelight tx", ReportingLevel.TEST);
+  private ReportingNumber distanceReporter = new ReportingNumber("Limelight distance", ReportingLevel.COMPETITON);
   private ReportingBoolean tvReporter = new ReportingBoolean("Limelight tv", ReportingLevel.TEST);
+
+  private final double h1 = 0.7112;
+  private final double h2 = 2.61;
+  private final Measurement a1 = new Measurement(Unit.DEGREES, 35);
 
   /** Creates a new Limelight. */
   public Limelight() {}
@@ -36,6 +45,7 @@ public class Limelight extends SubsystemBase {
     tyReporter.set(getTy());
     txReporter.set(getTx());
     tvReporter.set(getTv());
+    distanceReporter.set(getDistance());
   }
 
   public double getTy() {
@@ -56,5 +66,9 @@ public class Limelight extends SubsystemBase {
 
   public void setLed(boolean on) {
     ledMode.setNumber(on ? 3 : 1);
+  }
+
+  public double getDistance() {
+    return (h2 - h1) / Math.tan(Units.degToRad(getTy()) + a1.getAsRadians());
   }
 }
