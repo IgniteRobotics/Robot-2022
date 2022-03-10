@@ -78,7 +78,6 @@ public class RobotContainer {
 
   // comands
   private ResetTurretEncoder resetTurretEncoder = new ResetTurretEncoder(m_turret);
-  private ReZeroTurret initializeTurret = new ReZeroTurret(m_turret, initialTurretOffset);
   private ArcadeDrive arcadeDriveCommand = new ArcadeDrive(m_driveController, m_driveTrain);
   private IndexBall indexBallCommand = new IndexBall(m_indexer);
   // private RetractIntake retractIntakeCommand = new RetractIntake(m_intake);
@@ -112,6 +111,7 @@ public class RobotContainer {
   private JoystickButton bumper_driveL = new JoystickButton(m_driveController, XboxController.Button.kLeftBumper.value);
 
   private JoystickButton btn_manipA = new JoystickButton(m_manipController, XboxController.Button.kA.value);
+  private JoystickButton btn_manipX = new JoystickButton(m_manipController, XboxController.Button.kX.value);
   private JoystickButton bumper_manipR = new JoystickButton(m_manipController,
       XboxController.Button.kRightBumper.value);
   private JoystickButton bumper_manipL = new JoystickButton(m_manipController, XboxController.Button.kLeftBumper.value);
@@ -157,6 +157,7 @@ public class RobotContainer {
     btn_driveX.whenHeld(shootGroup);
 
     btn_manipA.whileHeld(new SetHoodPosition(m_hood, hoodPosition));
+    btn_manipX.whenHeld(new ReZeroTurret(m_turret, defaultTurrentPosition));
     bumper_manipR.whileHeld(new OuttakeIntake(m_intake));
     bumper_manipL.whileHeld(outtakeSingleBall);
   }
@@ -167,11 +168,8 @@ public class RobotContainer {
   private void configureSubsystemCommands() {
     m_driveTrain.setDefaultCommand(arcadeDriveCommand);
     m_hood.setDefaultCommand(new SetHoodPosition(m_hood, () -> DEFAULT_HOOD));
-    // m_turret.setDefaultCommand(new RunTurret(m_turret,
-    // m_manipController::getLeftX));
     // TODO change to this default command after we verify soft limits are working
-    // m_turret.setDefaultCommand(new ReZeroTurret(m_turret,
-    // defaultTurrentPosition));
+    m_turret.setDefaultCommand(new ReZeroTurret(m_turret, defaultTurrentPosition));
     // m_intake.setDefaultCommand(retractIntakeCommand);
   }
 
@@ -183,7 +181,7 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
     // TODO: Replace with real auton command. This is just here so it doesn't whine.
-    return new SequentialCommandGroup(initializeTurret);
+    return null;
   }
 
   // DISTANCE, VELOCITY, HOOD_ANGLE

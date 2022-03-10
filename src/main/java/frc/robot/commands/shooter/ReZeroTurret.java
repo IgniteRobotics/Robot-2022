@@ -37,14 +37,11 @@ public class ReZeroTurret extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if (!interrupted){
-      m_turret.resetEncoder();
-    }
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_turret.isAtPosition();
+    return false;
   }
 }

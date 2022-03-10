@@ -25,12 +25,12 @@ public class Turret extends SubsystemBase {
   private SparkMaxPIDController turretPidController = turretMotor.getPIDController();
 
   public static final int CURRENT_LIMIT = 20;
-  public static double DEFAULT_KP = 0.01;
+  public static double DEFAULT_KP = 0.07;
   public static double DEFAULT_KI = 0.0;
   public static double DEFAULT_KD = 0;
   public static double DEFAULT_RPM = 100;
-  public static float FORWARD_LIMIT = 11.35f;
-  public static float REVERSE_LIMIT = 11.35f;
+  public static float FORWARD_LIMIT = 19f;
+  public static float REVERSE_LIMIT = -19f;
 
   public static double POSITION_ACCURACY = 0.1;
 
@@ -42,7 +42,7 @@ public class Turret extends SubsystemBase {
     turretMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
     turretMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
     turretMotor.setSoftLimit(SoftLimitDirection.kForward, FORWARD_LIMIT);
-    turretMotor.setSoftLimit(SoftLimitDirection.kReverse, -REVERSE_LIMIT);
+    turretMotor.setSoftLimit(SoftLimitDirection.kReverse, REVERSE_LIMIT);
     turretMotor.setSmartCurrentLimit(CURRENT_LIMIT);
     turretMotor.setIdleMode(IdleMode.kBrake);
 
@@ -60,7 +60,7 @@ public class Turret extends SubsystemBase {
   }
 
   public void gotoPostion(double positionTicks){
-    this.currentTargetTicks =positionTicks;
+    this.currentTargetTicks = positionTicks;
     turretPidController.setReference(positionTicks, CANSparkMax.ControlType.kPosition); 
   }
 
@@ -73,7 +73,7 @@ public class Turret extends SubsystemBase {
   }
 
   public void stop() {
-    turretMotor.set(0);
+    turretMotor.stopMotor();
   }
 
   public void resetEncoder() {

@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.PortConstants;
 
 public class Intake extends SubsystemBase {
-    public static final int CURRENT_LIMIT = 20;
+    public static final int CURRENT_LIMIT = 30;
     private final DoublePreference intakeSpeed = new DoublePreference("Intake Speed");
 
     private final CANSparkMax intakeMotor;
@@ -43,7 +43,7 @@ public class Intake extends SubsystemBase {
         isExtended = false;
 
         intakePistonSolenoid = new DoubleSolenoid(21, PneumaticsModuleType.REVPH,
-                PortConstants.kIntakeSolenoidForwardPort, PortConstants.kIntakeSolenoidReversePort);
+                PortConstants.kIntakeSolenoidReversePort, PortConstants.kIntakeSolenoidForwardPort);
 
         intakeMotor.burnFlash();
 
