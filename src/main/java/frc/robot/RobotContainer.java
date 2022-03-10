@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.function.Supplier;
+
 import com.igniterobotics.robotbase.calc.InterCalculator;
 import com.igniterobotics.robotbase.calc.InterParameter;
 import com.igniterobotics.robotbase.preferences.DoublePreference;
@@ -52,6 +54,11 @@ import frc.robot.subsystems.Turret;
 public class RobotContainer {
   private RobotStateController controller = RobotStateController.getInstance();
   private DoublePreference shooterVelocityPreference = new DoublePreference("Shooter Set Velocity", 0);
+  private DoublePreference shooterFenderLowPreference = new DoublePreference("FenderLow Velocity", 3500);
+  private DoublePreference shooterFenderHighPreference = new DoublePreference("FenderHigh Velocity", 7000);
+
+  public static final double DEFAULT_HOOD = 180;
+
   private DoublePreference hoodPosition = new DoublePreference("Hood Set Position", 0);
   private DoublePreference initialTurretOffset = new DoublePreference("Initial Turret Offset", 0);
   private DoublePreference defaultTurrentPosition = new DoublePreference("Default Turret Position", 0);
@@ -84,18 +91,22 @@ public class RobotContainer {
   private ParallelRaceGroup indexerIntakeGroup = new ParallelRaceGroup(new IndexBall(m_indexer),
       new RunIntake(m_intake, true));
   // command group to feed the shooter. ends 500ms after the indexer is empty.
-  private SequentialCommandGroup feedShooterGroup = new SequentialCommandGroup(
-      new WaitUntilCommand(m_shooter::isSetpointMet).andThen(new WaitCommand(0.25)),
-      new RunIndexerAndKickup(m_indexer, true, 1));
+
   // command group to shoot. ends either when the shooter is done, or the indexer
   // is empty
-  private ParallelDeadlineGroup shootGroup = new ParallelDeadlineGroup(
-      feedShooterGroup,
-      new ShootSetVelocity(m_shooter, shooterVelocityPreference));
+
+  private Command shootGroup = createShootSetVelocity(shooterVelocityPreference, () -> 180.0);
+
+  private Command shootFenderLow = createShootSetVelocity(shooterFenderLowPreference, () -> 180.0);
+  private Command shootFenderHigh = createShootSetVelocity(shooterFenderHighPreference, () -> 0.0);
+
+  private Command shootInterpolated = createShootSetVelocity(
+      () -> I_CALCULATOR.calculateParameter(m_limelight.getDistance()).vals[0], () -> 180.0);
 
   private JoystickButton btn_driveA = new JoystickButton(m_driveController, XboxController.Button.kA.value);
   private JoystickButton btn_driveB = new JoystickButton(m_driveController, XboxController.Button.kB.value);
   private JoystickButton btn_driveX = new JoystickButton(m_driveController, XboxController.Button.kX.value);
+  private JoystickButton btn_driveY = new JoystickButton(m_driveController, XboxController.Button.kY.value);
   private JoystickButton bumper_driveR = new JoystickButton(m_driveController,
       XboxController.Button.kRightBumper.value);
   private JoystickButton bumper_driveL = new JoystickButton(m_driveController, XboxController.Button.kLeftBumper.value);
@@ -104,6 +115,15 @@ public class RobotContainer {
   private JoystickButton bumper_manipR = new JoystickButton(m_manipController,
       XboxController.Button.kRightBumper.value);
   private JoystickButton bumper_manipL = new JoystickButton(m_manipController, XboxController.Button.kLeftBumper.value);
+
+  private Command createShootSetVelocity(Supplier<Double> velocity, Supplier<Double> hoodAngle) {
+    return new ParallelDeadlineGroup(
+        new SequentialCommandGroup(
+            new SetHoodPosition(m_hood, hoodAngle).withInterrupt(() -> hoodAngle.get() == DEFAULT_HOOD).withTimeout(1),
+            new WaitUntilCommand(m_shooter::isSetpointMet).andThen(new WaitCommand(0.25)),
+            new RunIndexerAndKickup(m_indexer, true, 3)),
+        new ShootSetVelocity(m_shooter, velocity, false));
+  }
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -130,8 +150,11 @@ public class RobotContainer {
   private void configureButtonBindings() {
     bumper_driveR.whileHeld(indexerIntakeGroup, true).whenReleased(new IndexBall(m_indexer).withTimeout(1));
     bumper_driveL.whileHeld(new RunIntake(m_intake, false));
-    btn_driveA.whileHeld(shootVelocityCommand);
-    btn_driveB.whenHeld(shootGroup);
+
+    btn_driveA.whenHeld(shootFenderLow);
+    btn_driveY.whileHeld(shootFenderHigh);
+    btn_driveB.whenHeld(shootInterpolated);
+    btn_driveX.whenHeld(shootGroup);
 
     btn_manipA.whileHeld(new SetHoodPosition(m_hood, hoodPosition));
     bumper_manipR.whileHeld(new OuttakeIntake(m_intake));
@@ -143,9 +166,12 @@ public class RobotContainer {
    */
   private void configureSubsystemCommands() {
     m_driveTrain.setDefaultCommand(arcadeDriveCommand);
-    m_turret.setDefaultCommand(new RunTurret(m_turret, m_manipController::getLeftX));
-    //TODO change to this default command after we verify soft limits are working
-    //m_turret.setDefaultCommand(new ReZeroTurret(m_turret, defaultTurrentPosition));
+    m_hood.setDefaultCommand(new SetHoodPosition(m_hood, () -> DEFAULT_HOOD));
+    // m_turret.setDefaultCommand(new RunTurret(m_turret,
+    // m_manipController::getLeftX));
+    // TODO change to this default command after we verify soft limits are working
+    // m_turret.setDefaultCommand(new ReZeroTurret(m_turret,
+    // defaultTurrentPosition));
     // m_intake.setDefaultCommand(retractIntakeCommand);
   }
 
@@ -160,8 +186,8 @@ public class RobotContainer {
     return new SequentialCommandGroup(initializeTurret);
   }
 
-  // DISTANCE, HOOD_ANGLE, VELOCITY
+  // DISTANCE, VELOCITY, HOOD_ANGLE
   public static final InterCalculator I_CALCULATOR = new InterCalculator(
-    new InterParameter(0, 0, 0)
-  );
+      new InterParameter(1.92, 7100, 180),
+      new InterParameter(3.51, 9300, 180));
 }

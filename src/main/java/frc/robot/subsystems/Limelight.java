@@ -45,6 +45,7 @@ public class Limelight extends SubsystemBase {
     tyReporter.set(getTy());
     txReporter.set(getTx());
     tvReporter.set(getTv());
+    System.out.println(getDistance());
     distanceReporter.set(getDistance());
   }
 

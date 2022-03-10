@@ -23,7 +23,8 @@ public class Shooter extends SubsystemBase {
   private final ReportingBoolean isSetpointMet = new ReportingBoolean("Setpoint Met", ReportingLevel.COMPETITON);
   private final ReportingNumber shooterVelocityReporter = new ReportingNumber("Shooter Actual Velocity",
       ReportingLevel.COMPETITON);
-  private final ReportingNumber shooterCurrent = new ReportingNumber("Shooter Current", ReportingLevel.COMPETITON);
+  private final ReportingNumber shooterCurrent1 = new ReportingNumber("Shooter Current 1", ReportingLevel.COMPETITON);
+  private final ReportingNumber shooterCurrent2 = new ReportingNumber("Shooter Current 2", ReportingLevel.COMPETITON);
 
   private WPI_TalonFX leaderMotor = new WPI_TalonFX(PortConstants.shooterLeaderPort); // shooter
   private WPI_TalonFX followerMotor = new WPI_TalonFX(PortConstants.shooterFollowerPort);
@@ -31,28 +32,41 @@ public class Shooter extends SubsystemBase {
   private CANSparkMax feedMotor = new CANSparkMax(PortConstants.shooterFeedPort, MotorType.kBrushless);
 
   private double setpointVelocity;
-  private static final double SETPOINT_TOLERANCE = 250;
+  private static final double SETPOINT_TOLERANCE = 150;
 
   public static final int CURRENT_LIMIT = 20;
   public static final int CURRENT_LIMIT_THRESHOLD = 20;
   public static final int CURRENT_LIMIT_TIME = 1;
 
+  public static final double kF = 0.062;
+  public static final double kP = 0.2;
+  public static final double kD = 0.03;
+
+  private final DoublePreference kFPref = new DoublePreference("Shooter kF", 0.06);
+  private final DoublePreference kPPref = new DoublePreference("Shooter kP", 0.2);
+  private final DoublePreference kDPref = new DoublePreference("Shooter kD", 0.03);
+
   public Shooter() {
     leaderMotor.setNeutralMode(NeutralMode.Coast);
     followerMotor.setNeutralMode(NeutralMode.Coast);
 
-    leaderMotor.config_kF(0, 0.052);
-    leaderMotor.config_kP(0, 0.30);
+    leaderMotor.config_kF(0, kF);
+    leaderMotor.config_kP(0, kP);
+    leaderMotor.config_kD(0, kD);
+    followerMotor.config_kF(0, kF);
+    followerMotor.config_kP(0, kP);
+    followerMotor.config_kD(0, kD);
 
     feedMotor.setInverted(true);
 
     leaderMotor.setInverted(false);
     followerMotor.setInverted(true);
 
-    followerMotor.follow(leaderMotor);
+    leaderMotor.enableVoltageCompensation(true);
+    leaderMotor.configVoltageCompSaturation(11);
+    followerMotor.enableVoltageCompensation(true);
+    followerMotor.configVoltageCompSaturation(11);
 
-    leaderMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
-    followerMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
     feedMotor.setSmartCurrentLimit(CURRENT_LIMIT);
     feedMotor.burnFlash();
   }
@@ -60,6 +74,7 @@ public class Shooter extends SubsystemBase {
   public void runVelocity(double velocity) {
     this.setpointVelocity = velocity;
     leaderMotor.set(ControlMode.Velocity, Math.abs(velocity));
+    followerMotor.set(ControlMode.Velocity, Math.abs(velocity));
   }
 
   public void runFeed() {
@@ -76,8 +91,16 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     shooterVelocityReporter.set(leaderMotor.getSelectedSensorVelocity());
-    shooterCurrent.set(leaderMotor.getStatorCurrent());
+    shooterCurrent1.set(leaderMotor.getStatorCurrent());
+    shooterCurrent2.set(followerMotor.getStatorCurrent());
     isSetpointMet.set(isSetpointMet());
+
+    // leaderMotor.config_kF(0, kFPref.getValue());
+    // leaderMotor.config_kP(0, kPPref.getValue());
+    // leaderMotor.config_kD(0, kDPref.getValue());
+    // followerMotor.config_kF(0, kFPref.getValue());
+    // followerMotor.config_kP(0, kPPref.getValue());
+    // followerMotor.config_kD(0, kDPref.getValue());
   }
 
   public boolean isSetpointMet() {
