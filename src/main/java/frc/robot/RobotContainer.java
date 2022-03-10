@@ -32,6 +32,7 @@ import frc.robot.commands.shooter.ResetTurretEncoder;
 import frc.robot.commands.shooter.RunTurret;
 import frc.robot.commands.shooter.SetHoodPosition;
 import frc.robot.commands.shooter.ShootSetVelocity;
+import frc.robot.commands.shooter.TurretTarget;
 import frc.robot.constants.PortConstants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -100,7 +101,8 @@ public class RobotContainer {
   private Command shootFenderHigh = createShootSetVelocity(shooterFenderHighPreference, () -> 0.0);
 
   private Command shootInterpolated = createShootSetVelocity(
-      () -> I_CALCULATOR.calculateParameter(m_limelight.getDistance()).vals[0], () -> 180.0);
+      () -> I_CALCULATOR.calculateParameter(m_limelight.getDistance()).vals[0], 
+      () -> 180.0);
 
   private JoystickButton btn_driveA = new JoystickButton(m_driveController, XboxController.Button.kA.value);
   private JoystickButton btn_driveB = new JoystickButton(m_driveController, XboxController.Button.kB.value);
@@ -157,7 +159,7 @@ public class RobotContainer {
     btn_driveX.whenHeld(shootGroup);
 
     btn_manipA.whileHeld(new SetHoodPosition(m_hood, hoodPosition));
-    btn_manipX.whenHeld(new ReZeroTurret(m_turret, defaultTurrentPosition));
+    btn_manipX.whileHeld(new TurretTarget(m_limelight, m_turret));
     bumper_manipR.whileHeld(new OuttakeIntake(m_intake));
     bumper_manipL.whileHeld(outtakeSingleBall);
   }

@@ -19,7 +19,7 @@ public class TurretTarget extends PIDCommand {
   private Limelight limelight;
   private Shooter shooter;
 
-  private static final double kP_TURN = 0;
+  private static final double kP_TURN = 0.05;
   private static final double kI_TURN = 0;
   private static final double kD_TURN = 0;
 
