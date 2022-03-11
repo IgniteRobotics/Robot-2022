@@ -21,6 +21,8 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.climber.ClimbDown;
+import frc.robot.commands.climber.ClimbUp;
 import frc.robot.commands.climber.RetractClimbMax;
 import frc.robot.commands.drivetrain.ArcadeDrive;
 import frc.robot.commands.indexer.IndexBall;
@@ -94,11 +96,10 @@ public class RobotContainer {
   // command group that runs the indexer and the intake until the indexer is full.
   private ParallelRaceGroup indexerIntakeGroup = new ParallelRaceGroup(new IndexBall(m_indexer),
       new RunIntake(m_intake, true));
-  private RetractClimbMax retractClimbMax = new RetractClimbMax(m_climber);
-  // command group to feed the shooter. ends 500ms after the indexer is empty.
 
-  // command group to shoot. ends either when the shooter is done, or the indexer
-  // is empty
+  private RetractClimbMax retractClimbMax = new RetractClimbMax(m_climber);
+  private ClimbUp climbUp = new ClimbUp(m_climber);
+  private ClimbDown climbDown = new ClimbDown(m_climber);
 
   private Command shootGroup = createShootSetVelocity(shooterVelocityPreference, () -> 180.0);
 
@@ -120,6 +121,8 @@ public class RobotContainer {
 
   private JoystickButton btn_manipA = new JoystickButton(m_manipController, XboxController.Button.kA.value);
   private JoystickButton btn_manipX = new JoystickButton(m_manipController, XboxController.Button.kX.value);
+  private JoystickButton btn_manipY = new JoystickButton(m_manipController, XboxController.Button.kY.value);
+  private JoystickButton btn_manipB = new JoystickButton(m_manipController, XboxController.Button.kB.value);
 
   private JoystickButton bumper_manipR = new JoystickButton(m_manipController,
       XboxController.Button.kRightBumper.value);
@@ -132,6 +135,8 @@ public class RobotContainer {
 
     SmartDashboard.putData(resetTurretEncoder);
     SmartDashboard.putData(retractClimbMax);
+    SmartDashboard.putData(climbUp);
+    SmartDashboard.putData(climbDown);
   }
 
   private void configureButtonBindings() {
@@ -143,8 +148,9 @@ public class RobotContainer {
     btn_driveB.whenHeld(shootInterpolated);
     btn_driveX.whenHeld(shootEject);
 
-    btn_manipA.whileHeld(new SetHoodPosition(m_hood, hoodPosition));
-    btn_manipX.whileHeld(new TurretTarget(m_limelight, m_turret));
+    btn_manipA.whileHeld(new TurretTarget(m_limelight, m_turret));
+    btn_manipY.whileHeld(climbUp);
+    btn_manipB.whileHeld(climbDown);
 
     bumper_manipR.whileHeld(new OuttakeIntake(m_intake));
     bumper_manipL.whileHeld(outtakeSingleBall);

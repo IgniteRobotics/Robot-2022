@@ -9,6 +9,9 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.igniterobotics.robotbase.preferences.DoublePreference;
+import com.igniterobotics.robotbase.reporting.ReportingLevel;
+import com.igniterobotics.robotbase.reporting.ReportingNumber;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -19,6 +22,12 @@ import frc.robot.constants.ClimbConstants;
 import frc.robot.constants.PortConstants;
 
 public class Climber extends SubsystemBase {
+  private DoublePreference climbUpEffortPref = new DoublePreference("Climb Up Effort");
+  private DoublePreference climbDownEffortPref = new DoublePreference("Climb Down Effort");
+
+  private ReportingNumber climberLeftReporter = new ReportingNumber("Climber Left Pos", ReportingLevel.TEST);
+  private ReportingNumber climberRightReporter = new ReportingNumber("Climber Right Pos", ReportingLevel.TEST);
+  private ReportingNumber climberCurrent = new ReportingNumber("Climber Current", ReportingLevel.TEST);
 
   private WPI_TalonFX climberLeft;
   private WPI_TalonFX climberRight;
@@ -57,33 +66,23 @@ public class Climber extends SubsystemBase {
     climberRight.setNeutralMode(NeutralMode.Brake);
 
     // Sets a limit for the climber motor
-    climberLeft.configForwardSoftLimitThreshold(ClimbConstants.CLIMBER_FORWARD_LIMIT);
-    climberLeft.configReverseSoftLimitThreshold(ClimbConstants.CLIMBER_REVERSE_LIMIT);
-    climberLeft.configForwardSoftLimitEnable(false, 0);
-    climberLeft.configReverseSoftLimitEnable(false, 0);
+    climberLeft.configForwardSoftLimitThreshold(ClimbConstants.CLIMBER_FORWARD_LIMIT_LEFT);
+    climberLeft.configReverseSoftLimitThreshold(ClimbConstants.CLIMBER_REVERSE_LIMIT_LEFT);
+    climberLeft.configForwardSoftLimitEnable(true, 0);
+    climberLeft.configReverseSoftLimitEnable(true, 0);
 
-    climberRight.configForwardSoftLimitThreshold(ClimbConstants.CLIMBER_FORWARD_LIMIT);
-    climberRight.configReverseSoftLimitThreshold(ClimbConstants.CLIMBER_REVERSE_LIMIT);
-    climberRight.configForwardSoftLimitEnable(false, 0);
-    climberRight.configReverseSoftLimitEnable(false, 0);
+    climberRight.configForwardSoftLimitThreshold(ClimbConstants.CLIMBER_FORWARD_LIMIT_RIGHT);
+    climberRight.configReverseSoftLimitThreshold(ClimbConstants.CLIMBER_REVERSE_LIMIT_RIGHT);
+    climberRight.configForwardSoftLimitEnable(true, 0);
+    climberRight.configReverseSoftLimitEnable(true, 0);
   }
 
   @Override
   // makes climber smoothly raise
   public void periodic() {
-    if (isRampingDown) {
-      framesSinceRamp++;
-
-      if (framesSinceRamp >= ClimbConstants.rampDownFrames) {
-        isRampingDown = false;
-        stop();
-      } else {
-        climberLeft.set(ControlMode.PercentOutput,
-            (1 - framesSinceRamp / (double) ClimbConstants.rampDownFrames) * initialRampingEffort);
-        climberRight.set(ControlMode.PercentOutput,
-            (1 - framesSinceRamp / (double) ClimbConstants.rampDownFrames) * initialRampingEffort);
-      }
-    }
+    climberLeftReporter.set(climberLeft.getSelectedSensorPosition());
+    climberRightReporter.set(climberRight.getSelectedSensorPosition());
+    climberCurrent.set(climberRight.getSupplyCurrent());
   }
 
   private void configureMotionMagic() {
@@ -105,15 +104,14 @@ public class Climber extends SubsystemBase {
   // Control to make climber extend
   public void goUp() {
     // TODO make this shuffleboard changeable
-    climberLeft.set(ControlMode.PercentOutput, ClimbConstants.CLIMB_EFFORT_UP);
-    climberRight.set(ControlMode.PercentOutput, ClimbConstants.CLIMB_EFFORT_UP);
+    climberLeft.set(ControlMode.PercentOutput, Math.abs(climbUpEffortPref.getValue()));
+    climberRight.set(ControlMode.PercentOutput, Math.abs(climbUpEffortPref.getValue()));
   }
 
   // control to make climber pull robot up
   public void goDown() {
-    isRampingDown = false;
-    climberLeft.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN);
-    climberRight.set(ControlMode.PercentOutput, -ClimbConstants.CLIMB_EFFORT_DOWN);
+    climberLeft.set(ControlMode.PercentOutput, -Math.abs(climbDownEffortPref.getValue()));
+    climberRight.set(ControlMode.PercentOutput, -Math.abs(climbDownEffortPref.getValue()));
   }
 
   // control to make climber pull robot up slowly
