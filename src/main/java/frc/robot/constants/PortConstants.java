@@ -25,8 +25,8 @@ public final class PortConstants {
 
     //Climber Motors
     //TODO:  Set these ports correctly.  They were conflicting with the drivetrain.
-    public static final int ClimbLeftMotorPort = 0;
-    public static final int ClimbRightMotorPort = 0;
+    public static final int ClimbLeftMotorPort = 11;
+    public static final int ClimbRightMotorPort = 12;
 
     //Drivetrain Motors
     public static final int driveTrainLeftLeaderPort = 2;
