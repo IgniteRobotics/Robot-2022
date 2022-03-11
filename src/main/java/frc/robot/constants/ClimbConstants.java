@@ -14,6 +14,9 @@ public class ClimbConstants {
     //Helps climb motors stop smoothly  
     public static final double rampDownFrames = 25;
 
+    public static final double SAFE_STATOR_LIMIT = 0.5;
+    public static final double SAFE_REDUCE_EFFORT = 0.1;
+
     //Maybe not necissary
     //public static final double safeStatorLimit = 0.3;
     //public static final double safeReduceEffort = 0.25;

@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.climber.RetractClimbMax;
 import frc.robot.commands.drivetrain.ArcadeDrive;
 import frc.robot.commands.indexer.IndexBall;
 import frc.robot.commands.indexer.RunIndexerAndKickup;
@@ -34,6 +35,7 @@ import frc.robot.commands.shooter.SetHoodPosition;
 import frc.robot.commands.shooter.ShootSetVelocity;
 import frc.robot.commands.shooter.TurretTarget;
 import frc.robot.constants.PortConstants;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Hood;
@@ -77,6 +79,7 @@ public class RobotContainer {
   public final Turret m_turret = new Turret();
   public final Hood m_hood = new Hood();
   public final Limelight m_limelight = new Limelight();
+  public final Climber m_climber = new Climber();
 
   // comands
   private ResetTurretEncoder resetTurretEncoder = new ResetTurretEncoder(m_turret);
@@ -91,6 +94,7 @@ public class RobotContainer {
   // command group that runs the indexer and the intake until the indexer is full.
   private ParallelRaceGroup indexerIntakeGroup = new ParallelRaceGroup(new IndexBall(m_indexer),
       new RunIntake(m_intake, true));
+  private RetractClimbMax retractClimbMax = new RetractClimbMax(m_climber);
   // command group to feed the shooter. ends 500ms after the indexer is empty.
 
   // command group to shoot. ends either when the shooter is done, or the indexer
@@ -103,7 +107,7 @@ public class RobotContainer {
   private Command shootEject = createShootSetVelocity(shooterEjectPreference, () -> 180.0);
 
   private Command shootInterpolated = createShootSetVelocity(
-      () -> I_CALCULATOR.calculateParameter(m_limelight.getDistance()).vals[0], 
+      () -> I_CALCULATOR.calculateParameter(m_limelight.getDistance()).vals[0],
       () -> 180.0);
 
   private JoystickButton btn_driveA = new JoystickButton(m_driveController, XboxController.Button.kA.value);
@@ -121,37 +125,15 @@ public class RobotContainer {
       XboxController.Button.kRightBumper.value);
   private JoystickButton bumper_manipL = new JoystickButton(m_manipController, XboxController.Button.kLeftBumper.value);
 
-  private Command createShootSetVelocity(Supplier<Double> velocity, Supplier<Double> hoodAngle) {
-    return new ParallelDeadlineGroup(
-        new SequentialCommandGroup(
-            new SetHoodPosition(m_hood, hoodAngle).withInterrupt(() -> hoodAngle.get() == DEFAULT_HOOD).withTimeout(1),
-            new WaitUntilCommand(m_shooter::isSetpointMet).andThen(new WaitCommand(0.25)),
-            new RunIndexerAndKickup(m_indexer, true, 3)),
-        new ShootSetVelocity(m_shooter, velocity, false));
-  }
-
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
     configureSubsystemCommands();
 
     SmartDashboard.putData(resetTurretEncoder);
+    SmartDashboard.putData(retractClimbMax);
   }
 
-  /**
-   * Use this method to define your button->command mappings. Buttons can be
-   * created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
-   * it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
   private void configureButtonBindings() {
     bumper_driveR.whileHeld(indexerIntakeGroup, true).whenReleased(new IndexBall(m_indexer).withTimeout(1));
     bumper_driveL.whileHeld(new RunIntake(m_intake, false));
@@ -163,7 +145,6 @@ public class RobotContainer {
 
     btn_manipA.whileHeld(new SetHoodPosition(m_hood, hoodPosition));
     btn_manipX.whileHeld(new TurretTarget(m_limelight, m_turret));
-
 
     bumper_manipR.whileHeld(new OuttakeIntake(m_intake));
     bumper_manipL.whileHeld(outtakeSingleBall);
@@ -195,4 +176,13 @@ public class RobotContainer {
   public static final InterCalculator I_CALCULATOR = new InterCalculator(
       new InterParameter(1.92, 7100, 180),
       new InterParameter(3.51, 9300, 180));
+
+  private Command createShootSetVelocity(Supplier<Double> velocity, Supplier<Double> hoodAngle) {
+    return new ParallelDeadlineGroup(
+        new SequentialCommandGroup(
+            new SetHoodPosition(m_hood, hoodAngle).withInterrupt(() -> hoodAngle.get() == DEFAULT_HOOD).withTimeout(1),
+            new WaitUntilCommand(m_shooter::isSetpointMet).andThen(new WaitCommand(0.25)),
+            new RunIndexerAndKickup(m_indexer, true, 3)),
+        new ShootSetVelocity(m_shooter, velocity, false));
+  }
 }
