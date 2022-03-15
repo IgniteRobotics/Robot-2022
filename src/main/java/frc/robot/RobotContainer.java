@@ -31,6 +31,7 @@ import frc.robot.commands.drivetrain.ArcadeSetDrive;
 import frc.robot.commands.indexer.IndexBall;
 import frc.robot.commands.indexer.RunIndexerAndKickup;
 import frc.robot.commands.indexer.RunIndexerBelts;
+import frc.robot.commands.indexer.RunIndexerKickupDelay;
 import frc.robot.commands.intake.OuttakeIntake;
 import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.limelight.LimelightSetLed;
@@ -70,6 +71,10 @@ public class RobotContainer {
   private DoublePreference shooterFenderHighPreference = new DoublePreference("FenderHigh Velocity", 7000);
   private DoublePreference shooterEjectPreference = new DoublePreference("Eject Velocity", 9000);
 
+  private DoublePreference velocityOffset = new DoublePreference("VELOCITY OFFSET", -300);
+
+  private DoublePreference beltDelayPreference = new DoublePreference("Belt Delay", 1);
+
   public static final double DEFAULT_HOOD = 180;
 
   private DoublePreference hoodPosition = new DoublePreference("Hood Set Position", 0);
@@ -104,28 +109,40 @@ public class RobotContainer {
   private ParallelRaceGroup indexerIntakeGroup = new ParallelRaceGroup(new IndexBall(m_indexer),
       new RunIntake(m_intake, true));
 
-  private SequentialCommandGroup autonCommandGroup = new SequentialCommandGroup(
-    new ArcadeSetDrive(m_driveTrain, () -> 0.5).withTimeout(0.8),
-    new ReZeroTurret(m_turret, defaultTurrentPosition).withTimeout(1),
-    new TurretTarget(m_limelight, m_turret).withTimeout(1.5),
-    createShootSetVelocity(
-      () -> I_CALCULATOR.calculateParameter(m_limelight.getDistance()).vals[0],
-      () -> 180.0).withTimeout(4)
-  );
+  private SequentialCommandGroup driveAndShoot = new SequentialCommandGroup(
+      new ArcadeSetDrive(m_driveTrain, () -> 0.5).withTimeout(0.8),
+      new ReZeroTurret(m_turret, defaultTurrentPosition).withTimeout(1),
+      new TurretTarget(m_limelight, m_turret).withTimeout(1.5),
+      createShootSetVelocity(
+          this::getCalculatedVelocity,
+          () -> 180.0,
+          () -> 0.0).withTimeout(4));
+
+  private SequentialCommandGroup twoBallAuton = new SequentialCommandGroup(
+      new ParallelCommandGroup(
+          new ArcadeSetDrive(m_driveTrain, () -> 0.2).withTimeout(1.7),
+          new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake, true)),
+          new ReZeroTurret(m_turret, defaultTurrentPosition)).withTimeout(2),
+      new TurretTarget(m_limelight, m_turret).withTimeout(2.2),
+      createShootSetVelocity(
+          this::getCalculatedVelocity,
+          () -> 180.0,
+          () -> 0.0).withTimeout(5));
 
   private RetractClimbMax retractClimbMax = new RetractClimbMax(m_climber);
   private ClimbUp climbUp = new ClimbUp(m_climber);
   private ClimbDown climbDown = new ClimbDown(m_climber);
 
-  private Command shootGroup = createShootSetVelocity(shooterVelocityPreference, () -> 180.0);
+  private Command shootGroup = createShootSetVelocity(shooterVelocityPreference, () -> 180.0, beltDelayPreference);
 
-  private Command shootFenderLow = createShootSetVelocity(shooterFenderLowPreference, () -> 180.0);
-  private Command shootFenderHigh = createShootSetVelocity(shooterFenderHighPreference, () -> 0.0);
-  private Command shootEject = createShootSetVelocity(shooterEjectPreference, () -> 180.0);
+  private Command shootFenderLow = createShootSetVelocity(shooterFenderLowPreference, () -> 180.0, beltDelayPreference);
+  private Command shootFenderHigh = createShootSetVelocity(shooterFenderHighPreference, () -> 0.0, beltDelayPreference);
+  private Command shootEject = createShootSetVelocity(shooterEjectPreference, () -> 180.0, beltDelayPreference);
 
   private Command shootInterpolated = createShootSetVelocity(
-      () -> I_CALCULATOR.calculateParameter(m_limelight.getDistance()).vals[0],
-      () -> 180.0);
+      this::getCalculatedVelocity,
+      () -> 180.0,
+      beltDelayPreference);
 
   private JoystickButton btn_driveA = new JoystickButton(m_driveController, XboxController.Button.kA.value);
   private JoystickButton btn_driveB = new JoystickButton(m_driveController, XboxController.Button.kB.value);
@@ -150,7 +167,8 @@ public class RobotContainer {
     configureSubsystemCommands();
 
     autonChooser.addOption("NO AUTON", null);
-    autonChooser.addOption("Shoot and Drive", autonCommandGroup);
+    autonChooser.addOption("Drive and Shoot", driveAndShoot);
+    autonChooser.addOption("Two Ball", twoBallAuton);
 
     SmartDashboard.putData(resetTurretEncoder);
     SmartDashboard.putData(retractClimbMax);
@@ -204,16 +222,21 @@ public class RobotContainer {
   public static final InterCalculator I_CALCULATOR = new InterCalculator(
       new InterParameter(1.35, 6400, 180),
       new InterParameter(1.94, 7200, 180),
+      new InterParameter(2.2, 7300, 180),
       new InterParameter(2.6, 7500, 180),
-      new InterParameter(2.8, 7900, 180),
-      new InterParameter(3.51, 9300, 180));
+      new InterParameter(2.8, 7900, 180));
 
-  private Command createShootSetVelocity(Supplier<Double> velocity, Supplier<Double> hoodAngle) {
-    return new ParallelDeadlineGroup(
+  public double getCalculatedVelocity() {
+    return I_CALCULATOR.calculateParameter(m_limelight.getDistance()).vals[0] + velocityOffset.getValue();
+  }
+
+  private Command createShootSetVelocity(Supplier<Double> velocity, Supplier<Double> hoodAngle,
+      Supplier<Double> beltDelay) {
+    return new ParallelCommandGroup(
         new SequentialCommandGroup(
             new SetHoodPosition(m_hood, hoodAngle).withInterrupt(() -> hoodAngle.get() == DEFAULT_HOOD).withTimeout(1),
             new WaitUntilCommand(m_shooter::isSetpointMet).andThen(new WaitCommand(0.25)),
-            new RunIndexerAndKickup(m_indexer, true, 3)),
+            new RunIndexerKickupDelay(m_indexer, beltDelay)),
         new ShootSetVelocity(m_shooter, velocity, false));
   }
 }
