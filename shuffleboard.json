@@ -5,26 +5,16 @@
       "autoPopulate": false,
       "autoPopulatePrefix": "",
       "widgetPane": {
-        "gridSize": 128.0,
+        "gridSize": 64.0,
         "showGrid": true,
         "hgap": 16.0,
         "vgap": 16.0,
+        "titleType": 0,
         "tiles": {
-          "4,1": {
+          "0,2": {
             "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Limelight distance",
-              "_title": "/SmartDashboard/Limelight distance"
-            }
-          },
-          "6,0": {
-            "size": [
-              2,
-              1
+              6,
+              2
             ],
             "content": {
               "_type": "Number Bar",
@@ -37,111 +27,10 @@
               "Visuals/Show text": true
             }
           },
-          "6,1": {
+          "0,4": {
             "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///Preferences/Shooter Set Velocity",
-              "_title": "/Preferences/Shooter Set Velocity"
-            }
-          },
-          "7,2": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///Preferences/FenderHigh Velocity",
-              "_title": "/Preferences/FenderHigh Velocity"
-            }
-          },
-          "7,3": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///Preferences/FenderLow Velocity",
-              "_title": "/Preferences/FenderLow Velocity"
-            }
-          },
-          "5,1": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Turret Position",
-              "_title": "/SmartDashboard/Turret Position"
-            }
-          },
-          "5,2": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Command",
-              "_source0": "network_table:///SmartDashboard/ResetTurretEncoder",
-              "_title": "/SmartDashboard/ResetTurretEncoder"
-            }
-          },
-          "7,1": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///Preferences/Eject Velocity",
-              "_title": "/Preferences/Eject Velocity"
-            }
-          },
-          "4,0": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Boolean Box",
-              "_source0": "network_table:///SmartDashboard/Limelight tv",
-              "_title": "/SmartDashboard/Limelight tv",
-              "Colors/Color when true": "#7CFC00FF",
-              "Colors/Color when false": "#8B0000FF"
-            }
-          },
-          "4,2": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Limelight tx",
-              "_title": "/SmartDashboard/Limelight tx"
-            }
-          },
-          "4,3": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Limelight ty",
-              "_title": "/SmartDashboard/Limelight ty"
-            }
-          },
-          "0,0": {
-            "size": [
-              4,
-              3
+              6,
+              4
             ],
             "content": {
               "_type": "Camera Stream",
@@ -157,26 +46,252 @@
               "imageHeight": -1
             }
           },
-          "5,3": {
+          "6,0": {
             "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Command",
-              "_source0": "network_table:///SmartDashboard/RetractClimbMax",
-              "_title": "SmartDashboard/RetractClimbMax"
-            }
-          },
-          "5,0": {
-            "size": [
-              1,
-              1
+              4,
+              2
             ],
             "content": {
               "_type": "ComboBox Chooser",
               "_source0": "network_table:///SmartDashboard/SendableChooser[0]",
-              "_title": "SmartDashboard/SendableChooser[0]"
+              "_title": "CHOOSE AUTON"
+            }
+          },
+          "14,4": {
+            "size": [
+              2,
+              4
+            ],
+            "content": {
+              "_type": "Grid Layout",
+              "_title": "BEAM BREAKS",
+              "Layout/Number of columns": 1,
+              "Layout/Number of rows": 3,
+              "Layout/Label position": "BOTTOM",
+              "_children": {
+                "0,1": {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///SmartDashboard/Indexer/Initial Beam (2nd pos)",
+                  "_title": "/SmartDashboard/Indexer/Initial Beam (2nd pos)",
+                  "Colors/Color when true": "#7CFC00FF",
+                  "Colors/Color when false": "#8B0000FF"
+                },
+                "0,0": {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///SmartDashboard/Indexer/Kickup Beam (1st pos)",
+                  "_title": "/SmartDashboard/Indexer/Kickup Beam (1st pos)",
+                  "Colors/Color when true": "#7CFC00FF",
+                  "Colors/Color when false": "#8B0000FF"
+                },
+                "0,2": {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///SmartDashboard/Blind Spot Beam",
+                  "_title": "/SmartDashboard/Blind Spot Beam",
+                  "Colors/Color when true": "#7CFC00FF",
+                  "Colors/Color when false": "#8B0000FF"
+                }
+              }
+            }
+          },
+          "12,4": {
+            "size": [
+              2,
+              4
+            ],
+            "content": {
+              "_type": "List Layout",
+              "_title": "TURRET",
+              "Layout/Label position": "BOTTOM",
+              "_children": [
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Turret Position",
+                  "_title": "POSITION"
+                },
+                {
+                  "_type": "Command",
+                  "_source0": "network_table:///SmartDashboard/ResetTurretEncoder",
+                  "_title": "RESET"
+                }
+              ]
+            }
+          },
+          "14,0": {
+            "size": [
+              2,
+              4
+            ],
+            "content": {
+              "_type": "List Layout",
+              "_title": "CLIMBER",
+              "Layout/Label position": "BOTTOM",
+              "_children": [
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Climber Left Pos",
+                  "_title": "/SmartDashboard/Climber Left Pos"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Climber Right Pos",
+                  "_title": "/SmartDashboard/Climber Right Pos"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///Preferences/Climb Up Effort",
+                  "_title": "/Preferences/Climb Up Effort"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///Preferences/Climb Down Effort",
+                  "_title": "/Preferences/Climb Down Effort"
+                }
+              ]
+            }
+          },
+          "12,0": {
+            "size": [
+              2,
+              4
+            ],
+            "content": {
+              "_type": "List Layout",
+              "_title": "SHOOTER",
+              "Layout/Label position": "BOTTOM",
+              "_children": [
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///Preferences/FenderLow Velocity",
+                  "_title": "FenderLow"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///Preferences/FenderHigh Velocity",
+                  "_title": "FenderHigh"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///Preferences/Eject Velocity",
+                  "_title": "Eject"
+                }
+              ]
+            }
+          },
+          "10,0": {
+            "size": [
+              2,
+              4
+            ],
+            "content": {
+              "_type": "List Layout",
+              "_title": "INDEXER SETTINGS",
+              "Layout/Label position": "BOTTOM",
+              "_children": [
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///Preferences/Indexer/Belt Speed",
+                  "_title": "/Preferences/Indexer/Belt Speed"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///Preferences/Indexer/Kickup Speed",
+                  "_title": "/Preferences/Indexer/Kickup Speed"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///Preferences/Shooter Feed Effort",
+                  "_title": "/Preferences/Shooter Feed Effort"
+                }
+              ]
+            }
+          },
+          "6,4": {
+            "size": [
+              2,
+              4
+            ],
+            "content": {
+              "_type": "List Layout",
+              "_title": "LIMELIGHT",
+              "Layout/Label position": "BOTTOM",
+              "_children": [
+                {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///SmartDashboard/Limelight tv",
+                  "_title": "TARGET FOUND",
+                  "Colors/Color when true": "#7CFC00FF",
+                  "Colors/Color when false": "#8B0000FF"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Limelight distance",
+                  "_title": "DISTANCE"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Limelight tx",
+                  "_title": "TX"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Limelight ty",
+                  "_title": "TY"
+                }
+              ]
+            }
+          },
+          "10,4": {
+            "size": [
+              2,
+              4
+            ],
+            "content": {
+              "_type": "List Layout",
+              "_title": "CLIMB CONTROL",
+              "Layout/Label position": "BOTTOM",
+              "_children": [
+                {
+                  "_type": "Command",
+                  "_source0": "network_table:///SmartDashboard/ClimbUp",
+                  "_title": "/SmartDashboard/ClimbUp"
+                },
+                {
+                  "_type": "Command",
+                  "_source0": "network_table:///SmartDashboard/ClimbDown",
+                  "_title": "/SmartDashboard/ClimbDown"
+                },
+                {
+                  "_type": "Command",
+                  "_source0": "network_table:///SmartDashboard/RetractClimbMax",
+                  "_title": "RETRACT MAX"
+                }
+              ]
+            }
+          },
+          "0,0": {
+            "size": [
+              6,
+              2
+            ],
+            "content": {
+              "_type": "Basic FMS Info",
+              "_source0": "network_table:///FMSInfo",
+              "_title": "/FMSInfo"
+            }
+          },
+          "6,2": {
+            "size": [
+              4,
+              2
+            ],
+            "content": {
+              "_type": "Number Slider",
+              "_source0": "network_table:///Preferences/VELOCITY OFFSET",
+              "_title": "VELOCITY OFFSET",
+              "Slider Settings/Min": -800.0,
+              "Slider Settings/Max": 800.0,
+              "Slider Settings/Block increment": 50.0,
+              "Visuals/Display value": true
             }
           }
         }
@@ -191,6 +306,7 @@
         "showGrid": true,
         "hgap": 16.0,
         "vgap": 16.0,
+        "titleType": 0,
         "tiles": {
           "2,0": {
             "size": [
@@ -278,6 +394,31 @@
               "_type": "Text View",
               "_source0": "network_table:///SmartDashboard/Climber Current",
               "_title": "SmartDashboard/Climber Current"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Tab 3",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "",
+      "widgetPane": {
+        "gridSize": 128.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "titleType": 0,
+        "tiles": {
+          "3,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///Preferences/Intake Speed",
+              "_title": "/Preferences/Intake Speed"
             }
           }
         }
