@@ -25,7 +25,7 @@ public class Turret extends SubsystemBase {
   private SparkMaxPIDController turretPidController = turretMotor.getPIDController();
 
   public static final int CURRENT_LIMIT = 20;
-  public static double DEFAULT_KP = 0.07;
+  public static double DEFAULT_KP = 0.1;
   public static double DEFAULT_KI = 0.0;
   public static double DEFAULT_KD = 0;
   public static double DEFAULT_RPM = 100;
