@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandGroupBase;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -133,7 +134,7 @@ public class RobotContainer {
   private ClimbUp climbUp = new ClimbUp(m_climber);
   private ClimbDown climbDown = new ClimbDown(m_climber);
 
-  private Command shootGroup = createShootSetVelocity(shooterVelocityPreference, () -> 180.0, beltDelayPreference);
+  private CommandGroupBase shootTest = createShootSetVelocity(shooterVelocityPreference, () -> 180.0, beltDelayPreference);
 
   private Command shootFenderLow = createShootSetVelocity(shooterFenderLowPreference, () -> 180.0, beltDelayPreference);
   private Command shootFenderHigh = createShootSetVelocity(shooterFenderHighPreference, () -> 0.0, beltDelayPreference);
@@ -174,6 +175,7 @@ public class RobotContainer {
     SmartDashboard.putData(retractClimbMax);
     SmartDashboard.putData(climbUp);
     SmartDashboard.putData(climbDown);
+    SmartDashboard.putData(shootTest);
     SmartDashboard.putData(autonChooser);
   }
 
@@ -189,7 +191,7 @@ public class RobotContainer {
     btn_manipA.whileHeld(new TurretTarget(m_limelight, m_turret));
     btn_manipY.whileHeld(climbUp);
     btn_manipB.whileHeld(climbDown);
-    btn_manipX.whileHeld(shootGroup);
+    btn_manipX.whileHeld(shootTest);
 
     bumper_manipR.whileHeld(new OuttakeIntake(m_intake));
     bumper_manipL.whileHeld(outtakeSingleBall);
@@ -230,7 +232,7 @@ public class RobotContainer {
     return I_CALCULATOR.calculateParameter(m_limelight.getDistance()).vals[0] + velocityOffset.getValue();
   }
 
-  private Command createShootSetVelocity(Supplier<Double> velocity, Supplier<Double> hoodAngle,
+  private CommandGroupBase createShootSetVelocity(Supplier<Double> velocity, Supplier<Double> hoodAngle,
       Supplier<Double> beltDelay) {
     return new ParallelCommandGroup(
         new SequentialCommandGroup(
