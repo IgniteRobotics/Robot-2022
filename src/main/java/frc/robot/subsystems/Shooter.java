@@ -8,6 +8,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.igniterobotics.robotbase.calc.InterCalculator;
+import com.igniterobotics.robotbase.calc.InterParameter;
 import com.igniterobotics.robotbase.preferences.DoublePreference;
 import com.igniterobotics.robotbase.reporting.ReportingBoolean;
 import com.igniterobotics.robotbase.reporting.ReportingLevel;
@@ -15,6 +17,7 @@ import com.igniterobotics.robotbase.reporting.ReportingNumber;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer.InterpolateFunction;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.PortConstants;
 
@@ -49,6 +52,15 @@ public class Shooter extends SubsystemBase {
   private final int setpointFramesRequirement = 20;
   private int setpointFrames = 0;
 
+  private InterCalculator kFCalculator = new InterCalculator(
+    new InterParameter(1400, 0.073071),
+    new InterParameter(3400, 0.060176),
+    new InterParameter(5290, 0.058015),
+    new InterParameter(7250, 0.056441),
+    new InterParameter(9200, 0.055598),
+    new InterParameter(11160, 0.055)
+  );
+
   public Shooter() {
     leaderMotor.setNeutralMode(NeutralMode.Coast);
     followerMotor.setNeutralMode(NeutralMode.Coast);
@@ -76,6 +88,10 @@ public class Shooter extends SubsystemBase {
 
   public void runVelocity(double velocity) {
     this.setpointVelocity = velocity;
+
+    leaderMotor.config_kF(0, kFCalculator.calculateParameter(velocity).vals[0]);
+    followerMotor.config_kF(0, kFCalculator.calculateParameter(velocity).vals[0]);
+
     leaderMotor.set(ControlMode.Velocity, Math.abs(velocity));
     followerMotor.set(ControlMode.Velocity, Math.abs(velocity));
   }

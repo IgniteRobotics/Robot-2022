@@ -186,7 +186,6 @@ public class RobotContainer {
     configureButtonBindings();
     configureSubsystemCommands();
 
-    shootInterpolated.addRequirements(m_turret);
     indexerIntakeGroup.addRequirements(m_turret);
 
     autonChooser.addOption("NO AUTON", null);
@@ -263,7 +262,9 @@ public class RobotContainer {
       new InterParameter(3.68, 8550, 180),
       new InterParameter(3.8, 8900, 180),
       new InterParameter(4.0, 9400, 180),
-      new InterParameter(4.17, 9750, 180));
+      new InterParameter(4.17, 9750, 180),
+      new InterParameter(5, 11750, 180)
+      );
 
   public double getCalculatedVelocity() {
     double calculated = I_CALCULATOR.calculateParameter(m_limelight.getDistanceAverage()).vals[0]
