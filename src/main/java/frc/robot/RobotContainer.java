@@ -4,17 +4,21 @@
 
 package frc.robot;
 
+import java.lang.System.Logger.Level;
 import java.util.function.Supplier;
 
 import com.igniterobotics.robotbase.calc.InterCalculator;
 import com.igniterobotics.robotbase.calc.InterParameter;
 import com.igniterobotics.robotbase.preferences.DoublePreference;
+import com.igniterobotics.robotbase.reporting.ReportingLevel;
+import com.igniterobotics.robotbase.reporting.ReportingNumber;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandGroupBase;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
@@ -72,7 +76,7 @@ public class RobotContainer {
   private DoublePreference shooterFenderHighPreference = new DoublePreference("FenderHigh Velocity", 7000);
   private DoublePreference shooterEjectPreference = new DoublePreference("Eject Velocity", 9000);
 
-  private DoublePreference velocityOffset = new DoublePreference("VELOCITY OFFSET", -300);
+  private DoublePreference velocityOffset = new DoublePreference("VELOCITY OFFSET", 0);
 
   private DoublePreference beltDelayPreference = new DoublePreference("Belt Delay", 1);
 
@@ -81,6 +85,8 @@ public class RobotContainer {
   private DoublePreference hoodPosition = new DoublePreference("Hood Set Position", 0);
   private DoublePreference initialTurretOffset = new DoublePreference("Initial Turret Offset", 0);
   private DoublePreference defaultTurrentPosition = new DoublePreference("Default Turret Position", 0);
+
+  private ReportingNumber interpolatedRPMReporter = new ReportingNumber("Interpolated Velocity", ReportingLevel.COMPETITON);
 
   // controllers
   private XboxController m_driveController = new XboxController(PortConstants.DRIVER_CONTROLLER_PORT);
@@ -140,6 +146,9 @@ public class RobotContainer {
   private Command shootFenderHigh = createShootSetVelocity(shooterFenderHighPreference, () -> 0.0, beltDelayPreference);
   private Command shootEject = createShootSetVelocity(shooterEjectPreference, () -> 180.0, beltDelayPreference);
 
+  private CommandBase turretTarget = new TurretTarget(m_limelight, m_turret);
+  private CommandBase setHoodPosition = new SetHoodPosition(m_hood, hoodPosition);
+
   private Command shootInterpolated = createShootSetVelocity(
       this::getCalculatedVelocity,
       () -> 180.0,
@@ -176,6 +185,9 @@ public class RobotContainer {
     SmartDashboard.putData(climbUp);
     SmartDashboard.putData(climbDown);
     SmartDashboard.putData(shootTest);
+    SmartDashboard.putData(turretTarget);
+    SmartDashboard.putData(setHoodPosition);
+
     SmartDashboard.putData(autonChooser);
   }
 
@@ -222,14 +234,23 @@ public class RobotContainer {
 
   // DISTANCE, VELOCITY, HOOD_ANGLE
   public static final InterCalculator I_CALCULATOR = new InterCalculator(
-      new InterParameter(1.35, 6400, 180),
-      new InterParameter(1.94, 7200, 180),
-      new InterParameter(2.2, 7300, 180),
-      new InterParameter(2.6, 7500, 180),
-      new InterParameter(2.8, 7900, 180));
+      new InterParameter(2.2, 7000, 180),
+      new InterParameter(2.5, 7100, 180),
+      new InterParameter(2.7, 7200, 180),
+      new InterParameter(2.95, 7400, 180),
+      new InterParameter(3.2, 7600, 180),
+      new InterParameter(3.45, 7950, 180),
+      new InterParameter(3.68, 8400, 180),
+      new InterParameter(3.8, 8700, 180),
+      new InterParameter(4.0, 9200, 180),
+      new InterParameter(4.17, 9500, 180)
+      );
 
   public double getCalculatedVelocity() {
-    return I_CALCULATOR.calculateParameter(m_limelight.getDistance()).vals[0] + velocityOffset.getValue();
+    double calculated = I_CALCULATOR.calculateParameter(m_limelight.getDistance()).vals[0] + velocityOffset.getValue();
+    interpolatedRPMReporter.set(calculated);
+
+    return calculated;
   }
 
   private CommandGroupBase createShootSetVelocity(Supplier<Double> velocity, Supplier<Double> hoodAngle,

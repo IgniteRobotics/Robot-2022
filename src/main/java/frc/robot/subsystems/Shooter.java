@@ -32,7 +32,7 @@ public class Shooter extends SubsystemBase {
   private CANSparkMax feedMotor = new CANSparkMax(PortConstants.shooterFeedPort, MotorType.kBrushless);
 
   private double setpointVelocity;
-  private static final double SETPOINT_TOLERANCE = 150;
+  private static final double SETPOINT_TOLERANCE = 100;
 
   public static final int CURRENT_LIMIT = 20;
   public static final int CURRENT_LIMIT_THRESHOLD = 20;
