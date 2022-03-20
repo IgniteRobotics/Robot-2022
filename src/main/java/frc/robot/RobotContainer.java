@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandGroupBase;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -153,13 +154,12 @@ public class RobotContainer {
 
   // private CommandBase turretTarget = new TurretTarget(m_limelight, m_turret);
   private CommandBase turretSeekAndTarget = new SequentialCommandGroup(
-    new TurretSeekTarget(m_limelight, m_turret),
-    new TurretTarget(m_limelight, m_turret)
-  );
+      new TurretSeekTarget(m_limelight, m_turret),
+      new TurretTarget(m_limelight, m_turret));
 
   private CommandBase setHoodPosition = new SetHoodPosition(m_hood, hoodPosition);
 
-  private Command shootInterpolated = createShootSetVelocity(
+  private CommandBase shootInterpolated = createShootSetVelocity(
       this::getCalculatedVelocity,
       () -> 180.0,
       beltDelayPreference);
@@ -185,6 +185,9 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
     configureSubsystemCommands();
+
+    shootInterpolated.addRequirements(m_turret);
+    indexerIntakeGroup.addRequirements(m_turret);
 
     autonChooser.addOption("NO AUTON", null);
     autonChooser.addOption("Drive and Shoot", driveAndShoot);
@@ -226,7 +229,14 @@ public class RobotContainer {
     m_driveTrain.setDefaultCommand(arcadeDriveCommand);
     m_hood.setDefaultCommand(new SetHoodPosition(m_hood, () -> DEFAULT_HOOD));
     // TODO change to this default command after we verify soft limits are working
-    m_turret.setDefaultCommand(new ReZeroTurret(m_turret, defaultTurrentPosition));
+    m_turret.setDefaultCommand(new ContinuousConditionalCommand(
+        new ReZeroTurret(m_turret, defaultTurrentPosition),
+        new SequentialCommandGroup(
+            new TurretSeekTarget(m_limelight, m_turret),
+            new TurretTarget(m_limelight, m_turret).perpetually()
+        ),
+        controller::isIndexerEmpty
+    ).perpetually());
     m_limelight.setDefaultCommand(new LimelightSetLed(m_limelight, () -> true));
     // m_intake.setDefaultCommand(retractIntakeCommand);
   }
@@ -268,7 +278,8 @@ public class RobotContainer {
     return new ParallelCommandGroup(
         new SequentialCommandGroup(
             new SetHoodPosition(m_hood, hoodAngle).withInterrupt(() -> hoodAngle.get() == DEFAULT_HOOD).withTimeout(1),
-            new RunIndexerKickupWhenReady(m_indexer, m_shooter::isSetpointMet)),
+            new WaitUntilCommand(m_shooter::isSetpointMet).andThen(new WaitCommand(0.5)),
+            new RunIndexerKickupDelay(m_indexer, beltDelay)),
         new ShootSetVelocity(m_shooter, velocity, false));
   }
 }
