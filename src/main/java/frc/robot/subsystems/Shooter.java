@@ -38,13 +38,16 @@ public class Shooter extends SubsystemBase {
   public static final int CURRENT_LIMIT_THRESHOLD = 20;
   public static final int CURRENT_LIMIT_TIME = 1;
 
-  public static final double kF = 0.062;
+  public static final double kF = 0.05568;
   public static final double kP = 0.2;
   public static final double kD = 0.03;
 
-  private final DoublePreference kFPref = new DoublePreference("Shooter kF", 0.06);
-  private final DoublePreference kPPref = new DoublePreference("Shooter kP", 0.2);
-  private final DoublePreference kDPref = new DoublePreference("Shooter kD", 0.03);
+  private final DoublePreference kFPref = new DoublePreference("Shooter kF", kF);
+  private final DoublePreference kPPref = new DoublePreference("Shooter kP", kP);
+  private final DoublePreference kDPref = new DoublePreference("Shooter kD", kD);
+
+  private final int setpointFramesRequirement = 20;
+  private int setpointFrames = 0;
 
   public Shooter() {
     leaderMotor.setNeutralMode(NeutralMode.Coast);
@@ -95,6 +98,12 @@ public class Shooter extends SubsystemBase {
     shooterCurrent2.set(followerMotor.getStatorCurrent());
     isSetpointMet.set(isSetpointMet());
 
+    if(isVelocityMet() && setpointVelocity > 0) {
+      setpointFrames++;
+    } else {
+      setpointFrames = 0;
+    }
+
     // leaderMotor.config_kF(0, kFPref.getValue());
     // leaderMotor.config_kP(0, kPPref.getValue());
     // leaderMotor.config_kD(0, kDPref.getValue());
@@ -103,8 +112,12 @@ public class Shooter extends SubsystemBase {
     // followerMotor.config_kD(0, kDPref.getValue());
   }
 
-  public boolean isSetpointMet() {
+  private boolean isVelocityMet() {
     return setpointVelocity - SETPOINT_TOLERANCE < leaderMotor.getSelectedSensorVelocity(0)
         && leaderMotor.getSelectedSensorVelocity(0) < setpointVelocity + SETPOINT_TOLERANCE && setpointVelocity > 0;
+  }
+
+  public boolean isSetpointMet() {
+    return setpointFrames >= setpointFramesRequirement;
   }
 }

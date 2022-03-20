@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.CommandGroupBase;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.PerpetualCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -37,6 +38,7 @@ import frc.robot.commands.indexer.IndexBall;
 import frc.robot.commands.indexer.RunIndexerAndKickup;
 import frc.robot.commands.indexer.RunIndexerBelts;
 import frc.robot.commands.indexer.RunIndexerKickupDelay;
+import frc.robot.commands.indexer.RunIndexerKickupWhenReady;
 import frc.robot.commands.intake.OuttakeIntake;
 import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.limelight.LimelightSetLed;
@@ -86,7 +88,8 @@ public class RobotContainer {
   private DoublePreference initialTurretOffset = new DoublePreference("Initial Turret Offset", 0);
   private DoublePreference defaultTurrentPosition = new DoublePreference("Default Turret Position", 0);
 
-  private ReportingNumber interpolatedRPMReporter = new ReportingNumber("Interpolated Velocity", ReportingLevel.COMPETITON);
+  public final ReportingNumber interpolatedRPMReporter = new ReportingNumber("Interpolated Velocity",
+      ReportingLevel.COMPETITON);
 
   // controllers
   private XboxController m_driveController = new XboxController(PortConstants.DRIVER_CONTROLLER_PORT);
@@ -140,7 +143,8 @@ public class RobotContainer {
   private ClimbUp climbUp = new ClimbUp(m_climber);
   private ClimbDown climbDown = new ClimbDown(m_climber);
 
-  private CommandGroupBase shootTest = createShootSetVelocity(shooterVelocityPreference, () -> 180.0, beltDelayPreference);
+  private CommandGroupBase shootTest = createShootSetVelocity(shooterVelocityPreference, () -> 180.0,
+      beltDelayPreference);
 
   private Command shootFenderLow = createShootSetVelocity(shooterFenderLowPreference, () -> 180.0, beltDelayPreference);
   private Command shootFenderHigh = createShootSetVelocity(shooterFenderHighPreference, () -> 0.0, beltDelayPreference);
@@ -234,20 +238,20 @@ public class RobotContainer {
 
   // DISTANCE, VELOCITY, HOOD_ANGLE
   public static final InterCalculator I_CALCULATOR = new InterCalculator(
-      new InterParameter(2.2, 7000, 180),
-      new InterParameter(2.5, 7100, 180),
-      new InterParameter(2.7, 7200, 180),
-      new InterParameter(2.95, 7400, 180),
-      new InterParameter(3.2, 7600, 180),
-      new InterParameter(3.45, 7950, 180),
-      new InterParameter(3.68, 8400, 180),
-      new InterParameter(3.8, 8700, 180),
-      new InterParameter(4.0, 9200, 180),
-      new InterParameter(4.17, 9500, 180)
-      );
+      new InterParameter(2.2, 7150, 180),
+      new InterParameter(2.5, 7250, 180),
+      new InterParameter(2.7, 7350, 180),
+      new InterParameter(2.95, 7550, 180),
+      new InterParameter(3.2, 7750, 180),
+      new InterParameter(3.45, 8100, 180),
+      new InterParameter(3.68, 8550, 180),
+      new InterParameter(3.8, 8900, 180),
+      new InterParameter(4.0, 9400, 180),
+      new InterParameter(4.17, 9750, 180));
 
   public double getCalculatedVelocity() {
-    double calculated = I_CALCULATOR.calculateParameter(m_limelight.getDistance()).vals[0] + velocityOffset.getValue();
+    double calculated = I_CALCULATOR.calculateParameter(m_limelight.getDistanceAverage()).vals[0]
+        + velocityOffset.getValue();
     interpolatedRPMReporter.set(calculated);
 
     return calculated;
@@ -258,8 +262,7 @@ public class RobotContainer {
     return new ParallelCommandGroup(
         new SequentialCommandGroup(
             new SetHoodPosition(m_hood, hoodAngle).withInterrupt(() -> hoodAngle.get() == DEFAULT_HOOD).withTimeout(1),
-            new WaitUntilCommand(m_shooter::isSetpointMet).andThen(new WaitCommand(0.25)),
-            new RunIndexerKickupDelay(m_indexer, beltDelay)),
+            new RunIndexerKickupWhenReady(m_indexer, m_shooter::isSetpointMet)),
         new ShootSetVelocity(m_shooter, velocity, false));
   }
 }

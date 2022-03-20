@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.Arrays;
+
 import javax.naming.ldap.LdapContext;
 
 import com.igniterobotics.robotbase.calc.Measurement;
@@ -37,6 +39,10 @@ public class Limelight extends SubsystemBase {
   private final double h2 = 2.61;
   private final Measurement a1 = new Measurement(Unit.DEGREES, 35);
 
+  private final int windowSize = 5;
+  private final double[] rollingWindow = new double[windowSize];
+  private int index = 0;
+
   /** Creates a new Limelight. */
   public Limelight() {}
 
@@ -45,7 +51,8 @@ public class Limelight extends SubsystemBase {
     tyReporter.set(getTy());
     txReporter.set(getTx());
     tvReporter.set(getTv());
-    distanceReporter.set(getDistance());
+    distanceReporter.set(getDistanceAverage());
+    appendWindow(getDistance());
   }
 
   public double getTy() {
@@ -72,5 +79,17 @@ public class Limelight extends SubsystemBase {
     if(!getTv()) return 0;
 
     return (h2 - h1) / Math.tan(Units.degToRad(getTy()) + a1.getAsRadians());
+  }
+
+  public double getDistanceAverage() {
+    return Arrays.stream(rollingWindow).sum() / windowSize;
+  }
+
+  private void appendWindow(double data) {
+    rollingWindow[index] = data;
+    index++;
+    if(index >= windowSize) {
+      index = 0;
+    }
   }
 }
