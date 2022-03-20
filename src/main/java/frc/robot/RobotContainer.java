@@ -47,6 +47,7 @@ import frc.robot.commands.shooter.ResetTurretEncoder;
 import frc.robot.commands.shooter.RunTurret;
 import frc.robot.commands.shooter.SetHoodPosition;
 import frc.robot.commands.shooter.ShootSetVelocity;
+import frc.robot.commands.shooter.TurretSeekTarget;
 import frc.robot.commands.shooter.TurretTarget;
 import frc.robot.constants.PortConstants;
 import frc.robot.subsystems.Climber;
@@ -150,7 +151,12 @@ public class RobotContainer {
   private Command shootFenderHigh = createShootSetVelocity(shooterFenderHighPreference, () -> 0.0, beltDelayPreference);
   private Command shootEject = createShootSetVelocity(shooterEjectPreference, () -> 180.0, beltDelayPreference);
 
-  private CommandBase turretTarget = new TurretTarget(m_limelight, m_turret);
+  // private CommandBase turretTarget = new TurretTarget(m_limelight, m_turret);
+  private CommandBase turretSeekAndTarget = new SequentialCommandGroup(
+    new TurretSeekTarget(m_limelight, m_turret),
+    new TurretTarget(m_limelight, m_turret)
+  );
+
   private CommandBase setHoodPosition = new SetHoodPosition(m_hood, hoodPosition);
 
   private Command shootInterpolated = createShootSetVelocity(
@@ -189,7 +195,7 @@ public class RobotContainer {
     SmartDashboard.putData(climbUp);
     SmartDashboard.putData(climbDown);
     SmartDashboard.putData(shootTest);
-    SmartDashboard.putData(turretTarget);
+    SmartDashboard.putData(turretSeekAndTarget);
     SmartDashboard.putData(setHoodPosition);
 
     SmartDashboard.putData(autonChooser);
@@ -204,7 +210,7 @@ public class RobotContainer {
     btn_driveB.whenHeld(shootInterpolated);
     btn_driveX.whenHeld(shootEject);
 
-    btn_manipA.whileHeld(new TurretTarget(m_limelight, m_turret));
+    btn_manipA.whileHeld(turretSeekAndTarget);
     btn_manipY.whileHeld(climbUp);
     btn_manipB.whileHeld(climbDown);
     btn_manipX.whileHeld(shootTest);

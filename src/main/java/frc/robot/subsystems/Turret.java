@@ -59,6 +59,14 @@ public class Turret extends SubsystemBase {
     turretMotor.set(speed);
   }
 
+  public boolean isForwardSoftReached() {
+    return turretEncoder.getPosition() >= FORWARD_LIMIT;
+  }
+
+  public boolean isReverseSoftReached() {
+    return turretEncoder.getPosition() <= REVERSE_LIMIT;
+  }
+
   public void gotoPostion(double positionTicks){
     this.currentTargetTicks = positionTicks;
     turretPidController.setReference(positionTicks, CANSparkMax.ControlType.kPosition); 
