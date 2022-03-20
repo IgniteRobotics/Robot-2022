@@ -65,7 +65,7 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     RobotStateController robotState = RobotStateController.getInstance();
     robotState.reset();
-    m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Coast);
+    m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Brake);
   }
 
   @Override
