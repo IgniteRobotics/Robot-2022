@@ -29,8 +29,8 @@ public class Turret extends SubsystemBase {
   public static double DEFAULT_KI = 0.0;
   public static double DEFAULT_KD = 0;
   public static double DEFAULT_RPM = 100;
-  public static float FORWARD_LIMIT = 19f;
-  public static float REVERSE_LIMIT = -19f;
+  public static float FORWARD_LIMIT = 34;
+  public static float REVERSE_LIMIT = -34;
 
   public static double POSITION_ACCURACY = 0.1;
 
@@ -57,6 +57,14 @@ public class Turret extends SubsystemBase {
 
   public void runTurret(double speed) {
     turretMotor.set(speed);
+  }
+
+  public boolean isForwardSoftReached() {
+    return turretEncoder.getPosition() >= FORWARD_LIMIT;
+  }
+
+  public boolean isReverseSoftReached() {
+    return turretEncoder.getPosition() <= REVERSE_LIMIT;
   }
 
   public void gotoPostion(double positionTicks){

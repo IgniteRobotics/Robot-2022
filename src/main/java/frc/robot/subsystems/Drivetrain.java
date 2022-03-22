@@ -21,6 +21,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
@@ -144,13 +145,15 @@ public class Drivetrain extends SubsystemBase {
 
     @Override
     public void periodic() {
-        m_odometry.update(navX.getRotation2d(), sensorProfile.uToRev(-getLeftEncoderPosition()) * WHEEL_CIRCUMFERENCE_METERS,
+        m_odometry.update(navX.getRotation2d(), sensorProfile.uToRev(getLeftEncoderPosition()) * WHEEL_CIRCUMFERENCE_METERS,
                       sensorProfile.uToRev(getRightEncoderPosition()) * WHEEL_CIRCUMFERENCE_METERS);
         leftEncoderPosition.set(getLeftEncoderPosition());              
         rightEncoderPosition.set(getRightEncoderPosition());    
         leftEncoderVelocity.set(getLeftEncoderVel());    
         rightEncoderVelocity.set(getRightEncoderVel());    
         theta.set(navX.getRotation2d().getDegrees());
+
+        SmartDashboard.putData(m_driveTrain);
     }
 
     public Pose2d getCurrentPose() {
@@ -161,7 +164,7 @@ public class Drivetrain extends SubsystemBase {
 
         // DifferentialDriveWHeelSpeeds expects meters per second
         return new DifferentialDriveWheelSpeeds(sensorProfile.uToRPS(leftLeader.getSelectedSensorVelocity()) * WHEEL_CIRCUMFERENCE_METERS,
-                sensorProfile.uToRPS(-rightLeader.getSelectedSensorVelocity()) * WHEEL_CIRCUMFERENCE_METERS);
+                sensorProfile.uToRPS(rightLeader.getSelectedSensorVelocity()) * WHEEL_CIRCUMFERENCE_METERS);
     }
 
     public void resetOdometry() {
@@ -180,6 +183,13 @@ public class Drivetrain extends SubsystemBase {
         // xSpeed *= Constants.kMaxSpeedMetersPerSecond;
         // zRotation *= Constants.kMaxAngularVelocity;
         m_driveTrain.arcadeDrive(xSpeed, zRotation, useSquares);
+    }
+
+    public void tankDriveVolts(double leftVolts, double rightVolts) {
+        leftLeader.setVoltage(leftVolts);
+        rightLeader.setVoltage(rightVolts);
+
+        m_driveTrain.feed();
     }
 
     public void tankDrivePower(double leftPower, double rightPower) {

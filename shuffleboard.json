@@ -400,7 +400,7 @@
       }
     },
     {
-      "title": "Tab 3",
+      "title": "Shooter",
       "autoPopulate": false,
       "autoPopulatePrefix": "",
       "widgetPane": {
@@ -410,15 +410,77 @@
         "vgap": 16.0,
         "titleType": 0,
         "tiles": {
-          "3,0": {
+          "0,0": {
             "size": [
-              1,
+              2,
               1
             ],
             "content": {
               "_type": "Text View",
-              "_source0": "network_table:///Preferences/Intake Speed",
-              "_title": "/Preferences/Intake Speed"
+              "_source0": "network_table:///Preferences/Shooter Set Velocity",
+              "_title": "Preferences/Shooter Set Velocity"
+            }
+          },
+          "2,0": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Command",
+              "_source0": "network_table:///SmartDashboard/ParallelCommandGroup",
+              "_title": "Shoot Set Velocity"
+            }
+          },
+          "0,1": {
+            "size": [
+              4,
+              1
+            ],
+            "content": {
+              "_type": "Number Bar",
+              "_source0": "network_table:///SmartDashboard/Shooter Actual Velocity",
+              "_title": "SmartDashboard/Shooter Actual Velocity",
+              "Range/Min": 0.0,
+              "Range/Max": 10000.0,
+              "Range/Center": 0.0,
+              "Visuals/Num tick marks": 5,
+              "Visuals/Show text": true
+            }
+          },
+          "6,4": {
+            "size": [
+              2,
+              4
+            ],
+            "content": {
+              "_type": "List Layout",
+              "_title": "LIMELIGHT",
+              "Layout/Label position": "BOTTOM",
+              "_children": [
+                {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///SmartDashboard/Limelight tv",
+                  "_title": "TARGET FOUND",
+                  "Colors/Color when true": "#7CFC00FF",
+                  "Colors/Color when false": "#8B0000FF"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Limelight distance",
+                  "_title": "DISTANCE"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Limelight tx",
+                  "_title": "TX"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Limelight ty",
+                  "_title": "TY"
+                }
+              ]
             }
           }
         }

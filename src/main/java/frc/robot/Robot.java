@@ -56,6 +56,8 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    double calculatedVelocity = m_robotContainer.getCalculatedVelocity();
+    m_robotContainer.interpolatedRPMReporter.set(calculatedVelocity);
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -63,7 +65,7 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     RobotStateController robotState = RobotStateController.getInstance();
     robotState.reset();
-    m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Coast);
+    m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Brake);
   }
 
   @Override
