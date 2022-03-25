@@ -10,11 +10,11 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class ControllerRumble extends CommandBase {
   private XboxController controller;
-  private Integer milliseconds;
+  private int milliseconds;
   private long start;
 
   /** Creates a new ControllerRumble. */
-  public ControllerRumble(XboxController controller, Integer milliseconds) {
+  public ControllerRumble(XboxController controller, int milliseconds) {
     this.controller = controller;
     this.milliseconds = milliseconds;
   }

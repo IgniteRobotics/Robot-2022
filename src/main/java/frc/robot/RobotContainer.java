@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.ControllerRumble;
 import frc.robot.commands.climber.ClimbDown;
 import frc.robot.commands.climber.ClimbUp;
 import frc.robot.commands.climber.RetractClimbMax;
@@ -161,6 +162,9 @@ public class RobotContainer {
             beltDelayPreference);
     private Command shootEject = createShootSetVelocity(shooterEjectPreference, () -> 180.0, beltDelayPreference);
 
+
+    private Command rumbleDriver = new ControllerRumble(m_driveController, 5000);
+
     // private CommandBase turretTarget = new TurretTarget(m_limelight, m_turret);
     private CommandBase turretSeekAndTarget = new SequentialCommandGroup(
             new TurretSeekTarget(m_limelight, m_turret),
@@ -279,6 +283,10 @@ public class RobotContainer {
         driveBackAndIntake,
         new TurretTarget(m_limelight, m_turret).withTimeout(2.2),
         createShootSetVelocity(this::getCalculatedVelocity, () -> 180.0, () -> 0.0).withTimeout(5));
+  }
+
+  public Command getTeleopInitCommand(){
+          return rumbleDriver;
   }
 
     // DISTANCE, VELOCITY, HOOD_ANGLE
