@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Hood extends SubsystemBase {
   private ReportingNumber hoodAngleReporter = new ReportingNumber("Hood Set Angle", ReportingLevel.COMPETITON);
 
-  private Servo hoodServo = new LinearServo(3, 50, 32);
+  private LinearServo hoodServo = new LinearServo(3, 50, 32);
   private double targetPosition = 0;
 
   /** Creates a new Hood. */
@@ -31,6 +31,7 @@ public class Hood extends SubsystemBase {
   @Override
   public void periodic() {
     hoodAngleReporter.set(getPosition());
+    hoodServo.updateCurPos();
   }
 
   public double getPosition() {
