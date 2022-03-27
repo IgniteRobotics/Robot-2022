@@ -16,10 +16,13 @@ import frc.robot.subsystems.Drivetrain;
 
 public class ArcadeDrive extends CommandBase { //TODO Figure out how to make a button trigger slow mode
     private DoublePreference turnMultiplier = new DoublePreference("Turn Multiplier", 0.844);
+    private DoublePreference driveMultiplier = new DoublePreference("Drive Multiplier", 0.7);
     private Drivetrain m_driveTrain = null;
     private XboxController driverController = null;
 
     private boolean isReversed = false;
+
+    private boolean turboMode = false;
 
     /**
      * Creates a new ArcadeDrive.
@@ -43,8 +46,16 @@ public class ArcadeDrive extends CommandBase { //TODO Figure out how to make a b
         outputTelemetry();
     }
 
+    public void setTurboMode(boolean turboMode) {
+        this.turboMode = turboMode;
+    }
+
     private double getSpeed() {
-        double speed = driverController.getLeftY() * (isReversed ? 1 : -1) * 0.8;
+        double speed = driverController.getLeftY() * (isReversed ? 1 : -1);
+
+        if(!turboMode) {
+            speed *= driveMultiplier.getValue();
+        }
         // if(m_driveTrain.isSlowMode) {
         //   speed *= Constants.SLOW_MODE_SPEED_MODIFIER;
         // }

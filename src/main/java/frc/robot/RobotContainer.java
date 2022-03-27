@@ -157,7 +157,7 @@ public class RobotContainer {
     private ClimbUp climbUp = new ClimbUp(m_climber);
     private ClimbDown climbDown = new ClimbDown(m_climber);
 
-    private CommandGroupBase shootTest = createShootSetVelocity(shooterVelocityPreference, () -> 180.0,
+    private CommandGroupBase shootTest = createShootSetVelocity(shooterVelocityPreference, hoodPosition,
             beltDelayPreference);
 
     private Command shootFenderLow = createShootSetVelocity(shooterFenderLowPreference, () -> 180.0,
@@ -175,7 +175,7 @@ public class RobotContainer {
 
     private CommandBase shootInterpolated = createShootSetVelocity(
             this::getCalculatedVelocity,
-            () -> 180.0,
+            this::getCalculatedHood,
             beltDelayPreference);
 
     private JoystickButton btn_driveA = new JoystickButton(m_driveController, XboxController.Button.kA.value);
@@ -191,7 +191,9 @@ public class RobotContainer {
     private JoystickButton btn_manipX = new JoystickButton(m_manipController, XboxController.Button.kX.value);
     private JoystickButton btn_manipY = new JoystickButton(m_manipController, XboxController.Button.kY.value);
     private JoystickButton btn_manipB = new JoystickButton(m_manipController, XboxController.Button.kB.value);
-    
+
+    private POVButton dpad_driverUp = new POVButton(m_driveController, 0);
+
     private POVButton dpad_manipUp = new POVButton(m_manipController, 0);
     private POVButton dpad_manipDown = new POVButton(m_manipController, 180);
 
@@ -215,9 +217,10 @@ public class RobotContainer {
         SmartDashboard.putData(retractClimbMax);
         SmartDashboard.putData(climbUp);
         SmartDashboard.putData(climbDown);
-        SmartDashboard.putData(shootTest);
+        SmartDashboard.putData("Shoot Set Velocity", shootTest);
         SmartDashboard.putData(turretSeekAndTarget);
         SmartDashboard.putData(setHoodPosition);
+        SmartDashboard.putData("Shoot Interpolated", shootInterpolated);
 
         SmartDashboard.putData(autonChooser);
     }
@@ -241,6 +244,9 @@ public class RobotContainer {
 
         dpad_manipUp.whenPressed(new ForwardSecondaryClimber(m_secondaryClimber));
         dpad_manipDown.whenPressed(new ReverseSecondaryClimber(m_secondaryClimber));
+
+        dpad_driverUp.whenPressed(() -> arcadeDriveCommand.setTurboMode(true))
+                .whenReleased(() -> arcadeDriveCommand.setTurboMode(false));
     }
 
     /**
@@ -248,7 +254,7 @@ public class RobotContainer {
      */
     private void configureSubsystemCommands() {
         m_driveTrain.setDefaultCommand(arcadeDriveCommand);
-        m_hood.setDefaultCommand(new SetHoodPosition(m_hood, () -> DEFAULT_HOOD));
+        m_hood.setDefaultCommand(new SetHoodPosition(m_hood, this::getCalculatedHood));
         // TODO change to this default command after we verify soft limits are working
         // m_turret.setDefaultCommand(new ContinuousConditionalCommand(
         // new ReZeroTurret(m_turret, defaultTurrentPosition),
@@ -263,48 +269,55 @@ public class RobotContainer {
         // m_intake.setDefaultCommand(retractIntakeCommand);
     }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    // return autonChooser.getSelected();
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     */
+    public Command getAutonomousCommand() {
+        // return autonChooser.getSelected();
 
-    var autoVoltageConstraint =
-        new DifferentialDriveVoltageConstraint(
-            new SimpleMotorFeedforward(
-                DriveConstants.ksVolts,
-                DriveConstants.kvVoltSecondsPerMeter,
-                DriveConstants.kaVoltSecondsSquaredPerMeter),
-            DriveConstants.kDriveKinematics,
-            10);
+        var autoVoltageConstraint = new DifferentialDriveVoltageConstraint(
+                new SimpleMotorFeedforward(
+                        DriveConstants.ksVolts,
+                        DriveConstants.kvVoltSecondsPerMeter,
+                        DriveConstants.kaVoltSecondsSquaredPerMeter),
+                DriveConstants.kDriveKinematics,
+                10);
 
-    Trajectory straightTrajectory = loadTrajectory("StraightBack");
+        Trajectory straightTrajectory = loadTrajectory("StraightBack");
 
-    Command command = new RamseteTrajectoryCommand(m_driveTrain, straightTrajectory).andThen(() -> m_driveTrain.tankDriveVolts(0, 0));
+        Command command = new RamseteTrajectoryCommand(m_driveTrain, straightTrajectory)
+                .andThen(() -> m_driveTrain.tankDriveVolts(0, 0));
 
-    Command driveBackAndIntake = new ParallelCommandGroup(command, new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake, true)));
+        Command driveBackAndIntake = new ParallelCommandGroup(command,
+                new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake, true)));
 
-    return new SequentialCommandGroup(
-        driveBackAndIntake,
-        new TurretTarget(m_limelight, m_turret).withTimeout(2.2),
-        createShootSetVelocity(this::getCalculatedVelocity, () -> 180.0, () -> 0.0).withTimeout(5));
-  }
+        return new SequentialCommandGroup(
+                driveBackAndIntake,
+                new TurretTarget(m_limelight, m_turret).withTimeout(2.2),
+                createShootSetVelocity(this::getCalculatedVelocity, () -> 180.0, () -> 0.0).withTimeout(5));
+    }
 
     // DISTANCE, VELOCITY, HOOD_ANGLE
     public static final InterCalculator I_CALCULATOR = new InterCalculator(
+            new InterParameter(1.32, 7700, 0),
+            new InterParameter(1.7, 7700, 30),
+            new InterParameter(1.7, 7700, 30),
+            new InterParameter(2, 7700, 60),
             new InterParameter(2.2, 7150, 180),
             new InterParameter(2.5, 7250, 180),
             new InterParameter(2.7, 7350, 180),
             new InterParameter(2.95, 7550, 180),
             new InterParameter(3.2, 7750, 180),
             new InterParameter(3.45, 8100, 180),
-            new InterParameter(3.68, 8550, 180),
-            new InterParameter(3.8, 8900, 180),
-            new InterParameter(4.0, 9400, 180),
-            new InterParameter(4.17, 9750, 180),
-            new InterParameter(5, 11750, 180));
+            new InterParameter(3.6, 8550, 180),
+            new InterParameter(3.8, 8650, 180),
+            new InterParameter(4.0, 8700, 180),
+            new InterParameter(4.2, 8725, 180),
+            new InterParameter(4.3, 9500, 180),
+            new InterParameter(4.35, 9775, 180),
+            new InterParameter(4.4, 10000, 180));
 
     public double getCalculatedVelocity() {
         double calculated = I_CALCULATOR.calculateParameter(m_limelight.getDistanceAverage()).vals[0]
@@ -312,6 +325,14 @@ public class RobotContainer {
         interpolatedRPMReporter.set(calculated);
 
         return calculated;
+    }
+
+    public double getCalculatedHood() {
+        if (!m_limelight.getTv()) {
+            return 180;
+        } else {
+            return I_CALCULATOR.calculateParameter(m_limelight.getDistance()).vals[1];
+        }
     }
 
     private CommandGroupBase createShootSetVelocity(Supplier<Double> velocity, Supplier<Double> hoodAngle,
