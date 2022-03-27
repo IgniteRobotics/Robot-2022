@@ -52,9 +52,6 @@ public class Climber extends SubsystemBase {
     climberLeft = new WPI_TalonFX(PortConstants.ClimbLeftMotorPort);
     climberRight = new WPI_TalonFX(PortConstants.ClimbRightMotorPort);
 
-    climberLeft.configFactoryDefault();
-    climberRight.configFactoryDefault();
-
     // climberLeft.configOpenloopRamp(1);
     // climberRight.configOpenloopRamp(1);
 
@@ -69,12 +66,12 @@ public class Climber extends SubsystemBase {
     climberLeft.configForwardSoftLimitThreshold(ClimbConstants.CLIMBER_FORWARD_LIMIT_LEFT);
     climberLeft.configReverseSoftLimitThreshold(ClimbConstants.CLIMBER_REVERSE_LIMIT_LEFT);
     climberLeft.configForwardSoftLimitEnable(true, 0);
-    climberLeft.configReverseSoftLimitEnable(true, 0);
+    climberLeft.configReverseSoftLimitEnable(false, 0);
 
     climberRight.configForwardSoftLimitThreshold(ClimbConstants.CLIMBER_FORWARD_LIMIT_RIGHT);
     climberRight.configReverseSoftLimitThreshold(ClimbConstants.CLIMBER_REVERSE_LIMIT_RIGHT);
     climberRight.configForwardSoftLimitEnable(true, 0);
-    climberRight.configReverseSoftLimitEnable(true, 0);
+    climberRight.configReverseSoftLimitEnable(false, 0);
   }
 
   @Override
@@ -149,6 +146,10 @@ public class Climber extends SubsystemBase {
       climberRight.stopMotor();
       climberRight.setSelectedSensorPosition(0);
     }
+  }
+
+  public boolean isClimbLimitMet() {
+    return climberLeft.getSupplyCurrent() > ClimbConstants.SAFE_CLIMB_LIMIT || climberRight.getSupplyCurrent() > ClimbConstants.SAFE_CLIMB_LIMIT;
   }
 
   /**

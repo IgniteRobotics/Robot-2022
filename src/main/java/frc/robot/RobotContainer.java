@@ -39,9 +39,12 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.climber.ClimbDown;
 import frc.robot.commands.climber.ClimbUp;
+import frc.robot.commands.climber.ForwardSecondaryClimber;
 import frc.robot.commands.climber.RetractClimbMax;
+import frc.robot.commands.climber.ReverseSecondaryClimber;
 import frc.robot.commands.drivetrain.ArcadeDrive;
 import frc.robot.commands.drivetrain.ArcadeSetDrive;
 import frc.robot.commands.drivetrain.RamseteTrajectoryCommand;
@@ -65,6 +68,7 @@ import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.SecondaryClimber;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Turret;
 
@@ -113,6 +117,7 @@ public class RobotContainer {
     public final Hood m_hood = new Hood();
     public final Limelight m_limelight = new Limelight();
     public final Climber m_climber = new Climber();
+    private final SecondaryClimber m_secondaryClimber = new SecondaryClimber();
 
     // comands
     private ResetTurretEncoder resetTurretEncoder = new ResetTurretEncoder(m_turret);
@@ -186,6 +191,9 @@ public class RobotContainer {
     private JoystickButton btn_manipX = new JoystickButton(m_manipController, XboxController.Button.kX.value);
     private JoystickButton btn_manipY = new JoystickButton(m_manipController, XboxController.Button.kY.value);
     private JoystickButton btn_manipB = new JoystickButton(m_manipController, XboxController.Button.kB.value);
+    
+    private POVButton dpad_manipUp = new POVButton(m_manipController, 0);
+    private POVButton dpad_manipDown = new POVButton(m_manipController, 180);
 
     private JoystickButton bumper_manipR = new JoystickButton(m_manipController,
             XboxController.Button.kRightBumper.value);
@@ -224,12 +232,15 @@ public class RobotContainer {
         btn_driveX.whenHeld(shootEject);
 
         btn_manipA.whileHeld(turretSeekAndTarget);
-        btn_manipY.whileHeld(climbUp);
-        btn_manipB.whileHeld(climbDown);
+        btn_manipY.whenHeld(climbUp);
+        btn_manipB.whenHeld(climbDown);
         btn_manipX.whileHeld(shootTest);
 
         bumper_manipR.whileHeld(new OuttakeIntake(m_intake));
         bumper_manipL.whileHeld(outtakeSingleBall);
+
+        dpad_manipUp.whenPressed(new ForwardSecondaryClimber(m_secondaryClimber));
+        dpad_manipDown.whenPressed(new ReverseSecondaryClimber(m_secondaryClimber));
     }
 
     /**

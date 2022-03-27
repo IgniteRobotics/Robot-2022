@@ -51,4 +51,7 @@ public final class PortConstants {
     public static final int shooterFollowerPort = 16;
     public static final int shooterFeedPort = 14;
     public static final int shooterTurretPort = 13;
+
+    public static final int secondaryClimberForward = 8;
+    public static final int secondaryClimberReverse = 9;
 }
