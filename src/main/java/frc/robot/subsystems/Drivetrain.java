@@ -61,7 +61,7 @@ public class Drivetrain extends SubsystemBase {
     public static int WHEEL_DIAMETER_INCHES = 6; //in inches
     public static double WHEEL_DIAMETER_METERS = 0.1524;
 
-    public static double WHEEL_CIRCUMFERENCE_METERS = WHEEL_DIAMETER_METERS * Math.PI;
+    public static double WHEEL_CIRCUMFERENCE_METERS = 0.4914;
 
     /////////////////// END CONSTANTS ///////////////////
 
