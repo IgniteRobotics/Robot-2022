@@ -102,10 +102,10 @@ public class Drivetrain extends SubsystemBase {
         leftFollower.configFactoryDefault();
         rightFollower.configFactoryDefault();
 
-        leftLeader.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
-        rightLeader.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
-        leftFollower.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
-        rightFollower.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
+        leftLeader.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
+        rightLeader.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
+        leftFollower.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
+        rightFollower.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
 
         TalonFXConfiguration talonConfig = new TalonFXConfiguration();
         talonConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
@@ -117,13 +117,13 @@ public class Drivetrain extends SubsystemBase {
 
         talonConfig.openloopRamp = OPEN_LOOP_RAMP;
 
-        leftLeader.configAllSettings(talonConfig);
-        leftLeader.enableVoltageCompensation(true);
-        leftFollower.configFactoryDefault();
+        // leftLeader.configAllSettings(talonConfig);
+        // leftLeader.enableVoltageCompensation(true);
+        // leftFollower.configFactoryDefault();
 
-        rightLeader.configAllSettings(talonConfig);
-        rightLeader.enableVoltageCompensation(true);
-        rightFollower.configFactoryDefault();
+        // rightLeader.configAllSettings(talonConfig);
+        // rightLeader.enableVoltageCompensation(true);
+        // rightFollower.configFactoryDefault();
 
         resetEncoders();
 

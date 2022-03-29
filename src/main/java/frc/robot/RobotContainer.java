@@ -276,16 +276,7 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // return autonChooser.getSelected();
-
-        var autoVoltageConstraint = new DifferentialDriveVoltageConstraint(
-                new SimpleMotorFeedforward(
-                        DriveConstants.ksVolts,
-                        DriveConstants.kvVoltSecondsPerMeter,
-                        DriveConstants.kaVoltSecondsSquaredPerMeter),
-                DriveConstants.kDriveKinematics,
-                10);
-
-        Trajectory straightTrajectory = loadTrajectory("Forward2m");
+        Trajectory straightTrajectory = loadTrajectory("Forward3m");
 
         Command command = new RamseteTrajectoryCommand(m_driveTrain, straightTrajectory)
                 .andThen(() -> m_driveTrain.tankDriveVolts(0, 0));

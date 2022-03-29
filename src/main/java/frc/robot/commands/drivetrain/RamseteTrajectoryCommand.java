@@ -40,24 +40,7 @@ public class RamseteTrajectoryCommand extends RamseteCommand {
   @Override
   public void initialize() {
     super.initialize();
+    drivetrain.resetEncoders();
     drivetrain.resetOdometry(trajectory.getInitialPose());
-  }
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    super.execute();
-  }
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-    super.end(interrupted);
-  }
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return super.isFinished();
   }
 }
