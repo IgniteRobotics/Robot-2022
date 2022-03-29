@@ -15,6 +15,8 @@ import com.igniterobotics.robotbase.preferences.DoublePreference;
 import com.igniterobotics.robotbase.reporting.ReportingLevel;
 import com.igniterobotics.robotbase.reporting.ReportingNumber;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -48,6 +50,7 @@ import frc.robot.commands.climber.ReverseSecondaryClimber;
 import frc.robot.commands.drivetrain.ArcadeDrive;
 import frc.robot.commands.drivetrain.ArcadeSetDrive;
 import frc.robot.commands.drivetrain.RamseteTrajectoryCommand;
+import frc.robot.commands.drivetrain.ResetDriveEncoders;
 import frc.robot.commands.indexer.IndexBall;
 import frc.robot.commands.indexer.RunIndexerBelts;
 import frc.robot.commands.indexer.RunIndexerKickupDelay;
@@ -221,6 +224,7 @@ public class RobotContainer {
         SmartDashboard.putData(turretSeekAndTarget);
         SmartDashboard.putData(setHoodPosition);
         SmartDashboard.putData("Shoot Interpolated", shootInterpolated);
+        SmartDashboard.putData("Reset Drive Encoders", new ResetDriveEncoders(m_driveTrain));
 
         SmartDashboard.putData(autonChooser);
     }
@@ -276,20 +280,56 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // return autonChooser.getSelected();
-        Trajectory straightTrajectory = loadTrajectory("Forward3m");
+        Trajectory straightTrajectory = loadTrajectory("Forward2m");
 
-        Command command = new RamseteTrajectoryCommand(m_driveTrain, straightTrajectory)
-                .andThen(() -> m_driveTrain.tankDriveVolts(0, 0));
+        Command command = genRamseteCommand(straightTrajectory);
 
         return command;
 
         // Command driveBackAndIntake = new ParallelCommandGroup(command,
-        //         new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake, true)));
+        // new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake,
+        // true)));
 
         // return new SequentialCommandGroup(
-        //         driveBackAndIntake,
-        //         new TurretTarget(m_limelight, m_turret).withTimeout(2.2),
-        //         createShootSetVelocity(this::getCalculatedVelocity, () -> 180.0, () -> 0.0).withTimeout(5));
+        // driveBackAndIntake,
+        // new TurretTarget(m_limelight, m_turret).withTimeout(2.2),
+        // createShootSetVelocity(this::getCalculatedVelocity, () -> 180.0, () ->
+        // 0.0).withTimeout(5));
+    }
+
+    public CommandBase genRamseteCommand(Trajectory trajectory) {
+        RamseteController rController = new RamseteController(DriveConstants.kRamseteB, DriveConstants.kRamseteZeta);
+
+        RamseteCommand command = new RamseteCommand(
+            trajectory,
+            m_driveTrain::getCurrentPose,
+            rController,
+            new SimpleMotorFeedforward(DriveConstants.ksVolts, DriveConstants.kvVoltSecondsPerMeter, DriveConstants.kaVoltSecondsSquaredPerMeter),
+            DriveConstants.kDriveKinematics,
+            m_driveTrain::getWheelSpeeds,
+            new PIDController(DriveConstants.kPDriveVel, 0, 0),
+            new PIDController(DriveConstants.kPDriveVel, 0, 0),
+            m_driveTrain::tankDriveVolts,
+            m_driveTrain
+        );
+
+        return command.beforeStarting(() -> {
+            m_driveTrain.resetEncoders();
+            m_driveTrain.resetOdometry(trajectory.getInitialPose());
+        }).andThen(() -> {
+            m_driveTrain.tankDriveVolts(0, 0);
+        });
+    }
+
+    public static Trajectory loadTrajectory(String trajectoryName) {
+        try {
+            Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(Filesystem.getDeployDirectory().toPath()
+                    .resolve(Paths.get("paths", "output", trajectoryName + ".wpilib.json")));
+            return trajectory;
+        } catch (IOException e) {
+            DriverStation.reportError("Failed to load auto trajectory: " + trajectoryName, false);
+            return null;
+        }
     }
 
     // DISTANCE, VELOCITY, HOOD_ANGLE
@@ -337,16 +377,5 @@ public class RobotContainer {
                         new WaitUntilCommand(m_shooter::isSetpointMet).andThen(new WaitCommand(0.5)),
                         new RunIndexerKickupDelay(m_indexer, beltDelay)),
                 new ShootSetVelocity(m_shooter, velocity, false));
-    }
-
-    public static Trajectory loadTrajectory(String trajectoryName) {
-        try {
-            Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(Filesystem.getDeployDirectory().toPath()
-                    .resolve(Paths.get("paths", "output", trajectoryName + ".wpilib.json")));
-            return trajectory;
-        } catch (IOException e) {
-            DriverStation.reportError("Failed to load auto trajectory: " + trajectoryName, false);
-            return null;
-        }
     }
 }

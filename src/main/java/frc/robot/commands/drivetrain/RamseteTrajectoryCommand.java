@@ -43,4 +43,9 @@ public class RamseteTrajectoryCommand extends RamseteCommand {
     drivetrain.resetEncoders();
     drivetrain.resetOdometry(trajectory.getInitialPose());
   }
+
+  @Override
+  public void execute() {
+    
+  }
 }

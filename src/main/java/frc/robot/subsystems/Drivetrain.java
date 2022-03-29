@@ -7,7 +7,6 @@
 
 package frc.robot.subsystems;
 
-
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
@@ -21,6 +20,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -39,7 +39,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
 public class Drivetrain extends SubsystemBase {
 
-    /////////////////// CONSTANTS /////////////////// 
+    /////////////////// CONSTANTS ///////////////////
 
     public static final double SPEED_RATE_LIMIT_ARCADE = 2.5;
     public static final double ROTATION_RATE_LIMIT_ARCADE = 3.0;
@@ -48,7 +48,7 @@ public class Drivetrain extends SubsystemBase {
 
     public static final double OPEN_LOOP_RAMP = 0.25;
 
-    //default arcade drive modifiers
+    // default arcade drive modifiers
     public static final double VELOCITY_RAMP_EXPONENT = 2;
     public static final double VELOCITY_LIMIT_MULTIPLIER = 1;
     public static final double TURN_RAMP_EXPONENT = 2;
@@ -58,10 +58,10 @@ public class Drivetrain extends SubsystemBase {
     public static final double CURRENT_LIMIT_THRESHOLD = 20;
     public static final double CURRENT_LIMIT_TIME = 1;
 
-    public static int WHEEL_DIAMETER_INCHES = 6; //in inches
+    public static int WHEEL_DIAMETER_INCHES = 6; // in inches
     public static double WHEEL_DIAMETER_METERS = 0.1524;
 
-    public static double WHEEL_CIRCUMFERENCE_METERS = 0.4914;
+    public static double WHEEL_CIRCUMFERENCE_METERS = 0.47;
 
     /////////////////// END CONSTANTS ///////////////////
 
@@ -77,13 +77,10 @@ public class Drivetrain extends SubsystemBase {
 
     private final DifferentialDriveOdometry m_odometry;
 
-    private Pose2d savedPose;
-
     private final SlewRateLimiter speedRateLimiter = new SlewRateLimiter(SPEED_RATE_LIMIT_ARCADE);
     private final SlewRateLimiter rotationRateLimiter = new SlewRateLimiter(ROTATION_RATE_LIMIT_ARCADE);
 
-    // 7.8 is gear ratio
-    private SensorProfile sensorProfile = new SensorProfile(2048, 7.8);
+    private SensorProfile sensorProfile = new SensorProfile(2048, 10);
 
     private ReportingNumber leftEncoderPosition = new ReportingNumber("Left Encoder", ReportingLevel.COMPETITON);
     private ReportingNumber rightEncoderPosition = new ReportingNumber("Right Encoder", ReportingLevel.COMPETITON);
@@ -91,9 +88,11 @@ public class Drivetrain extends SubsystemBase {
     private ReportingNumber rightEncoderVelocity = new ReportingNumber("Right Velocity", ReportingLevel.COMPETITON);
     private ReportingNumber theta = new ReportingNumber("NavX Angle", ReportingLevel.COMPETITON);
 
+    private Field2d field2d = new Field2d();
+
     public Drivetrain() {
         m_odometry = new DifferentialDriveOdometry(navX.getRotation2d()); // assume robot starts at x =0, y=0,
-                                                                               // theta = 0
+                                                                          // theta = 0
 
         navX.zeroYaw();
 
@@ -102,10 +101,14 @@ public class Drivetrain extends SubsystemBase {
         leftFollower.configFactoryDefault();
         rightFollower.configFactoryDefault();
 
-        leftLeader.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
-        rightLeader.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
-        leftFollower.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
-        rightFollower.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
+        leftLeader.configStatorCurrentLimit(
+                new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
+        rightLeader.configStatorCurrentLimit(
+                new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
+        leftFollower.configStatorCurrentLimit(
+                new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
+        rightFollower.configStatorCurrentLimit(
+                new StatorCurrentLimitConfiguration(false, CURRENT_LIMIT, CURRENT_LIMIT_THRESHOLD, CURRENT_LIMIT_TIME));
 
         TalonFXConfiguration talonConfig = new TalonFXConfiguration();
         talonConfig.primaryPID.selectedFeedbackSensor = FeedbackDevice.IntegratedSensor;
@@ -117,18 +120,14 @@ public class Drivetrain extends SubsystemBase {
 
         talonConfig.openloopRamp = OPEN_LOOP_RAMP;
 
-        // leftLeader.configAllSettings(talonConfig);
-        // leftLeader.enableVoltageCompensation(true);
-        // leftFollower.configFactoryDefault();
+        leftLeader.configAllSettings(talonConfig);
+        leftLeader.enableVoltageCompensation(true);
 
-        // rightLeader.configAllSettings(talonConfig);
-        // rightLeader.enableVoltageCompensation(true);
-        // rightFollower.configFactoryDefault();
-
+        rightLeader.configAllSettings(talonConfig);
+        rightLeader.enableVoltageCompensation(true);
         resetEncoders();
 
         setNeutralMode(NeutralMode.Brake);
-
 
         leftFollower.follow(leftLeader);
         rightFollower.follow(rightLeader);
@@ -137,20 +136,25 @@ public class Drivetrain extends SubsystemBase {
         leftFollower.setInverted(InvertType.FollowMaster);
 
         leftLeader.overrideLimitSwitchesEnable(false);
-        rightLeader.overrideLimitSwitchesEnable(false);        
-
+        rightLeader.overrideLimitSwitchesEnable(false);
 
         m_driveTrain = new DifferentialDrive(leftLeader, rightLeader);
+
+        SmartDashboard.putData("Field2d", field2d);
     }
 
     @Override
     public void periodic() {
-        m_odometry.update(navX.getRotation2d(), sensorProfile.uToRev(getLeftEncoderPosition()) * WHEEL_CIRCUMFERENCE_METERS,
-                      sensorProfile.uToRev(getRightEncoderPosition()) * WHEEL_CIRCUMFERENCE_METERS);
-        leftEncoderPosition.set(getLeftEncoderPosition());              
-        rightEncoderPosition.set(getRightEncoderPosition());    
-        leftEncoderVelocity.set(getLeftEncoderVel());    
-        rightEncoderVelocity.set(getRightEncoderVel());    
+        m_odometry.update(navX.getRotation2d(),
+                sensorProfile.uToRev(getLeftEncoderPosition()) * WHEEL_CIRCUMFERENCE_METERS,
+                sensorProfile.uToRev(getRightEncoderPosition()) * WHEEL_CIRCUMFERENCE_METERS);
+        
+        field2d.setRobotPose(m_odometry.getPoseMeters());
+
+        leftEncoderPosition.set(getLeftEncoderPosition());
+        rightEncoderPosition.set(getRightEncoderPosition());
+        leftEncoderVelocity.set(getLeftEncoderVel());
+        rightEncoderVelocity.set(getRightEncoderVel());
         theta.set(navX.getRotation2d().getDegrees());
 
         SmartDashboard.putData(m_driveTrain);
@@ -163,13 +167,9 @@ public class Drivetrain extends SubsystemBase {
     public DifferentialDriveWheelSpeeds getWheelSpeeds() {
 
         // DifferentialDriveWHeelSpeeds expects meters per second
-        return new DifferentialDriveWheelSpeeds(sensorProfile.uToRPS(leftLeader.getSelectedSensorVelocity()) * WHEEL_CIRCUMFERENCE_METERS,
+        return new DifferentialDriveWheelSpeeds(
+                sensorProfile.uToRPS(leftLeader.getSelectedSensorVelocity()) * WHEEL_CIRCUMFERENCE_METERS,
                 sensorProfile.uToRPS(rightLeader.getSelectedSensorVelocity()) * WHEEL_CIRCUMFERENCE_METERS);
-    }
-
-    public void resetOdometry() {
-        resetEncoders();
-        m_odometry.resetPosition(savedPose, Rotation2d.fromDegrees(getAngle()));
     }
 
     public void resetOdometry(Pose2d startingPose) {
@@ -188,7 +188,7 @@ public class Drivetrain extends SubsystemBase {
     public void tankDriveVolts(double leftVolts, double rightVolts) {
         leftLeader.setVoltage(leftVolts);
         leftFollower.setVoltage(leftVolts);
-        
+
         rightLeader.setVoltage(rightVolts);
         rightFollower.setVoltage(rightVolts);
 
@@ -242,6 +242,7 @@ public class Drivetrain extends SubsystemBase {
      * Returns the absolute position of the yaw axis.
      * 
      * Increments over 360
+     * 
      * @return
      */
     public double getHeading() {
