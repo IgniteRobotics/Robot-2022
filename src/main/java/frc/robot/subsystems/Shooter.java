@@ -49,7 +49,7 @@ public class Shooter extends SubsystemBase {
   private final DoublePreference kPPref = new DoublePreference("Shooter kP", kP);
   private final DoublePreference kDPref = new DoublePreference("Shooter kD", kD);
 
-  private final int setpointFramesRequirement = 20;
+  private final int setpointFramesRequirement = 10;
   private int setpointFrames = 0;
 
   private InterCalculator kFCalculator = new InterCalculator(

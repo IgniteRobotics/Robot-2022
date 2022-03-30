@@ -280,7 +280,7 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // return autonChooser.getSelected();
-        Trajectory straightTrajectory = loadTrajectory("Forward2m");
+        Trajectory straightTrajectory = loadTrajectory("Backward2m");
 
         Command command = genRamseteCommand(straightTrajectory);
 
@@ -328,6 +328,7 @@ public class RobotContainer {
             return trajectory;
         } catch (IOException e) {
             DriverStation.reportError("Failed to load auto trajectory: " + trajectoryName, false);
+            e.printStackTrace();
             return null;
         }
     }
@@ -373,8 +374,8 @@ public class RobotContainer {
         return new ParallelCommandGroup(
                 new SequentialCommandGroup(
                         new SetHoodPosition(m_hood, hoodAngle).withInterrupt(() -> hoodAngle.get() == DEFAULT_HOOD)
-                                .withTimeout(1),
-                        new WaitUntilCommand(m_shooter::isSetpointMet).andThen(new WaitCommand(0.5)),
+                                .withTimeout(0.1),
+                        new WaitUntilCommand(m_shooter::isSetpointMet),
                         new RunIndexerKickupDelay(m_indexer, beltDelay)),
                 new ShootSetVelocity(m_shooter, velocity, false));
     }

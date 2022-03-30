@@ -121,10 +121,10 @@ public class Drivetrain extends SubsystemBase {
         talonConfig.openloopRamp = OPEN_LOOP_RAMP;
 
         leftLeader.configAllSettings(talonConfig);
-        leftLeader.enableVoltageCompensation(true);
+        leftLeader.enableVoltageCompensation(false);
 
         rightLeader.configAllSettings(talonConfig);
-        rightLeader.enableVoltageCompensation(true);
+        rightLeader.enableVoltageCompensation(false);
         resetEncoders();
 
         setNeutralMode(NeutralMode.Brake);
