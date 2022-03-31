@@ -280,11 +280,17 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // return autonChooser.getSelected();
-        Trajectory straightTrajectory = loadTrajectory("HubToBall");
+        Trajectory t_hubToBall = loadTrajectory("HubToBall");
+        Trajectory t_ballToPlayer = loadTrajectory("BallToPlayer");
+        Trajectory t_playerToHub = loadTrajectory("PlayerToHub");
 
-        Command command = genRamseteCommand(straightTrajectory);
+        CommandBase hubToBall = genRamseteCommand(t_hubToBall);
+        CommandBase ballToPlayer = genRamseteCommand(t_ballToPlayer);
+        CommandBase playerToHub = genRamseteCommand(t_playerToHub);
 
-        return command;
+        CommandBase fullPath = hubToBall.andThen(ballToPlayer).andThen(playerToHub);
+
+        return fullPath;
 
         // Command driveBackAndIntake = new ParallelCommandGroup(command,
         // new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake,
