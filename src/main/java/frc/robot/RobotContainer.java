@@ -280,7 +280,7 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // return autonChooser.getSelected();
-        Trajectory straightTrajectory = loadTrajectory("PlayerToHub");
+        Trajectory straightTrajectory = loadTrajectory("HubToBall");
 
         Command command = genRamseteCommand(straightTrajectory);
 
