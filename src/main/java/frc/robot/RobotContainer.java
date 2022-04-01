@@ -246,7 +246,7 @@ public class RobotContainer {
         bumper_manipR.whileHeld(new OuttakeIntake(m_intake));
         bumper_manipL.whileHeld(outtakeSingleBall);
 
-        dpad_manipUp.whenPressed(new ForwardSecondaryClimber(m_secondaryClimber));
+        dpad_manipUp.whenPressed(new ForwardSecondaryClimber(m_secondaryClimber, m_climber));
         dpad_manipDown.whenPressed(new ReverseSecondaryClimber(m_secondaryClimber));
 
         dpad_driverUp.whenPressed(() -> arcadeDriveCommand.setTurboMode(true))
@@ -290,7 +290,7 @@ public class RobotContainer {
 
         CommandBase fullPath = hubToBall.andThen(ballToPlayer).andThen(playerToHub);
 
-        return fullPath;
+        return ballToPlayer;
 
         // Command driveBackAndIntake = new ParallelCommandGroup(command,
         // new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake,

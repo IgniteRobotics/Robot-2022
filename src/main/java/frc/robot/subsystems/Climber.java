@@ -22,6 +22,8 @@ import frc.robot.constants.ClimbConstants;
 import frc.robot.constants.PortConstants;
 
 public class Climber extends SubsystemBase {
+  public static final int DEPLOYED_THRESHOLD = 100000;
+
   private DoublePreference climbUpEffortPref = new DoublePreference("Climb Up Effort");
   private DoublePreference climbDownEffortPref = new DoublePreference("Climb Down Effort");
 
@@ -42,6 +44,7 @@ public class Climber extends SubsystemBase {
 
   private boolean leftCurrentStopped;
   private boolean rightCurrentStopped;
+  private boolean wasDeployed = false;
 
   private int framesSinceRamp = 0;
   private double initialRampingEffort = 0;
@@ -80,6 +83,18 @@ public class Climber extends SubsystemBase {
     climberLeftReporter.set(climberLeft.getSelectedSensorPosition());
     climberRightReporter.set(climberRight.getSelectedSensorPosition());
     climberCurrent.set(climberRight.getSupplyCurrent());
+
+    if(getEncoderPos() >= DEPLOYED_THRESHOLD) {
+      wasDeployed = true;
+    }
+  }
+
+  public void reset() {
+    wasDeployed = false;
+  }
+
+  public boolean wasDeployed() {
+    return wasDeployed;
   }
 
   private void configureMotionMagic() {
