@@ -86,6 +86,8 @@ import frc.robot.subsystems.Turret;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+    public static final double DEFAULT_HOOD = 180;
+
     private RobotStateController controller = RobotStateController.getInstance();
 
     private SendableChooser<Command> autonChooser = new SendableChooser<>();
@@ -94,13 +96,8 @@ public class RobotContainer {
     private DoublePreference shooterFenderLowPreference = new DoublePreference("FenderLow Velocity", 2500);
     private DoublePreference shooterFenderHighPreference = new DoublePreference("FenderHigh Velocity", 7000);
     private DoublePreference shooterEjectPreference = new DoublePreference("Eject Velocity", 9000);
-
     private DoublePreference velocityOffset = new DoublePreference("VELOCITY OFFSET", 0);
-
     private DoublePreference beltDelayPreference = new DoublePreference("Belt Delay", 1);
-
-    public static final double DEFAULT_HOOD = 180;
-
     private DoublePreference hoodPosition = new DoublePreference("Hood Set Position", 0);
     private DoublePreference initialTurretOffset = new DoublePreference("Initial Turret Offset", 0);
     private DoublePreference defaultTurrentPosition = new DoublePreference("Default Turret Position", 0);
@@ -121,67 +118,31 @@ public class RobotContainer {
     public final Hood m_hood = new Hood();
     public final Limelight m_limelight = new Limelight();
     public final Climber m_climber = new Climber();
-    private final SecondaryClimber m_secondaryClimber = new SecondaryClimber();
+    public final SecondaryClimber m_secondaryClimber = new SecondaryClimber();
 
     // comands
-    private ResetTurretEncoder resetTurretEncoder = new ResetTurretEncoder(m_turret);
     private ArcadeDrive arcadeDriveCommand = new ArcadeDrive(m_driveController, m_driveTrain);
+
     private IndexBall indexBallCommand = new IndexBall(m_indexer);
-    // private RetractIntake retractIntakeCommand = new RetractIntake(m_intake);
     private RunIntake runIntakeCommand = new RunIntake(m_intake, true);
-
-    private ParallelRaceGroup outtakeSingleBall = new ParallelRaceGroup(new RunIndexerBelts(m_indexer, false),
-            new OuttakeIntake(m_intake));
-    private ShootSetVelocity shootVelocityCommand = new ShootSetVelocity(m_shooter, shooterVelocityPreference,
-            false);
-    // command group that runs the indexer and the intake until the indexer is full.
-    private ParallelRaceGroup indexerIntakeGroup = new ParallelRaceGroup(new IndexBall(m_indexer),
-            new RunIntake(m_intake, true));
-
-    private SequentialCommandGroup driveAndShoot = new SequentialCommandGroup(
-            new ArcadeSetDrive(m_driveTrain, () -> 0.5).withTimeout(0.8),
-            new ReZeroTurret(m_turret, defaultTurrentPosition).withTimeout(1),
-            new TurretTarget(m_limelight, m_turret).withTimeout(1.5),
-            createShootSetVelocity(
-                    this::getCalculatedVelocity,
-                    () -> 180.0,
-                    () -> 0.0).withTimeout(4));
-
-    private SequentialCommandGroup twoBallAuton = new SequentialCommandGroup(
-            new ParallelCommandGroup(
-                    new ArcadeSetDrive(m_driveTrain, () -> 0.2).withTimeout(1.7),
-                    new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake, true)),
-                    new ReZeroTurret(m_turret, defaultTurrentPosition)).withTimeout(2),
-            new TurretTarget(m_limelight, m_turret).withTimeout(2.2),
-            createShootSetVelocity(
-                    this::getCalculatedVelocity,
-                    () -> 180.0,
-                    () -> 0.0).withTimeout(5));
+    private ParallelRaceGroup outtakeSingleBall = new ParallelRaceGroup(new RunIndexerBelts(m_indexer, false), new OuttakeIntake(m_intake));
+    private CommandBase indexerIntakeGroup = createIntakeIndex();
 
     private RetractClimbMax retractClimbMax = new RetractClimbMax(m_climber);
     private ClimbUp climbUp = new ClimbUp(m_climber);
     private ClimbDown climbDown = new ClimbDown(m_climber);
 
-    private CommandGroupBase shootTest = createShootSetVelocity(shooterVelocityPreference, hoodPosition,
-            beltDelayPreference);
-
-    private Command shootFenderLow = createShootSetVelocity(shooterFenderLowPreference, () -> 180.0,
-            beltDelayPreference);
-    private Command shootFenderHigh = createShootSetVelocity(shooterFenderHighPreference, () -> 0.0,
-            beltDelayPreference);
+    private ShootSetVelocity shootVelocityCommand = new ShootSetVelocity(m_shooter, shooterVelocityPreference, false);
+    private CommandGroupBase shootTest = createShootSetVelocity(shooterVelocityPreference, hoodPosition, beltDelayPreference);
+    private Command shootFenderLow = createShootSetVelocity(shooterFenderLowPreference, () -> 180.0, beltDelayPreference);
+    private Command shootFenderHigh = createShootSetVelocity(shooterFenderHighPreference, () -> 0.0, beltDelayPreference);
     private Command shootEject = createShootSetVelocity(shooterEjectPreference, () -> 180.0, beltDelayPreference);
+    private CommandBase shootInterpolated = createShootInterpolated();
 
-    // private CommandBase turretTarget = new TurretTarget(m_limelight, m_turret);
-    private CommandBase turretSeekAndTarget = new SequentialCommandGroup(
-            new TurretSeekTarget(m_limelight, m_turret),
-            new TurretTarget(m_limelight, m_turret));
+    private ResetTurretEncoder resetTurretEncoder = new ResetTurretEncoder(m_turret);
+    private CommandBase turretSeekAndTarget = createTurretTarget();
 
     private CommandBase setHoodPosition = new SetHoodPosition(m_hood, hoodPosition);
-
-    private CommandBase shootInterpolated = createShootSetVelocity(
-            this::getCalculatedVelocity,
-            this::getCalculatedHood,
-            beltDelayPreference);
 
     private JoystickButton btn_driveA = new JoystickButton(m_driveController, XboxController.Button.kA.value);
     private JoystickButton btn_driveB = new JoystickButton(m_driveController, XboxController.Button.kB.value);
@@ -198,7 +159,6 @@ public class RobotContainer {
     private JoystickButton btn_manipB = new JoystickButton(m_manipController, XboxController.Button.kB.value);
 
     private POVButton dpad_driverUp = new POVButton(m_driveController, 0);
-
     private POVButton dpad_manipUp = new POVButton(m_manipController, 0);
     private POVButton dpad_manipDown = new POVButton(m_manipController, 180);
 
@@ -213,8 +173,6 @@ public class RobotContainer {
         configureSubsystemCommands();
 
         autonChooser.addOption("NO AUTON", null);
-        autonChooser.addOption("Drive and Shoot", driveAndShoot);
-        autonChooser.addOption("Two Ball", twoBallAuton);
 
         SmartDashboard.putData(resetTurretEncoder);
         SmartDashboard.putData(retractClimbMax);
@@ -270,7 +228,6 @@ public class RobotContainer {
         // ).perpetually());
         m_turret.setDefaultCommand(new ReZeroTurret(m_turret, defaultTurrentPosition));
         m_limelight.setDefaultCommand(new LimelightSetLed(m_limelight, () -> true));
-        // m_intake.setDefaultCommand(retractIntakeCommand);
     }
 
     /**
@@ -291,17 +248,11 @@ public class RobotContainer {
         CommandBase fullPath = new ParallelDeadlineGroup(
             hubToBall.andThen(
                 new ParallelCommandGroup(
-                    new SequentialCommandGroup(
-                        new TurretSeekTarget(m_limelight, m_turret),
-                        new TurretTarget(m_limelight, m_turret)
-                    ),
-                    createShootSetVelocity(this::getCalculatedVelocity, this::getCalculatedHood, beltDelayPreference)
+                    createTurretTarget(),
+                    createShootInterpolated()
                 ).withTimeout(3)
-            ), 
-            new ParallelRaceGroup(
-                new IndexBall(m_indexer),
-                new RunIntake(m_intake, true)
-            )
+            ),
+            createIntakeIndex()
         );
 
         return fullPath;
@@ -401,5 +352,17 @@ public class RobotContainer {
                         new WaitUntilCommand(m_shooter::isSetpointMet),
                         new RunIndexerKickupDelay(m_indexer, beltDelay)),
                 new ShootSetVelocity(m_shooter, velocity, false));
+    }
+
+    private CommandBase createShootInterpolated() {
+        return createShootSetVelocity(this::getCalculatedVelocity, this::getCalculatedHood, beltDelayPreference);
+    }
+
+    private CommandBase createIntakeIndex() {
+        return new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake, true));
+    }
+
+    private CommandBase createTurretTarget() {
+        return new SequentialCommandGroup(new TurretSeekTarget(m_limelight, m_turret), new TurretTarget(m_limelight, m_turret));
     }
 }
