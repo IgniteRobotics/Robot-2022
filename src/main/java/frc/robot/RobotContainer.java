@@ -88,6 +88,8 @@ import frc.robot.subsystems.Turret;
 public class RobotContainer {
     public static final double DEFAULT_HOOD = 180;
 
+    private double velocitySnapshot;
+
     private RobotStateController controller = RobotStateController.getInstance();
 
     private SendableChooser<Command> autonChooser = new SendableChooser<>();
@@ -334,6 +336,14 @@ public class RobotContainer {
         return calculated;
     }
 
+    private void snapshotVelocity() {
+        this.velocitySnapshot = getCalculatedVelocity();
+    }
+
+    private double getSnapshotVelocity() {
+        return this.velocitySnapshot;
+    }
+
     public double getCalculatedHood() {
         if (!m_limelight.getTv()) {
             return 180;
@@ -355,7 +365,8 @@ public class RobotContainer {
     }
 
     private CommandBase createShootInterpolated() {
-        return createShootSetVelocity(this::getCalculatedVelocity, this::getCalculatedHood, beltDelayPreference);
+        return createShootSetVelocity(this::getSnapshotVelocity, this::getCalculatedHood, beltDelayPreference)
+            .beforeStarting(this::snapshotVelocity, m_limelight);
     }
 
     private CommandBase createIntakeIndex() {
