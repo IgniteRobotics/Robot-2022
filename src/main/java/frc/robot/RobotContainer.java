@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandGroupBase;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -131,7 +132,8 @@ public class RobotContainer {
 
     private ParallelRaceGroup outtakeSingleBall = new ParallelRaceGroup(new RunIndexerBelts(m_indexer, false),
             new OuttakeIntake(m_intake));
-    private ShootSetVelocity shootVelocityCommand = new ShootSetVelocity(m_shooter, shooterVelocityPreference, false);
+    private ShootSetVelocity shootVelocityCommand = new ShootSetVelocity(m_shooter, shooterVelocityPreference,
+            false);
     // command group that runs the indexer and the intake until the indexer is full.
     private ParallelRaceGroup indexerIntakeGroup = new ParallelRaceGroup(new IndexBall(m_indexer),
             new RunIntake(m_intake, true));
@@ -210,8 +212,6 @@ public class RobotContainer {
         configureButtonBindings();
         configureSubsystemCommands();
 
-        indexerIntakeGroup.addRequirements(m_turret);
-
         autonChooser.addOption("NO AUTON", null);
         autonChooser.addOption("Drive and Shoot", driveAndShoot);
         autonChooser.addOption("Two Ball", twoBallAuton);
@@ -288,9 +288,23 @@ public class RobotContainer {
         CommandBase ballToPlayer = genRamseteCommand(t_ballToPlayer);
         CommandBase playerToHub = genRamseteCommand(t_playerToHub);
 
-        CommandBase fullPath = hubToBall.andThen(ballToPlayer).andThen(playerToHub);
+        CommandBase fullPath = new ParallelDeadlineGroup(
+            hubToBall.andThen(
+                new ParallelCommandGroup(
+                    new SequentialCommandGroup(
+                        new TurretSeekTarget(m_limelight, m_turret),
+                        new TurretTarget(m_limelight, m_turret)
+                    ),
+                    createShootSetVelocity(this::getCalculatedVelocity, this::getCalculatedHood, beltDelayPreference)
+                ).withTimeout(3)
+            ), 
+            new ParallelRaceGroup(
+                new IndexBall(m_indexer),
+                new RunIntake(m_intake, true)
+            )
+        );
 
-        return ballToPlayer;
+        return fullPath;
 
         // Command driveBackAndIntake = new ParallelCommandGroup(command,
         // new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake,
@@ -304,20 +318,21 @@ public class RobotContainer {
     }
 
     public CommandBase genRamseteCommand(Trajectory trajectory) {
-        RamseteController rController = new RamseteController(DriveConstants.kRamseteB, DriveConstants.kRamseteZeta);
+        RamseteController rController = new RamseteController(DriveConstants.kRamseteB,
+                DriveConstants.kRamseteZeta);
 
         RamseteCommand command = new RamseteCommand(
-            trajectory,
-            m_driveTrain::getCurrentPose,
-            rController,
-            new SimpleMotorFeedforward(DriveConstants.ksVolts, DriveConstants.kvVoltSecondsPerMeter, DriveConstants.kaVoltSecondsSquaredPerMeter),
-            DriveConstants.kDriveKinematics,
-            m_driveTrain::getWheelSpeeds,
-            new PIDController(DriveConstants.kPDriveVel, 0, 0),
-            new PIDController(DriveConstants.kPDriveVel, 0, 0),
-            m_driveTrain::tankDriveVolts,
-            m_driveTrain
-        );
+                trajectory,
+                m_driveTrain::getCurrentPose,
+                rController,
+                new SimpleMotorFeedforward(DriveConstants.ksVolts, DriveConstants.kvVoltSecondsPerMeter,
+                        DriveConstants.kaVoltSecondsSquaredPerMeter),
+                DriveConstants.kDriveKinematics,
+                m_driveTrain::getWheelSpeeds,
+                new PIDController(DriveConstants.kPDriveVel, 0, 0),
+                new PIDController(DriveConstants.kPDriveVel, 0, 0),
+                m_driveTrain::tankDriveVolts,
+                m_driveTrain);
 
         return command.beforeStarting(() -> {
             m_driveTrain.resetEncoders();
@@ -329,7 +344,8 @@ public class RobotContainer {
 
     public static Trajectory loadTrajectory(String trajectoryName) {
         try {
-            Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(Filesystem.getDeployDirectory().toPath()
+            Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(Filesystem.getDeployDirectory()
+                    .toPath()
                     .resolve(Paths.get("paths", "output", trajectoryName + ".wpilib.json")));
             return trajectory;
         } catch (IOException e) {
@@ -379,7 +395,8 @@ public class RobotContainer {
             Supplier<Double> beltDelay) {
         return new ParallelCommandGroup(
                 new SequentialCommandGroup(
-                        new SetHoodPosition(m_hood, hoodAngle).withInterrupt(() -> hoodAngle.get() == DEFAULT_HOOD)
+                        new SetHoodPosition(m_hood, hoodAngle)
+                                .withInterrupt(() -> hoodAngle.get() == DEFAULT_HOOD)
                                 .withTimeout(0.1),
                         new WaitUntilCommand(m_shooter::isSetpointMet),
                         new RunIndexerKickupDelay(m_indexer, beltDelay)),

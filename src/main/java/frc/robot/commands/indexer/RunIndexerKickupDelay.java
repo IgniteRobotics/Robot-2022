@@ -25,7 +25,7 @@ public class RunIndexerKickupDelay extends CommandBase {
     this.indexer = indexer;
     this.delaySupplier = delaySupplier;
 
-    addRequirements(indexer);
+    // addRequirements(indexer);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
