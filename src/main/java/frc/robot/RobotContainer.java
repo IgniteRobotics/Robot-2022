@@ -190,7 +190,7 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
-        bumper_driveR.whileHeld(indexerIntakeGroup, true).whenReleased(new IndexBall(m_indexer).withTimeout(1));
+        bumper_driveR.whileHeld(indexerIntakeGroup).whenReleased(new IndexBall(m_indexer).withTimeout(1));
         bumper_driveL.whileHeld(new RunIntake(m_intake, false));
 
         btn_driveA.whenHeld(shootFenderLow);
@@ -247,17 +247,21 @@ public class RobotContainer {
         CommandBase ballToPlayer = genRamseteCommand(t_ballToPlayer);
         CommandBase playerToHub = genRamseteCommand(t_playerToHub);
 
-        CommandBase fullPath = new ParallelDeadlineGroup(
-            hubToBall.andThen(
-                new ParallelCommandGroup(
-                    createTurretTarget(),
-                    createShootInterpolated()
-                ).withTimeout(3)
-            ),
-            createIntakeIndex()
+        CommandBase path1 = hubToBall.andThen(
+            new ParallelCommandGroup(
+                createShootInterpolated()
+            ).withTimeout(2.5)
         );
 
-        return fullPath;
+        CommandBase path2 = ballToPlayer.andThen(new WaitCommand(0.5));
+
+        CommandBase path3 = playerToHub.andThen(
+            new ParallelCommandGroup(
+                createShootInterpolated()
+            ).withTimeout(2.5)
+        );
+
+        return new ParallelRaceGroup(path1.andThen(path2).andThen(path3), createIntakeIndex(), createTurretTarget());
 
         // Command driveBackAndIntake = new ParallelCommandGroup(command,
         // new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake,
@@ -311,6 +315,7 @@ public class RobotContainer {
     // DISTANCE, VELOCITY, HOOD_ANGLE
     public static final InterCalculator I_CALCULATOR = new InterCalculator(
             new InterParameter(1.32, 7700, 0),
+            new InterParameter(1.5, 7700, 15),
             new InterParameter(1.7, 7700, 30),
             new InterParameter(1.7, 7700, 30),
             new InterParameter(2, 7700, 60),
@@ -366,7 +371,7 @@ public class RobotContainer {
 
     private CommandBase createShootInterpolated() {
         return createShootSetVelocity(this::getSnapshotVelocity, this::getCalculatedHood, beltDelayPreference)
-            .beforeStarting(this::snapshotVelocity, m_limelight);
+            .beforeStarting(this::snapshotVelocity);
     }
 
     private CommandBase createIntakeIndex() {
