@@ -175,6 +175,8 @@ public class RobotContainer {
         configureSubsystemCommands();
 
         autonChooser.addOption("NO AUTON", null);
+        autonChooser.addOption("Full Auton", createFullAuton());
+        autonChooser.addOption("Two Ball", createTwoBall());
 
         SmartDashboard.putData(resetTurretEncoder);
         SmartDashboard.putData(retractClimbMax);
@@ -238,6 +240,10 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
+        return autonChooser.getSelected();
+    }
+
+    public Command createFullAuton() {
         // return autonChooser.getSelected();
         Trajectory t_hubToBall = loadTrajectory("HubToBall");
         Trajectory t_ballToPlayer = loadTrajectory("BallToPlayer");
@@ -261,17 +267,20 @@ public class RobotContainer {
             ).withTimeout(2.5)
         );
 
-        return new ParallelRaceGroup(path1.andThen(path2).andThen(path3), createIntakeIndex(), createTurretTarget());
+        return new ParallelDeadlineGroup(path1.andThen(path2).andThen(path3), createIntakeIndex(), createTurretTarget());
+    }
 
-        // Command driveBackAndIntake = new ParallelCommandGroup(command,
-        // new ParallelRaceGroup(new IndexBall(m_indexer), new RunIntake(m_intake,
-        // true)));
+    public Command createTwoBall() {
+        Trajectory t_hubToBall = loadTrajectory("HubToBall");
+        CommandBase hubToBall = genRamseteCommand(t_hubToBall);
 
-        // return new SequentialCommandGroup(
-        // driveBackAndIntake,
-        // new TurretTarget(m_limelight, m_turret).withTimeout(2.2),
-        // createShootSetVelocity(this::getCalculatedVelocity, () -> 180.0, () ->
-        // 0.0).withTimeout(5));
+        CommandBase path1 = hubToBall.andThen(
+            new ParallelCommandGroup(
+                createShootInterpolated()
+            ).withTimeout(2.5)
+        );
+
+        return new ParallelDeadlineGroup(path1, createIntakeIndex(), createTurretTarget());
     }
 
     public CommandBase genRamseteCommand(Trajectory trajectory) {
@@ -316,9 +325,8 @@ public class RobotContainer {
     public static final InterCalculator I_CALCULATOR = new InterCalculator(
             new InterParameter(1.32, 7700, 0),
             new InterParameter(1.5, 7700, 15),
-            new InterParameter(1.7, 7700, 30),
-            new InterParameter(1.7, 7700, 30),
-            new InterParameter(2, 7700, 60),
+            new InterParameter(1.7, 8500, 40),
+            new InterParameter(2, 8100, 60),
             new InterParameter(2.2, 7150, 180),
             new InterParameter(2.5, 7250, 180),
             new InterParameter(2.7, 7350, 180),

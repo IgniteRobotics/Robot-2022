@@ -160,6 +160,11 @@ public class Drivetrain extends SubsystemBase {
         SmartDashboard.putData(m_driveTrain);
     }
 
+    public void setFollowerStatus() {
+        leftFollower.follow(leftLeader);
+        rightFollower.follow(rightLeader);
+    }
+
     public Pose2d getCurrentPose() {
         return m_odometry.getPoseMeters();
     }
@@ -187,10 +192,7 @@ public class Drivetrain extends SubsystemBase {
 
     public void tankDriveVolts(double leftVolts, double rightVolts) {
         leftLeader.setVoltage(leftVolts);
-        leftFollower.setVoltage(leftVolts);
-
         rightLeader.setVoltage(rightVolts);
-        rightFollower.setVoltage(rightVolts);
 
         m_driveTrain.feed();
     }
