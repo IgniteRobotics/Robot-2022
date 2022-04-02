@@ -390,9 +390,10 @@ public class RobotContainer {
 
     private CommandBase createShootInterpolated() {
         return createShootSetVelocity(this::getSnapshotVelocity, this::getCalculatedHood, beltDelayPreference)
-                .beforeStarting(new SequentialCommandGroup(
-                    new WaitCommand(0.2).andThen(this::snapshotVelocity)
-                ));
+            .beforeStarting(new ParallelRaceGroup(
+                new WaitCommand(0.7).andThen(this::snapshotVelocity),
+                new ShootSetVelocity(m_shooter, this::getCalculatedVelocity)
+            ));
     }
 
     private CommandBase createIntakeIndex() {
