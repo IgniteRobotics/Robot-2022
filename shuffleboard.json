@@ -27,25 +27,6 @@
               "Visuals/Show text": true
             }
           },
-          "0,4": {
-            "size": [
-              6,
-              4
-            ],
-            "content": {
-              "_type": "Camera Stream",
-              "_source0": "camera_server://limelight",
-              "_title": "limelight",
-              "Crosshair/Show crosshair": true,
-              "Crosshair/Crosshair color": "#FFFFFFFF",
-              "Controls/Show controls": true,
-              "Controls/Rotation": "NONE",
-              "compression": -1.0,
-              "fps": -1,
-              "imageWidth": -1,
-              "imageHeight": -1
-            }
-          },
           "6,0": {
             "size": [
               4,
@@ -205,7 +186,7 @@
               ]
             }
           },
-          "6,4": {
+          "0,4": {
             "size": [
               2,
               4
@@ -236,6 +217,19 @@
                   "_type": "Text View",
                   "_source0": "network_table:///SmartDashboard/Limelight ty",
                   "_title": "TY"
+                },
+                {
+                  "_type": "Camera Stream",
+                  "_source0": "camera_server://USB Camera 0",
+                  "_title": "USB Camera 0",
+                  "Crosshair/Show crosshair": true,
+                  "Crosshair/Crosshair color": "#FFFFFFFF",
+                  "Controls/Show controls": true,
+                  "Controls/Rotation": "NONE",
+                  "compression": -1.0,
+                  "fps": -1,
+                  "imageWidth": 0,
+                  "imageHeight": 0
                 }
               ]
             }
@@ -292,6 +286,36 @@
               "Slider Settings/Max": 800.0,
               "Slider Settings/Block increment": 50.0,
               "Visuals/Display value": true
+            }
+          },
+          "2,4": {
+            "size": [
+              2,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///Preferences/Drive Multiplier",
+              "_title": "Preferences/Drive Multiplier"
+            }
+          },
+          "4,4": {
+            "size": [
+              6,
+              4
+            ],
+            "content": {
+              "_type": "Camera Stream",
+              "_source0": "camera_server://USB Camera 0",
+              "_title": "USB Camera 0",
+              "Crosshair/Show crosshair": true,
+              "Crosshair/Crosshair color": "#FFFFFFFF",
+              "Controls/Show controls": true,
+              "Controls/Rotation": "NONE",
+              "compression": -1.0,
+              "fps": -1,
+              "imageWidth": 0,
+              "imageHeight": 0
             }
           }
         }
@@ -421,17 +445,6 @@
               "_title": "Preferences/Shooter Set Velocity"
             }
           },
-          "2,0": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Command",
-              "_source0": "network_table:///SmartDashboard/ParallelCommandGroup",
-              "_title": "Shoot Set Velocity"
-            }
-          },
           "0,1": {
             "size": [
               4,
@@ -448,7 +461,7 @@
               "Visuals/Show text": true
             }
           },
-          "6,4": {
+          "5,0": {
             "size": [
               2,
               4
@@ -482,6 +495,28 @@
                 }
               ]
             }
+          },
+          "2,0": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Command",
+              "_source0": "network_table:///SmartDashboard/Shoot Set Velocity",
+              "_title": "SmartDashboard/Shoot Set Velocity"
+            }
+          },
+          "4,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///Preferences/Hood Set Position",
+              "_title": "Preferences/Hood Set Position"
+            }
           }
         }
       }
@@ -497,9 +532,20 @@
         "vgap": 16.0,
         "titleType": 0,
         "tiles": {
+          "4,0": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "ComboBox Chooser",
+              "_source0": "network_table:///SmartDashboard/SendableChooser[0]",
+              "_title": "SmartDashboard/SendableChooser[0]"
+            }
+          },
           "0,0": {
             "size": [
-              7,
+              4,
               4
             ],
             "content": {
@@ -510,10 +556,10 @@
               "Crosshair/Crosshair color": "#FFFFFFFF",
               "Controls/Show controls": true,
               "Controls/Rotation": "NONE",
-              "compression": 45.0,
+              "compression": -1.0,
               "fps": -1,
-              "imageWidth": -1,
-              "imageHeight": -1
+              "imageWidth": 0,
+              "imageHeight": 0
             }
           }
         }
@@ -521,9 +567,9 @@
     }
   ],
   "windowGeometry": {
-    "x": -7.333333492279053,
-    "y": -7.333333492279053,
-    "width": 1294.6666259765625,
-    "height": 774.6666870117188
+    "x": -6.666666507720947,
+    "y": 0.0,
+    "width": 1293.3333740234375,
+    "height": 766.6666870117188
   }
 }

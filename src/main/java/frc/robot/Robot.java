@@ -60,6 +60,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     double calculatedVelocity = m_robotContainer.getCalculatedVelocity();
     m_robotContainer.interpolatedRPMReporter.set(calculatedVelocity);
+    m_robotContainer.interpolatedHoodReporter.set(m_robotContainer.getCalculatedHood());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
