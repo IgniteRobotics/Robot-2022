@@ -14,15 +14,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
 
-public class ArcadeDrive extends CommandBase { //TODO Figure out how to make a button trigger slow mode
+public class ArcadeDrive extends CommandBase { // TODO Figure out how to make a button trigger slow mode
     private DoublePreference turnMultiplier = new DoublePreference("Turn Multiplier", 0.844);
-    private DoublePreference driveMultiplier = new DoublePreference("Drive Multiplier", 0.7);
+    private DoublePreference driveMultiplier = new DoublePreference("Forward Drive Multiplier", 0.7);
+    private DoublePreference reverseDriveMultiplier = new DoublePreference("Reverse Drive Multiplier", 0.7);
+    private DoublePreference slowMultiplier = new DoublePreference("Slow Mode Multiplier", 0.4);
+
     private Drivetrain m_driveTrain = null;
     private XboxController driverController = null;
 
     private boolean isReversed = false;
 
     private boolean turboMode = false;
+    private boolean slowMode = false;
 
     /**
      * Creates a new ArcadeDrive.
@@ -39,7 +43,7 @@ public class ArcadeDrive extends CommandBase { //TODO Figure out how to make a b
     public void initialize() {
     }
 
-    //Called every time the scheduler runs while the command is scheduled.
+    // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
         m_driveTrain.arcadeDrive(getSpeed(), getRotation(), true);
@@ -50,14 +54,24 @@ public class ArcadeDrive extends CommandBase { //TODO Figure out how to make a b
         this.turboMode = turboMode;
     }
 
+    public void setSlowMode(boolean slowMode) {
+        this.slowMode = slowMode;
+    }
+
     private double getSpeed() {
         double speed = driverController.getLeftY() * (isReversed ? 1 : -1);
 
-        if(!turboMode) {
-            speed *= driveMultiplier.getValue();
+        if(slowMode) {
+            speed *= slowMultiplier.getValue();
+        } else if (!turboMode) {
+            if (speed < 0) {
+                speed *= reverseDriveMultiplier.getValue();
+            } else {
+                speed *= driveMultiplier.getValue();
+            }
         }
         // if(m_driveTrain.isSlowMode) {
-        //   speed *= Constants.SLOW_MODE_SPEED_MODIFIER;
+        // speed *= Constants.SLOW_MODE_SPEED_MODIFIER;
         // }
         return speed;
     }
@@ -65,11 +79,17 @@ public class ArcadeDrive extends CommandBase { //TODO Figure out how to make a b
     private double getRotation() {
         double rotation = driverController.getRightX();
         // if(m_driveTrain.isSlowMode) {
-        //   rotation *= Constants.SLOW_MODE_SPEED_MODIFIER;
+        // rotation *= Constants.SLOW_MODE_SPEED_MODIFIER;
         // }
-        return rotation * turnMultiplier.getValue();
-    }
 
+        if(slowMode) {
+            rotation *= slowMultiplier.getValue();
+        } else {
+            rotation *= turnMultiplier.getValue();
+        }
+
+        return rotation;
+    }
 
     // Called once the command ends or is interrupted.
     @Override

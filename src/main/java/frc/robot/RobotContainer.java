@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 import com.igniterobotics.robotbase.calc.InterCalculator;
 import com.igniterobotics.robotbase.calc.InterParameter;
 import com.igniterobotics.robotbase.preferences.DoublePreference;
+import com.igniterobotics.robotbase.reporting.ReportingBoolean;
 import com.igniterobotics.robotbase.reporting.ReportingLevel;
 import com.igniterobotics.robotbase.reporting.ReportingNumber;
 
@@ -105,8 +106,12 @@ public class RobotContainer {
     private DoublePreference initialTurretOffset = new DoublePreference("Initial Turret Offset", 0);
     private DoublePreference defaultTurrentPosition = new DoublePreference("Default Turret Position", 0);
 
-    public final ReportingNumber interpolatedRPMReporter = new ReportingNumber("Interpolated Velocity", ReportingLevel.COMPETITON);
-    public final ReportingNumber interpolatedHoodReporter = new ReportingNumber("Interpolated Hood", ReportingLevel.COMPETITON);
+    public final ReportingNumber interpolatedRPMReporter = new ReportingNumber("Interpolated Velocity",
+            ReportingLevel.COMPETITON);
+    public final ReportingNumber interpolatedHoodReporter = new ReportingNumber("Interpolated Hood",
+            ReportingLevel.COMPETITON);
+
+    public final ReportingBoolean isVelocityMet = new ReportingBoolean("Shooter Velocity Met", ReportingLevel.COMPETITON);
 
     // controllers
     private XboxController m_driveController = new XboxController(PortConstants.DRIVER_CONTROLLER_PORT);
@@ -166,6 +171,7 @@ public class RobotContainer {
     private JoystickButton btn_manipB = new JoystickButton(m_manipController, XboxController.Button.kB.value);
 
     private POVButton dpad_driverUp = new POVButton(m_driveController, 0);
+    private POVButton dpad_driverDown = new POVButton(m_driveController, 180);
     private POVButton dpad_manipUp = new POVButton(m_manipController, 0);
     private POVButton dpad_manipDown = new POVButton(m_manipController, 180);
 
@@ -191,6 +197,9 @@ public class RobotContainer {
         autonChooser.addOption("Full Auton", createFullAuton());
         autonChooser.addOption("Two Ball (MANUAL)", twoBallAuton);
         autonChooser.addOption("Two Ball", createTwoBall());
+        autonChooser.addOption("Hub to ball", createHubToBall());
+        autonChooser.addOption("Ball to player", createBallToPlayer());
+        autonChooser.addOption("Player to hub", createPlayerToHub());
 
         SmartDashboard.putData(resetTurretEncoder);
         SmartDashboard.putData(retractClimbMax);
@@ -228,6 +237,8 @@ public class RobotContainer {
 
         dpad_driverUp.whenPressed(() -> arcadeDriveCommand.setTurboMode(true))
                 .whenReleased(() -> arcadeDriveCommand.setTurboMode(false));
+
+        dpad_driverDown.whenPressed(() -> arcadeDriveCommand.setSlowMode(true)).whenReleased(() -> arcadeDriveCommand.setSlowMode(false));
     }
 
     /**
@@ -258,28 +269,35 @@ public class RobotContainer {
         return autonChooser.getSelected();
     }
 
-    public Command createFullAuton() {
-        // return autonChooser.getSelected();
+    public CommandBase createHubToBall() {
         Trajectory t_hubToBall = loadTrajectory("HubToBall");
+        CommandBase hubToBall = genRamseteCommand(t_hubToBall);
+
+        return new ParallelRaceGroup(hubToBall, createIntakeIndex()).andThen(createShootFenderLow().withTimeout(2));
+    }
+
+    public CommandBase createBallToPlayer() {
         Trajectory t_ballToPlayer = loadTrajectory("BallToPlayer");
+        CommandBase ballToPlayer = genRamseteCommand(t_ballToPlayer);
+
+        return new ParallelRaceGroup(ballToPlayer, createIntakeIndex());
+    }
+
+    public CommandBase createPlayerToHub() {
         Trajectory t_playerToHub = loadTrajectory("PlayerToHub");
 
-        CommandBase hubToBall = genRamseteCommand(t_hubToBall);
-        CommandBase ballToPlayer = genRamseteCommand(t_ballToPlayer);
         CommandBase playerToHub = genRamseteCommand(t_playerToHub);
+        return new ParallelRaceGroup(playerToHub, createIntakeIndex()).andThen(createShootFenderLow().withTimeout(2));
+    }
 
-        CommandBase path1 = hubToBall.andThen(
-                new ParallelCommandGroup(
-                        createShootInterpolated()).withTimeout(2.5));
+    public Command createFullAuton() {
+        CommandBase path1 = createHubToBall();
 
-        CommandBase path2 = ballToPlayer.andThen(new WaitCommand(0.5));
+        CommandBase path2 = createBallToPlayer();
 
-        CommandBase path3 = playerToHub.andThen(
-                new ParallelCommandGroup(
-                        createShootInterpolated()).withTimeout(2.5));
+        CommandBase path3 = createPlayerToHub();
 
-        return new ParallelDeadlineGroup(path1.andThen(path2).andThen(path3), createIntakeIndex(),
-                createTurretTarget());
+        return new ParallelDeadlineGroup(path1.andThen(path2).andThen(path3));
     }
 
     public Command createTwoBall() {
@@ -310,11 +328,10 @@ public class RobotContainer {
                 m_driveTrain::tankDriveVolts,
                 m_driveTrain);
 
-        return command.beforeStarting(() -> {
-            m_driveTrain.resetEncoders();
-            m_driveTrain.resetOdometry(trajectory.getInitialPose());
-        }).andThen(() -> {
+        return command.andThen(() -> {
             m_driveTrain.tankDriveVolts(0, 0);
+        }).beforeStarting(() -> {
+            m_driveTrain.resetOdometry(trajectory.getInitialPose());
         });
     }
 
@@ -388,12 +405,15 @@ public class RobotContainer {
                 new ShootSetVelocity(m_shooter, velocity, false));
     }
 
+    private CommandBase createShootFenderLow() {
+        return createShootSetVelocity(shooterFenderLowPreference, () -> 180.0, beltDelayPreference);
+    }
+
     private CommandBase createShootInterpolated() {
         return createShootSetVelocity(this::getSnapshotVelocity, this::getCalculatedHood, beltDelayPreference)
-            .beforeStarting(new ParallelRaceGroup(
-                new WaitCommand(0.7).andThen(this::snapshotVelocity),
-                new ShootSetVelocity(m_shooter, this::getCalculatedVelocity)
-            ));
+                .beforeStarting(new ParallelRaceGroup(
+                        new WaitCommand(0.7).andThen(this::snapshotVelocity),
+                        new ShootSetVelocity(m_shooter, this::getCalculatedVelocity)));
     }
 
     private CommandBase createIntakeIndex() {

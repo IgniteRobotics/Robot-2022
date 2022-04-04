@@ -61,6 +61,7 @@ public class Robot extends TimedRobot {
     double calculatedVelocity = m_robotContainer.getCalculatedVelocity();
     m_robotContainer.interpolatedRPMReporter.set(calculatedVelocity);
     m_robotContainer.interpolatedHoodReporter.set(m_robotContainer.getCalculatedHood());
+    m_robotContainer.isVelocityMet.set(m_robotContainer.m_shooter.isSetpointMet());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -68,11 +69,13 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     RobotStateController robotState = RobotStateController.getInstance();
     robotState.reset();
-    m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Coast);
+    m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Brake);
   }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Coast);
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
