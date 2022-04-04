@@ -60,6 +60,7 @@ import frc.robot.commands.indexer.RunIndexerKickupDelay;
 import frc.robot.commands.intake.OuttakeIntake;
 import frc.robot.commands.intake.RunIntake;
 import frc.robot.commands.limelight.LimelightSetLed;
+import frc.robot.commands.shooter.PassiveVelocity;
 import frc.robot.commands.shooter.ReZeroTurret;
 import frc.robot.commands.shooter.ResetTurretEncoder;
 import frc.robot.commands.shooter.SetHoodPosition;
@@ -105,6 +106,7 @@ public class RobotContainer {
     private DoublePreference hoodPosition = new DoublePreference("Hood Set Position", 0);
     private DoublePreference initialTurretOffset = new DoublePreference("Initial Turret Offset", 0);
     private DoublePreference defaultTurrentPosition = new DoublePreference("Default Turret Position", 0);
+    private DoublePreference passiveShooterVelocity = new DoublePreference("Passive shooter velocity", 5000);
 
     public final ReportingNumber interpolatedRPMReporter = new ReportingNumber("Interpolated Velocity",
             ReportingLevel.COMPETITON);
@@ -155,6 +157,8 @@ public class RobotContainer {
     private CommandBase turretSeekAndTarget = createTurretTarget();
 
     private CommandBase setHoodPosition = new SetHoodPosition(m_hood, hoodPosition);
+
+    private PassiveVelocity runShooterPassive = new PassiveVelocity(m_shooter, () -> true, passiveShooterVelocity);
 
     private JoystickButton btn_driveA = new JoystickButton(m_driveController, XboxController.Button.kA.value);
     private JoystickButton btn_driveB = new JoystickButton(m_driveController, XboxController.Button.kB.value);
@@ -258,6 +262,7 @@ public class RobotContainer {
         // ).perpetually());
         m_turret.setDefaultCommand(new ReZeroTurret(m_turret, defaultTurrentPosition));
         m_limelight.setDefaultCommand(new LimelightSetLed(m_limelight, () -> true));
+        m_shooter.setDefaultCommand(runShooterPassive);
     }
 
     /**

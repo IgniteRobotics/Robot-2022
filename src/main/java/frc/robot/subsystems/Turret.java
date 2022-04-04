@@ -53,8 +53,6 @@ public class Turret extends SubsystemBase {
     turretPidController.setOutputRange(-0.5, 0.5);
 
     turretMotor.burnFlash();
-
-    turretEncoder.setPosition(37.14); // start at turned position
   }
 
   public void runTurret(double speed) {
