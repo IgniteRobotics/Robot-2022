@@ -279,7 +279,7 @@ public class RobotContainer {
         Trajectory t_hubToBall = loadTrajectory("HubToBall");
         CommandBase hubToBall = genRamseteCommand(t_hubToBall);
 
-        return new ParallelDeadlineGroup(hubToBall, createIntakeIndex()).andThen(createShootInterpolated().withTimeout(2));
+        return new ParallelDeadlineGroup(hubToBall, createIntakeIndex()).andThen(createShootInterpolated().withTimeout(3));
     }
 
     public CommandBase createBallToPlayer() {
@@ -293,7 +293,7 @@ public class RobotContainer {
         Trajectory t_playerToHub = loadTrajectory("PlayerToHub");
 
         CommandBase playerToHub = genRamseteCommand(t_playerToHub);
-        return new ParallelDeadlineGroup(playerToHub, createIntakeIndex()).andThen(createShootInterpolated().withTimeout(2));
+        return new ParallelDeadlineGroup(playerToHub, createIntakeIndex()).andThen(createShootInterpolated());
     }
 
     public Command createFullAuton() {
@@ -405,7 +405,7 @@ public class RobotContainer {
                 new SequentialCommandGroup(
                         new SetHoodPosition(m_hood, hoodAngle)
                                 .withInterrupt(() -> hoodAngle.get() == DEFAULT_HOOD)
-                                .withTimeout(0.3),
+                                .withTimeout(0.5),
                         new WaitUntilCommand(m_shooter::isSetpointMet),
                         new RunIndexerKickupDelay(m_indexer, beltDelay)),
                 new ShootSetVelocity(m_shooter, velocity, false));
