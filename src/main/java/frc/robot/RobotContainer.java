@@ -279,21 +279,21 @@ public class RobotContainer {
         Trajectory t_hubToBall = loadTrajectory("HubToBall");
         CommandBase hubToBall = genRamseteCommand(t_hubToBall);
 
-        return new ParallelRaceGroup(hubToBall, createIntakeIndex()).andThen(createShootFenderLow().withTimeout(2));
+        return new ParallelDeadlineGroup(hubToBall, createIntakeIndex()).andThen(createShootInterpolated().withTimeout(2));
     }
 
     public CommandBase createBallToPlayer() {
         Trajectory t_ballToPlayer = loadTrajectory("BallToPlayer");
         CommandBase ballToPlayer = genRamseteCommand(t_ballToPlayer);
 
-        return new ParallelRaceGroup(ballToPlayer, createIntakeIndex());
+        return new ParallelDeadlineGroup(ballToPlayer, createIntakeIndex());
     }
 
     public CommandBase createPlayerToHub() {
         Trajectory t_playerToHub = loadTrajectory("PlayerToHub");
 
         CommandBase playerToHub = genRamseteCommand(t_playerToHub);
-        return new ParallelRaceGroup(playerToHub, createIntakeIndex()).andThen(createShootFenderLow().withTimeout(2));
+        return new ParallelDeadlineGroup(playerToHub, createIntakeIndex()).andThen(createShootInterpolated().withTimeout(2));
     }
 
     public Command createFullAuton() {
@@ -303,7 +303,7 @@ public class RobotContainer {
 
         CommandBase path3 = createPlayerToHub();
 
-        return new ParallelDeadlineGroup(path1.andThen(path2).andThen(path3));
+        return new ParallelCommandGroup(path1.andThen(path2).andThen(path3), createTurretTarget());
     }
 
     public Command createTwoBall() {
