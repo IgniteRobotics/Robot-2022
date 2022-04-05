@@ -45,6 +45,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
+import frc.robot.commands.WaitUntilStable;
 import frc.robot.commands.climber.ClimbDown;
 import frc.robot.commands.climber.ClimbUp;
 import frc.robot.commands.climber.ForwardSecondaryClimber;
@@ -158,7 +159,7 @@ public class RobotContainer {
 
     private CommandBase setHoodPosition = new SetHoodPosition(m_hood, hoodPosition);
 
-    private PassiveVelocity runShooterPassive = new PassiveVelocity(m_shooter, () -> true, passiveShooterVelocity);
+    private PassiveVelocity runShooterPassive = new PassiveVelocity(m_shooter, () -> !controller.isIndexerEmpty(), passiveShooterVelocity);
 
     private JoystickButton btn_driveA = new JoystickButton(m_driveController, XboxController.Button.kA.value);
     private JoystickButton btn_driveB = new JoystickButton(m_driveController, XboxController.Button.kB.value);
@@ -417,7 +418,7 @@ public class RobotContainer {
     private CommandBase createShootInterpolated() {
         return createShootSetVelocity(this::getSnapshotVelocity, this::getCalculatedHood, beltDelayPreference)
                 .beforeStarting(new ParallelRaceGroup(
-                        new WaitCommand(0.7).andThen(this::snapshotVelocity),
+                        new WaitUntilStable(m_limelight::getDistance, 0.01, 10).withTimeout(1).andThen(this::snapshotVelocity),
                         new ShootSetVelocity(m_shooter, this::getCalculatedVelocity)));
     }
 

@@ -6,7 +6,16 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.CvSource;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.vision.VisionThread;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -28,6 +37,8 @@ public class Robot extends TimedRobot {
   private PneumaticHub pneumaticHub = new PneumaticHub();
   private Compressor compressor = new Compressor(21, PneumaticsModuleType.REVPH);
 
+  private Thread visionThread;
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -41,7 +52,26 @@ public class Robot extends TimedRobot {
     pneumaticHub.enableCompressorAnalog(100, 120);
     compressor.enableDigital();
     m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Coast);
-    CameraServer.startAutomaticCapture();
+    final UsbCamera camera = CameraServer.startAutomaticCapture();
+
+    visionThread = new Thread(() -> {
+      CvSink cvSink = CameraServer.getVideo();
+      CvSource outputStream = CameraServer.putVideo("Driver Camera", 600, 800);
+
+      Mat imageMat = new Mat();
+
+      Scalar color = new Scalar(255, 0, 0);
+
+      while(!Thread.interrupted()) {
+        if(cvSink.grabFrame(imageMat) == 0) continue;
+
+        Imgproc.circle(imageMat, new Point(imageMat.width() / 2, imageMat.height() / 2), 5, color);
+
+        outputStream.putFrame(imageMat);
+      }
+    });
+
+    visionThread.start();
   }
 
   /**
