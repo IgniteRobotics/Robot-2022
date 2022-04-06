@@ -2,23 +2,23 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.shooter;
+package frc.robot.commands.limelight;
 
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Hood;
+import frc.robot.subsystems.Limelight;
 
-public class SetHoodPosition extends CommandBase {
-  private Hood hood;
-  private Supplier<Double> positionSupplier;
+public class LimelightSetLed extends CommandBase {
+  private Limelight limelight;
+  private Supplier<Boolean> state;
 
-  /** Creates a new SetHoodPosition. */
-  public SetHoodPosition(Hood hood, Supplier<Double> positionSupplier) {
-    this.hood = hood;
-    this.positionSupplier = positionSupplier;
+  /** Creates a new LimelightSetLed. */
+  public LimelightSetLed(Limelight limelight, Supplier<Boolean> state) {
+    this.limelight = limelight;
+    this.state = state;
 
-    addRequirements(hood);
+    addRequirements(limelight);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -31,7 +31,7 @@ public class SetHoodPosition extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    hood.setAngle(positionSupplier.get());
+    limelight.setLed(state.get());
   }
 
   // Called once the command ends or is interrupted.
@@ -41,6 +41,6 @@ public class SetHoodPosition extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return hood.isInPosition();
+    return false;
   }
 }

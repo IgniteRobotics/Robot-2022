@@ -20,13 +20,13 @@ public final class PortConstants {
     //These are the Intake Ports
     //TODO Confirm that these I.Ds are right
     public static final int kIntakeMotorPort = 8;
-    public static final int kIntakeSolenoidForwardPort = 7; //2;
-    public static final int kIntakeSolenoidReversePort = 6; //3;
+    public static final int kIntakeSolenoidForwardPort = 6; //2;
+    public static final int kIntakeSolenoidReversePort = 7; //3;
 
     //Climber Motors
     //TODO:  Set these ports correctly.  They were conflicting with the drivetrain.
-    public static final int ClimbLeftMotorPort = 0;
-    public static final int ClimbRightMotorPort = 0;
+    public static final int ClimbLeftMotorPort = 11;
+    public static final int ClimbRightMotorPort = 12;
 
     //Drivetrain Motors
     public static final int driveTrainLeftLeaderPort = 2;
@@ -51,4 +51,7 @@ public final class PortConstants {
     public static final int shooterFollowerPort = 16;
     public static final int shooterFeedPort = 14;
     public static final int shooterTurretPort = 13;
+
+    public static final int secondaryClimberForward = 8;
+    public static final int secondaryClimberReverse = 9;
 }

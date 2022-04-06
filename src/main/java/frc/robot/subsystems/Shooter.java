@@ -8,6 +8,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.igniterobotics.robotbase.calc.InterCalculator;
+import com.igniterobotics.robotbase.calc.InterParameter;
 import com.igniterobotics.robotbase.preferences.DoublePreference;
 import com.igniterobotics.robotbase.reporting.ReportingBoolean;
 import com.igniterobotics.robotbase.reporting.ReportingLevel;
@@ -15,6 +17,7 @@ import com.igniterobotics.robotbase.reporting.ReportingNumber;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer.InterpolateFunction;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.PortConstants;
 
@@ -32,19 +35,31 @@ public class Shooter extends SubsystemBase {
   private CANSparkMax feedMotor = new CANSparkMax(PortConstants.shooterFeedPort, MotorType.kBrushless);
 
   private double setpointVelocity;
-  private static final double SETPOINT_TOLERANCE = 150;
+  private static final double SETPOINT_TOLERANCE = 100;
 
   public static final int CURRENT_LIMIT = 20;
   public static final int CURRENT_LIMIT_THRESHOLD = 20;
   public static final int CURRENT_LIMIT_TIME = 1;
 
-  public static final double kF = 0.062;
+  public static final double kF = 0.05568;
   public static final double kP = 0.2;
   public static final double kD = 0.03;
 
-  private final DoublePreference kFPref = new DoublePreference("Shooter kF", 0.06);
-  private final DoublePreference kPPref = new DoublePreference("Shooter kP", 0.2);
-  private final DoublePreference kDPref = new DoublePreference("Shooter kD", 0.03);
+  private final DoublePreference kFPref = new DoublePreference("Shooter kF", kF);
+  private final DoublePreference kPPref = new DoublePreference("Shooter kP", kP);
+  private final DoublePreference kDPref = new DoublePreference("Shooter kD", kD);
+
+  private final int setpointFramesRequirement = 10;
+  private int setpointFrames = 0;
+
+  private InterCalculator kFCalculator = new InterCalculator(
+    new InterParameter(1400, 0.073071),
+    new InterParameter(3400, 0.060176),
+    new InterParameter(5290, 0.058015),
+    new InterParameter(7250, 0.056441),
+    new InterParameter(9200, 0.055598),
+    new InterParameter(11160, 0.055)
+  );
 
   public Shooter() {
     leaderMotor.setNeutralMode(NeutralMode.Coast);
@@ -73,6 +88,10 @@ public class Shooter extends SubsystemBase {
 
   public void runVelocity(double velocity) {
     this.setpointVelocity = velocity;
+
+    leaderMotor.config_kF(0, kFCalculator.calculateParameter(velocity).vals[0]);
+    followerMotor.config_kF(0, kFCalculator.calculateParameter(velocity).vals[0]);
+
     leaderMotor.set(ControlMode.Velocity, Math.abs(velocity));
     followerMotor.set(ControlMode.Velocity, Math.abs(velocity));
   }
@@ -95,6 +114,12 @@ public class Shooter extends SubsystemBase {
     shooterCurrent2.set(followerMotor.getStatorCurrent());
     isSetpointMet.set(isSetpointMet());
 
+    if(isVelocityMet() && setpointVelocity > 0) {
+      setpointFrames++;
+    } else {
+      setpointFrames = 0;
+    }
+
     // leaderMotor.config_kF(0, kFPref.getValue());
     // leaderMotor.config_kP(0, kPPref.getValue());
     // leaderMotor.config_kD(0, kDPref.getValue());
@@ -103,8 +128,12 @@ public class Shooter extends SubsystemBase {
     // followerMotor.config_kD(0, kDPref.getValue());
   }
 
-  public boolean isSetpointMet() {
+  private boolean isVelocityMet() {
     return setpointVelocity - SETPOINT_TOLERANCE < leaderMotor.getSelectedSensorVelocity(0)
         && leaderMotor.getSelectedSensorVelocity(0) < setpointVelocity + SETPOINT_TOLERANCE && setpointVelocity > 0;
+  }
+
+  public boolean isSetpointMet() {
+    return setpointFrames >= setpointFramesRequirement;
   }
 }

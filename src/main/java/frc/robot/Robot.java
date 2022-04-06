@@ -6,6 +6,16 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.CvSource;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.vision.VisionThread;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -27,6 +37,8 @@ public class Robot extends TimedRobot {
   private PneumaticHub pneumaticHub = new PneumaticHub();
   private Compressor compressor = new Compressor(21, PneumaticsModuleType.REVPH);
 
+  private Thread visionThread;
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -40,6 +52,26 @@ public class Robot extends TimedRobot {
     pneumaticHub.enableCompressorAnalog(100, 120);
     compressor.enableDigital();
     m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Coast);
+    final UsbCamera camera = CameraServer.startAutomaticCapture();
+
+    visionThread = new Thread(() -> {
+      CvSink cvSink = CameraServer.getVideo();
+      CvSource outputStream = CameraServer.putVideo("Driver Camera", 600, 800);
+
+      Mat imageMat = new Mat();
+
+      Scalar color = new Scalar(255, 0, 0);
+
+      while(!Thread.interrupted()) {
+        if(cvSink.grabFrame(imageMat) == 0) continue;
+
+        Imgproc.circle(imageMat, new Point(imageMat.width() / 2, imageMat.height() / 2), 5, color);
+
+        outputStream.putFrame(imageMat);
+      }
+    });
+
+    visionThread.start();
   }
 
   /**
@@ -56,6 +88,10 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    double calculatedVelocity = m_robotContainer.getCalculatedVelocity();
+    m_robotContainer.interpolatedRPMReporter.set(calculatedVelocity);
+    m_robotContainer.interpolatedHoodReporter.set(m_robotContainer.getCalculatedHood());
+    m_robotContainer.isVelocityMet.set(m_robotContainer.m_shooter.isSetpointMet());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -63,11 +99,13 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     RobotStateController robotState = RobotStateController.getInstance();
     robotState.reset();
-    m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Coast);
+    m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Brake);
   }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Coast);
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
@@ -88,6 +126,9 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Brake);
+    m_robotContainer.m_driveTrain.setFollowerStatus();
+    
+    m_robotContainer.m_climber.reset();
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove

@@ -10,28 +10,36 @@ import com.igniterobotics.robotbase.reporting.ReportingNumber;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.LinearServo;
 
 public class Hood extends SubsystemBase {
   private ReportingNumber hoodAngleReporter = new ReportingNumber("Hood Set Angle", ReportingLevel.COMPETITON);
 
-  private Servo hoodServo = new Servo(3);
+  private LinearServo hoodServo = new LinearServo(3, 50, 32);
+
+  private double targetPosition;
 
   /** Creates a new Hood. */
   public Hood() {
-    hoodServo.setBounds(2, 1.5, 1.5, 1.5, 1);
+
   }
 
   public void setPosition(double position) {
-
+    this.targetPosition = position;
+    hoodServo.set(position);
   }
 
   public void setAngle(double degrees) {
-    degrees = MathUtil.clamp(degrees, 0, 360);
-    hoodServo.setAngle(degrees);
+    setPosition((degrees / 180) * 50);
+  }
+
+  public boolean isInPosition(){
+    return hoodServo.getPosition() >= targetPosition - 0.1 && hoodServo.getPosition() <= targetPosition + 0.1;
   }
 
   @Override
   public void periodic() {
+    hoodServo.updateCurPos();
     hoodAngleReporter.set(hoodServo.getAngle());
   }
 }

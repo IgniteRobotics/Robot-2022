@@ -34,11 +34,18 @@ public class TurretTarget extends PIDCommand {
         });
 
     addRequirements(limelight, turret);
+    this.limelight = limelight;
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return getController().atSetpoint();
+    return false;
+  }
+
+  @Override
+  public void execute() {
+    super.execute();
+    limelight.setLed(true);
   }
 }

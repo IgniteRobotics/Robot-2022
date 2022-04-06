@@ -108,6 +108,10 @@ public class RobotStateController {
         this.blindSpotBreak = broken;
     }
 
+    public boolean isFirstPositionBreak() {
+        return firstPositionBreak;
+    }
+
     public boolean isBreaksClear() {
         return !firstPositionBreak && !secondPositionBreak && !blindSpotBreak;
     }
