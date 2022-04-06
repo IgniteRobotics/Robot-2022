@@ -43,6 +43,8 @@ public class Limelight extends SubsystemBase {
   private final double[] rollingWindow = new double[windowSize];
   private int index = 0;
 
+  private double snapshotDistance;
+
   /** Creates a new Limelight. */
   public Limelight() {}
 
@@ -91,5 +93,13 @@ public class Limelight extends SubsystemBase {
     if(index >= windowSize) {
       index = 0;
     }
+  }
+
+  public void snapshotDistance() {
+    this.snapshotDistance = getDistance();
+  }
+
+  public double getSnapshotDistance() {
+    return snapshotDistance;
   }
 }

@@ -64,6 +64,7 @@ import frc.robot.commands.limelight.LimelightSetLed;
 import frc.robot.commands.shooter.PassiveVelocity;
 import frc.robot.commands.shooter.ReZeroTurret;
 import frc.robot.commands.shooter.ResetTurretEncoder;
+import frc.robot.commands.shooter.SeekAndTarget;
 import frc.robot.commands.shooter.SetHoodPosition;
 import frc.robot.commands.shooter.ShootSetVelocity;
 import frc.robot.commands.shooter.TurretSeekTarget;
@@ -251,7 +252,7 @@ public class RobotContainer {
      */
     private void configureSubsystemCommands() {
         m_driveTrain.setDefaultCommand(arcadeDriveCommand);
-        m_hood.setDefaultCommand(new SetHoodPosition(m_hood, this::getCalculatedHood));
+        m_hood.setDefaultCommand(new SetHoodPosition(m_hood, this::getCalculatedHood).perpetually());
         // TODO change to this default command after we verify soft limits are working
         // m_turret.setDefaultCommand(new ContinuousConditionalCommand(
         // new ReZeroTurret(m_turret, defaultTurrentPosition),
@@ -259,7 +260,7 @@ public class RobotContainer {
         // new TurretSeekTarget(m_limelight, m_turret),
         // new TurretTarget(m_limelight, m_turret).perpetually()
         // ),
-        // controller::isIndexerEmpty
+        // controller::isIndexerEmpty[]\
         // ).perpetually());
         m_turret.setDefaultCommand(new ReZeroTurret(m_turret, defaultTurrentPosition));
         m_limelight.setDefaultCommand(new LimelightSetLed(m_limelight, () -> true));
@@ -293,7 +294,7 @@ public class RobotContainer {
         Trajectory t_playerToHub = loadTrajectory("PlayerToHub");
 
         CommandBase playerToHub = genRamseteCommand(t_playerToHub);
-        return new ParallelDeadlineGroup(playerToHub, createIntakeIndex()).andThen(createShootInterpolated());
+        return new ParallelDeadlineGroup(playerToHub, createIntakeIndex(), new SetHoodPosition(m_hood, () -> 180.0)).andThen(createShootInterpolated());
     }
 
     public Command createFullAuton() {
@@ -303,7 +304,7 @@ public class RobotContainer {
 
         CommandBase path3 = createPlayerToHub();
 
-        return new ParallelCommandGroup(path1.andThen(path2).andThen(path3), createTurretTarget());
+        return new ParallelCommandGroup(path1.andThen(path2).andThen(new ParallelDeadlineGroup(new WaitCommand(0.5), createIntakeIndex())).andThen(path3), createTurretTarget());
     }
 
     public Command createTwoBall() {
@@ -383,12 +384,15 @@ public class RobotContainer {
         return calculated;
     }
 
-    private void snapshotVelocity() {
-        this.velocitySnapshot = getCalculatedVelocity();
+    private double getSnapshotVelocity() {
+        double calculated = I_CALCULATOR.calculateParameter(m_limelight.getSnapshotDistance()).vals[0]
+                + velocityOffset.getValue();
+
+        return calculated;
     }
 
-    private double getSnapshotVelocity() {
-        return this.velocitySnapshot;
+    private double getSnapshotHood() {
+        return I_CALCULATOR.calculateParameter(m_limelight.getSnapshotDistance()).vals[1];
     }
 
     public double getCalculatedHood() {
@@ -403,9 +407,7 @@ public class RobotContainer {
             Supplier<Double> beltDelay) {
         return new ParallelCommandGroup(
                 new SequentialCommandGroup(
-                        new SetHoodPosition(m_hood, hoodAngle)
-                                .withInterrupt(() -> hoodAngle.get() == DEFAULT_HOOD)
-                                .withTimeout(0.5),
+                        new SetHoodPosition(m_hood, hoodAngle).withTimeout(0.5),
                         new WaitUntilCommand(m_shooter::isSetpointMet),
                         new RunIndexerKickupDelay(m_indexer, beltDelay)),
                 new ShootSetVelocity(m_shooter, velocity, false));
@@ -416,9 +418,9 @@ public class RobotContainer {
     }
 
     private CommandBase createShootInterpolated() {
-        return createShootSetVelocity(this::getSnapshotVelocity, this::getCalculatedHood, beltDelayPreference)
+        return createShootSetVelocity(this::getSnapshotVelocity, this::getSnapshotHood, beltDelayPreference)
                 .beforeStarting(new ParallelRaceGroup(
-                        new WaitUntilStable(m_limelight::getDistance, 0.01, 10).withTimeout(1).andThen(this::snapshotVelocity),
+                        new WaitUntilStable(m_limelight::getDistance, 0.01, 10).withTimeout(1).andThen(m_limelight::snapshotDistance),
                         new ShootSetVelocity(m_shooter, this::getCalculatedVelocity)));
     }
 
@@ -427,7 +429,6 @@ public class RobotContainer {
     }
 
     private CommandBase createTurretTarget() {
-        return new SequentialCommandGroup(new TurretSeekTarget(m_limelight, m_turret),
-                new TurretTarget(m_limelight, m_turret));
+        return new SeekAndTarget(m_limelight, m_turret);
     }
 }
