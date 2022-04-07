@@ -3,7 +3,7 @@ package frc.robot.constants;
 public class ClimbConstants {
     public static final int CLIMBER_FORWARD_LIMIT_LEFT = 337000;
     public static final int CLIMBER_REVERSE_LIMIT_LEFT = 100;
-    public static final int CLIMBER_FORWARD_LIMIT_RIGHT = 337000;
+    public static final int CLIMBER_FORWARD_LIMIT_RIGHT = 336463;
     public static final int CLIMBER_REVERSE_LIMIT_RIGHT = 100;
 
     //Defines speeds for climber movement

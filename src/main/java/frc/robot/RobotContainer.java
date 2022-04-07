@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandGroupBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -114,6 +115,7 @@ public class RobotContainer {
             ReportingLevel.COMPETITON);
     public final ReportingNumber interpolatedHoodReporter = new ReportingNumber("Interpolated Hood",
             ReportingLevel.COMPETITON);
+    public final ReportingBoolean isLimelightStable = new ReportingBoolean("Limelight Stable", ReportingLevel.COMPETITON);
 
     public final ReportingBoolean isVelocityMet = new ReportingBoolean("Shooter Velocity Met", ReportingLevel.COMPETITON);
 
@@ -193,6 +195,8 @@ public class RobotContainer {
                     new ReZeroTurret(m_turret, defaultTurrentPosition)).withTimeout(2),
             new TurretTarget(m_limelight, m_turret).withTimeout(2.2),
             createShootInterpolated().withTimeout(5));
+
+    public final WaitUntilStable stableSensor = createWaitUntilStable().asSensor();
 
     public RobotContainer() {
         // Configure the button bindings
@@ -407,7 +411,7 @@ public class RobotContainer {
             Supplier<Double> beltDelay) {
         return new ParallelCommandGroup(
                 new SequentialCommandGroup(
-                        new SetHoodPosition(m_hood, hoodAngle).withTimeout(0.5),
+                        new SetHoodPosition(m_hood, hoodAngle).withTimeout(1),
                         new WaitUntilCommand(m_shooter::isSetpointMet),
                         new RunIndexerKickupDelay(m_indexer, beltDelay)),
                 new ShootSetVelocity(m_shooter, velocity, false));
@@ -420,7 +424,7 @@ public class RobotContainer {
     private CommandBase createShootInterpolated() {
         return createShootSetVelocity(this::getSnapshotVelocity, this::getSnapshotHood, beltDelayPreference)
                 .beforeStarting(new ParallelRaceGroup(
-                        new WaitUntilStable(m_limelight::getDistance, 0.01, 10).withTimeout(1).andThen(m_limelight::snapshotDistance),
+                        createWaitUntilStable().withTimeout(1).andThen(m_limelight::snapshotDistance),
                         new ShootSetVelocity(m_shooter, this::getCalculatedVelocity)));
     }
 
@@ -430,5 +434,9 @@ public class RobotContainer {
 
     private CommandBase createTurretTarget() {
         return new SeekAndTarget(m_limelight, m_turret);
+    }
+
+    public WaitUntilStable createWaitUntilStable() {
+        return new WaitUntilStable(m_limelight::getDistance, 0.1, 20);
     }
 }
