@@ -115,9 +115,11 @@ public class RobotContainer {
             ReportingLevel.COMPETITON);
     public final ReportingNumber interpolatedHoodReporter = new ReportingNumber("Interpolated Hood",
             ReportingLevel.COMPETITON);
-    public final ReportingBoolean isLimelightStable = new ReportingBoolean("Limelight Stable", ReportingLevel.COMPETITON);
+    public final ReportingBoolean isLimelightStable = new ReportingBoolean("Limelight Stable",
+            ReportingLevel.COMPETITON);
 
-    public final ReportingBoolean isVelocityMet = new ReportingBoolean("Shooter Velocity Met", ReportingLevel.COMPETITON);
+    public final ReportingBoolean isVelocityMet = new ReportingBoolean("Shooter Velocity Met",
+            ReportingLevel.COMPETITON);
 
     // controllers
     private XboxController m_driveController = new XboxController(PortConstants.DRIVER_CONTROLLER_PORT);
@@ -162,7 +164,8 @@ public class RobotContainer {
 
     private CommandBase setHoodPosition = new SetHoodPosition(m_hood, hoodPosition);
 
-    private PassiveVelocity runShooterPassive = new PassiveVelocity(m_shooter, () -> !controller.isIndexerEmpty(), passiveShooterVelocity);
+    private PassiveVelocity runShooterPassive = new PassiveVelocity(m_shooter, () -> !controller.isIndexerEmpty(),
+            passiveShooterVelocity);
 
     private JoystickButton btn_driveA = new JoystickButton(m_driveController, XboxController.Button.kA.value);
     private JoystickButton btn_driveB = new JoystickButton(m_driveController, XboxController.Button.kB.value);
@@ -248,7 +251,8 @@ public class RobotContainer {
         dpad_driverUp.whenPressed(() -> arcadeDriveCommand.setTurboMode(true))
                 .whenReleased(() -> arcadeDriveCommand.setTurboMode(false));
 
-        dpad_driverDown.whenPressed(() -> arcadeDriveCommand.setSlowMode(true)).whenReleased(() -> arcadeDriveCommand.setSlowMode(false));
+        dpad_driverDown.whenPressed(() -> arcadeDriveCommand.setSlowMode(true))
+                .whenReleased(() -> arcadeDriveCommand.setSlowMode(false));
     }
 
     /**
@@ -284,31 +288,33 @@ public class RobotContainer {
         Trajectory t_hubToBall = loadTrajectory("HubToBall");
         CommandBase hubToBall = genRamseteCommand(t_hubToBall);
 
-        return new ParallelDeadlineGroup(hubToBall, createIntakeIndex(), new ShootSetVelocity(m_shooter, () -> 7500.0)).andThen(createShootInterpolated().withTimeout(2));
+        return new ParallelDeadlineGroup(hubToBall).andThen(createShootInterpolated().withTimeout(2));
     }
 
     public CommandBase createBallToPlayer() {
         Trajectory t_ballToPlayer = loadTrajectory("BallToPlayer");
         CommandBase ballToPlayer = genRamseteCommand(t_ballToPlayer);
 
-        return new ParallelDeadlineGroup(ballToPlayer, createIntakeIndex());
+        return new ParallelDeadlineGroup(ballToPlayer).andThen(new ArcadeSetDrive(m_driveTrain, () -> 0.2).withTimeout(0.4));
     }
 
     public CommandBase createPlayerToHub() {
         Trajectory t_playerToHub = loadTrajectory("PlayerToHub");
 
         CommandBase playerToHub = genRamseteCommand(t_playerToHub);
-        return new ParallelDeadlineGroup(playerToHub, createIntakeIndex(), new SetHoodPosition(m_hood, () -> 180.0)).andThen(createShootInterpolated());
+        return new ParallelDeadlineGroup(playerToHub, new SetHoodPosition(m_hood, () -> 180.0))
+                .andThen(createShootInterpolated());
     }
 
     public Command createFullAuton() {
         CommandBase path1 = createHubToBall();
-
         CommandBase path2 = createBallToPlayer();
-
         CommandBase path3 = createPlayerToHub();
 
-        return new ParallelCommandGroup(path1.andThen(path2).andThen(new ParallelDeadlineGroup(new WaitCommand(1.5), createIntakeIndex())).andThen(path3), createTurretTarget());
+        return new ParallelCommandGroup(
+                path1.andThen(path2).andThen(new WaitCommand(1.5)).andThen(path3),
+                createIntakeIndex(), createTurretTarget(),
+                new ShootSetVelocity(m_shooter, () -> 7500.0));
     }
 
     public Command createTwoBall() {
