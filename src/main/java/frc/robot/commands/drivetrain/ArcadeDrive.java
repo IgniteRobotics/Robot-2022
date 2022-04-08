@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
 
 public class ArcadeDrive extends CommandBase { // TODO Figure out how to make a button trigger slow mode
-    private DoublePreference turnMultiplier = new DoublePreference("Turn Multiplier", 0.844);
+    private DoublePreference turnMultiplier = new DoublePreference("Turn Multiplier", 0.69);
     private DoublePreference driveMultiplier = new DoublePreference("Forward Drive Multiplier", 0.7);
     private DoublePreference reverseDriveMultiplier = new DoublePreference("Reverse Drive Multiplier", 0.7);
     private DoublePreference slowMultiplier = new DoublePreference("Slow Mode Multiplier", 0.4);

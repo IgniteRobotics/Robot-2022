@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.PortConstants;
 
 public class Shooter extends SubsystemBase {
-  private final DoublePreference shooterFeedEffort = new DoublePreference("Shooter Feed Effort");
+  private final DoublePreference shooterFeedEffort = new DoublePreference("Shooter Feed Effort", 0.5);
   private final ReportingBoolean isSetpointMet = new ReportingBoolean("Setpoint Met", ReportingLevel.COMPETITON);
   private final ReportingNumber shooterVelocityReporter = new ReportingNumber("Shooter Actual Velocity",
       ReportingLevel.COMPETITON);

@@ -105,11 +105,11 @@ public class RobotContainer {
     private DoublePreference shooterFenderHighPreference = new DoublePreference("FenderHigh Velocity", 7000);
     private DoublePreference shooterEjectPreference = new DoublePreference("Eject Velocity", 9000);
     private DoublePreference velocityOffset = new DoublePreference("VELOCITY OFFSET", 0);
-    private DoublePreference beltDelayPreference = new DoublePreference("Belt Delay", 1);
+    private DoublePreference beltDelayPreference = new DoublePreference("Belt Delay", 0.35);
     private DoublePreference hoodPosition = new DoublePreference("Hood Set Position", 0);
     private DoublePreference initialTurretOffset = new DoublePreference("Initial Turret Offset", 0);
     private DoublePreference defaultTurrentPosition = new DoublePreference("Default Turret Position", 0);
-    private DoublePreference passiveShooterVelocity = new DoublePreference("Passive shooter velocity", 5000);
+    private DoublePreference passiveShooterVelocity = new DoublePreference("Passive shooter velocity", 7500);
 
     public final ReportingNumber interpolatedRPMReporter = new ReportingNumber("Interpolated Velocity",
             ReportingLevel.COMPETITON);
@@ -284,7 +284,7 @@ public class RobotContainer {
         Trajectory t_hubToBall = loadTrajectory("HubToBall");
         CommandBase hubToBall = genRamseteCommand(t_hubToBall);
 
-        return new ParallelDeadlineGroup(hubToBall, createIntakeIndex()).andThen(createShootInterpolated().withTimeout(3));
+        return new ParallelDeadlineGroup(hubToBall, createIntakeIndex(), new ShootSetVelocity(m_shooter, () -> 7500.0)).andThen(createShootInterpolated().withTimeout(2));
     }
 
     public CommandBase createBallToPlayer() {
@@ -308,7 +308,7 @@ public class RobotContainer {
 
         CommandBase path3 = createPlayerToHub();
 
-        return new ParallelCommandGroup(path1.andThen(path2).andThen(new ParallelDeadlineGroup(new WaitCommand(0.5), createIntakeIndex())).andThen(path3), createTurretTarget());
+        return new ParallelCommandGroup(path1.andThen(path2).andThen(new ParallelDeadlineGroup(new WaitCommand(1.5), createIntakeIndex())).andThen(path3), createTurretTarget());
     }
 
     public Command createTwoBall() {

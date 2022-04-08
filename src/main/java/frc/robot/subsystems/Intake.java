@@ -21,7 +21,7 @@ import frc.robot.constants.PortConstants;
 
 public class Intake extends SubsystemBase {
     public static final int CURRENT_LIMIT = 40;
-    private final DoublePreference intakeSpeed = new DoublePreference("Intake Speed");
+    private final DoublePreference intakeSpeed = new DoublePreference("Intake Speed", 0.5);
 
     private final CANSparkMax intakeMotor;
     private DoubleSolenoid intakePistonSolenoid;
