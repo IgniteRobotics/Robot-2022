@@ -288,21 +288,21 @@ public class RobotContainer {
         Trajectory t_hubToBall = loadTrajectory("HubToBall");
         CommandBase hubToBall = genRamseteCommand(t_hubToBall);
 
-        return new ParallelDeadlineGroup(hubToBall).andThen(createShootInterpolated().withTimeout(2));
+        return new ParallelDeadlineGroup(hubToBall, new ShootSetVelocity(m_shooter, () -> 7500.0), createIntakeIndex()).andThen(createShootInterpolated().withTimeout(2.2));
     }
 
     public CommandBase createBallToPlayer() {
         Trajectory t_ballToPlayer = loadTrajectory("BallToPlayer");
         CommandBase ballToPlayer = genRamseteCommand(t_ballToPlayer);
 
-        return new ParallelDeadlineGroup(ballToPlayer).andThen(new ArcadeSetDrive(m_driveTrain, () -> 0.2).withTimeout(0.4));
+        return new ParallelDeadlineGroup(ballToPlayer, createIntakeIndex()).andThen(new ParallelDeadlineGroup(new ArcadeSetDrive(m_driveTrain, () -> -0.4).withTimeout(0.2), createIntakeIndex()));
     }
 
     public CommandBase createPlayerToHub() {
         Trajectory t_playerToHub = loadTrajectory("PlayerToHub");
 
         CommandBase playerToHub = genRamseteCommand(t_playerToHub);
-        return new ParallelDeadlineGroup(playerToHub, new SetHoodPosition(m_hood, () -> 180.0))
+        return new ParallelDeadlineGroup(playerToHub, new SetHoodPosition(m_hood, () -> 180.0), new ShootSetVelocity(m_shooter, () -> 7500.0))
                 .andThen(createShootInterpolated());
     }
 
@@ -312,9 +312,7 @@ public class RobotContainer {
         CommandBase path3 = createPlayerToHub();
 
         return new ParallelCommandGroup(
-                path1.andThen(path2).andThen(new WaitCommand(1.5)).andThen(path3),
-                createIntakeIndex(), createTurretTarget(),
-                new ShootSetVelocity(m_shooter, () -> 7500.0));
+                path1.andThen(path2).andThen(createIntakeIndex().withTimeout(1)).andThen(path3), createTurretTarget());
     }
 
     public Command createTwoBall() {
