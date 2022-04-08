@@ -288,7 +288,7 @@ public class RobotContainer {
         Trajectory t_hubToBall = loadTrajectory("HubToBall");
         CommandBase hubToBall = genRamseteCommand(t_hubToBall);
 
-        return new ParallelDeadlineGroup(hubToBall, new ShootSetVelocity(m_shooter, () -> 7500.0), createIntakeIndex()).andThen(createShootInterpolated().withTimeout(2.2));
+        return new ParallelDeadlineGroup(hubToBall, new ShootSetVelocity(m_shooter, () -> 7500.0), createIntakeIndex(), new SetHoodPosition(m_hood, () -> 50.0)).andThen(createShootInterpolated().withTimeout(2.45));
     }
 
     public CommandBase createBallToPlayer() {
