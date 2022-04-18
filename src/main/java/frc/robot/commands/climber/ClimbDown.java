@@ -11,6 +11,7 @@ import frc.robot.subsystems.Climber;
 
 //Creates a new command, ClimbDown, which uses other commands located in the Climber subsystem, and is used by RobotContainer.java. TODO Ask if we need this whole file, as RobotContainer.java imports the climber subsystem anyway.
 public class ClimbDown extends CommandBase {
+  //Creates a Variable for the climb. TODO ask if this is true.
   private Climber climb;
   /** Creates a new ClimbDown. */
   public ClimbDown(Climber climb) {
@@ -35,7 +36,7 @@ public class ClimbDown extends CommandBase {
     climb.stop();
   }
 
-  //Used to end the command, Checks if the climb subsystems limit has been met, and if it has been met, returns true.
+  //Used to end the command, Checks if the climb subsystems limit has been met, and if it has been met, returns true. TODO See if this is right.
   @Override
   public boolean isFinished() {
     return climb.isClimbLimitMet();
