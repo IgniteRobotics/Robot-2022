@@ -24,8 +24,8 @@ import frc.robot.constants.PortConstants;
 public class Climber extends SubsystemBase {
   public static final int DEPLOYED_THRESHOLD = 100000;
 
-  private DoublePreference climbUpEffortPref = new DoublePreference("Climb Up Effort");
-  private DoublePreference climbDownEffortPref = new DoublePreference("Climb Down Effort");
+  private DoublePreference climbUpEffortPref = new DoublePreference("Climb Up Effort", 1);
+  private DoublePreference climbDownEffortPref = new DoublePreference("Climb Down Effort", 1);
 
   private ReportingNumber climberLeftReporter = new ReportingNumber("Climber Left Pos", ReportingLevel.TEST);
   private ReportingNumber climberRightReporter = new ReportingNumber("Climber Right Pos", ReportingLevel.TEST);

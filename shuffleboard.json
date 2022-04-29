@@ -186,54 +186,6 @@
               ]
             }
           },
-          "0,4": {
-            "size": [
-              2,
-              4
-            ],
-            "content": {
-              "_type": "List Layout",
-              "_title": "LIMELIGHT",
-              "Layout/Label position": "BOTTOM",
-              "_children": [
-                {
-                  "_type": "Boolean Box",
-                  "_source0": "network_table:///SmartDashboard/Limelight tv",
-                  "_title": "TARGET FOUND",
-                  "Colors/Color when true": "#7CFC00FF",
-                  "Colors/Color when false": "#8B0000FF"
-                },
-                {
-                  "_type": "Text View",
-                  "_source0": "network_table:///SmartDashboard/Limelight distance",
-                  "_title": "DISTANCE"
-                },
-                {
-                  "_type": "Text View",
-                  "_source0": "network_table:///SmartDashboard/Limelight tx",
-                  "_title": "TX"
-                },
-                {
-                  "_type": "Text View",
-                  "_source0": "network_table:///SmartDashboard/Limelight ty",
-                  "_title": "TY"
-                },
-                {
-                  "_type": "Camera Stream",
-                  "_source0": "camera_server://USB Camera 0",
-                  "_title": "USB Camera 0",
-                  "Crosshair/Show crosshair": true,
-                  "Crosshair/Crosshair color": "#FFFFFFFF",
-                  "Controls/Show controls": true,
-                  "Controls/Rotation": "NONE",
-                  "compression": -1.0,
-                  "fps": -1,
-                  "imageWidth": 0,
-                  "imageHeight": 0
-                }
-              ]
-            }
-          },
           "10,4": {
             "size": [
               2,
@@ -517,6 +469,17 @@
               "_source0": "network_table:///Preferences/Hood Set Position",
               "_title": "Preferences/Hood Set Position"
             }
+          },
+          "4,1": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///Preferences/Passive shooter velocity",
+              "_title": "Preferences/Passive shooter velocity"
+            }
           }
         }
       }
@@ -564,12 +527,93 @@
           }
         }
       }
+    },
+    {
+      "title": "Limelight",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "",
+      "widgetPane": {
+        "gridSize": 128.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "titleType": 0,
+        "tiles": {
+          "4,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///SmartDashboard/Limelight Stable",
+              "_title": "SmartDashboard/Limelight Stable",
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "6,0": {
+            "size": [
+              2,
+              3
+            ],
+            "content": {
+              "_type": "List Layout",
+              "_title": "LIMELIGHT",
+              "Layout/Label position": "BOTTOM",
+              "_children": [
+                {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///SmartDashboard/Limelight tv",
+                  "_title": "TARGET FOUND",
+                  "Colors/Color when true": "#7CFC00FF",
+                  "Colors/Color when false": "#8B0000FF"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Limelight distance",
+                  "_title": "DISTANCE"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Limelight tx",
+                  "_title": "TX"
+                },
+                {
+                  "_type": "Text View",
+                  "_source0": "network_table:///SmartDashboard/Limelight ty",
+                  "_title": "TY"
+                }
+              ]
+            }
+          },
+          "0,0": {
+            "size": [
+              4,
+              4
+            ],
+            "content": {
+              "_type": "Camera Stream",
+              "_source0": "camera_server://limelight",
+              "_title": "limelight",
+              "Crosshair/Show crosshair": true,
+              "Crosshair/Crosshair color": "#FFFFFFFF",
+              "Controls/Show controls": true,
+              "Controls/Rotation": "NONE",
+              "compression": -1.0,
+              "fps": -1,
+              "imageWidth": -1,
+              "imageHeight": -1
+            }
+          }
+        }
+      }
     }
   ],
   "windowGeometry": {
-    "x": -6.666666507720947,
-    "y": 0.0,
-    "width": 1293.3333740234375,
-    "height": 766.6666870117188
+    "x": -7.333333492279053,
+    "y": -7.333333492279053,
+    "width": 1294.6666259765625,
+    "height": 774.6666870117188
   }
 }

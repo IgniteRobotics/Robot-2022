@@ -4,12 +4,16 @@
 
 package frc.robot.commands;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import com.igniterobotics.robotbase.reporting.ReportingBoolean;
+import com.igniterobotics.robotbase.reporting.ReportingLevel;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class WaitUntilStable extends CommandBase {
+public class WaitUntilStable extends CommandBase implements BooleanSupplier {
   private DoubleSupplier valueSupplier;
 
   private final double maxDiff;
@@ -17,6 +21,8 @@ public class WaitUntilStable extends CommandBase {
 
   private double lastValue;
   private int stableFrames;
+
+  private boolean isSensor = false;
 
   /** Creates a new WaitUntilStable. */
   public WaitUntilStable(DoubleSupplier valueSupplier, double maxDiff, int minFrames) {
@@ -43,6 +49,8 @@ public class WaitUntilStable extends CommandBase {
       stableFrames = 0;
     }
 
+    System.out.println(stableFrames);
+
     lastValue = currentValue;
   }
 
@@ -53,6 +61,17 @@ public class WaitUntilStable extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    if(isSensor) return false;
     return stableFrames >= minFrames;
+  }
+
+  @Override
+  public boolean getAsBoolean() {
+    return stableFrames >= minFrames;
+  }
+
+  public WaitUntilStable asSensor() {
+    this.isSensor = true;
+    return this;
   }
 }

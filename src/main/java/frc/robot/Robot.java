@@ -72,6 +72,8 @@ public class Robot extends TimedRobot {
     });
 
     visionThread.start();
+
+    m_robotContainer.stableSensor.schedule();
   }
 
   /**
@@ -92,6 +94,8 @@ public class Robot extends TimedRobot {
     m_robotContainer.interpolatedRPMReporter.set(calculatedVelocity);
     m_robotContainer.interpolatedHoodReporter.set(m_robotContainer.getCalculatedHood());
     m_robotContainer.isVelocityMet.set(m_robotContainer.m_shooter.isSetpointMet());
+
+    m_robotContainer.isLimelightStable.set(m_robotContainer.stableSensor.getAsBoolean());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
