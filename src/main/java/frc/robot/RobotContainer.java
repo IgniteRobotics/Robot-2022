@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandGroupBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -104,18 +105,21 @@ public class RobotContainer {
     private DoublePreference shooterFenderHighPreference = new DoublePreference("FenderHigh Velocity", 7000);
     private DoublePreference shooterEjectPreference = new DoublePreference("Eject Velocity", 9000);
     private DoublePreference velocityOffset = new DoublePreference("VELOCITY OFFSET", 0);
-    private DoublePreference beltDelayPreference = new DoublePreference("Belt Delay", 1);
+    private DoublePreference beltDelayPreference = new DoublePreference("Belt Delay", 0.35);
     private DoublePreference hoodPosition = new DoublePreference("Hood Set Position", 0);
     private DoublePreference initialTurretOffset = new DoublePreference("Initial Turret Offset", 0);
     private DoublePreference defaultTurrentPosition = new DoublePreference("Default Turret Position", 0);
-    private DoublePreference passiveShooterVelocity = new DoublePreference("Passive shooter velocity", 5000);
+    private DoublePreference passiveShooterVelocity = new DoublePreference("Passive shooter velocity", 7500);
 
     public final ReportingNumber interpolatedRPMReporter = new ReportingNumber("Interpolated Velocity",
             ReportingLevel.COMPETITON);
     public final ReportingNumber interpolatedHoodReporter = new ReportingNumber("Interpolated Hood",
             ReportingLevel.COMPETITON);
+    public final ReportingBoolean isLimelightStable = new ReportingBoolean("Limelight Stable",
+            ReportingLevel.COMPETITON);
 
-    public final ReportingBoolean isVelocityMet = new ReportingBoolean("Shooter Velocity Met", ReportingLevel.COMPETITON);
+    public final ReportingBoolean isVelocityMet = new ReportingBoolean("Shooter Velocity Met",
+            ReportingLevel.COMPETITON);
 
     // controllers
     private XboxController m_driveController = new XboxController(PortConstants.DRIVER_CONTROLLER_PORT);
@@ -160,7 +164,8 @@ public class RobotContainer {
 
     private CommandBase setHoodPosition = new SetHoodPosition(m_hood, hoodPosition);
 
-    private PassiveVelocity runShooterPassive = new PassiveVelocity(m_shooter, () -> !controller.isIndexerEmpty(), passiveShooterVelocity);
+    private PassiveVelocity runShooterPassive = new PassiveVelocity(m_shooter, () -> !controller.isIndexerEmpty(),
+            passiveShooterVelocity);
 
     private JoystickButton btn_driveA = new JoystickButton(m_driveController, XboxController.Button.kA.value);
     private JoystickButton btn_driveB = new JoystickButton(m_driveController, XboxController.Button.kB.value);
@@ -193,6 +198,8 @@ public class RobotContainer {
                     new ReZeroTurret(m_turret, defaultTurrentPosition)).withTimeout(2),
             new TurretTarget(m_limelight, m_turret).withTimeout(2.2),
             createShootInterpolated().withTimeout(5));
+
+    public final WaitUntilStable stableSensor = createWaitUntilStable().asSensor();
 
     public RobotContainer() {
         // Configure the button bindings
@@ -244,7 +251,8 @@ public class RobotContainer {
         dpad_driverUp.whenPressed(() -> arcadeDriveCommand.setTurboMode(true))
                 .whenReleased(() -> arcadeDriveCommand.setTurboMode(false));
 
-        dpad_driverDown.whenPressed(() -> arcadeDriveCommand.setSlowMode(true)).whenReleased(() -> arcadeDriveCommand.setSlowMode(false));
+        dpad_driverDown.whenPressed(() -> arcadeDriveCommand.setSlowMode(true))
+                .whenReleased(() -> arcadeDriveCommand.setSlowMode(false));
     }
 
     /**
@@ -280,31 +288,31 @@ public class RobotContainer {
         Trajectory t_hubToBall = loadTrajectory("HubToBall");
         CommandBase hubToBall = genRamseteCommand(t_hubToBall);
 
-        return new ParallelDeadlineGroup(hubToBall, createIntakeIndex()).andThen(createShootInterpolated().withTimeout(3));
+        return new ParallelDeadlineGroup(hubToBall, new ShootSetVelocity(m_shooter, () -> 7500.0), createIntakeIndex(), new SetHoodPosition(m_hood, () -> 50.0)).andThen(createShootInterpolated().withTimeout(2.45));
     }
 
     public CommandBase createBallToPlayer() {
         Trajectory t_ballToPlayer = loadTrajectory("BallToPlayer");
         CommandBase ballToPlayer = genRamseteCommand(t_ballToPlayer);
 
-        return new ParallelDeadlineGroup(ballToPlayer, createIntakeIndex());
+        return new ParallelDeadlineGroup(ballToPlayer, createIntakeIndex()).andThen(new ParallelDeadlineGroup(new ArcadeSetDrive(m_driveTrain, () -> -0.4).withTimeout(0.2), createIntakeIndex()));
     }
 
     public CommandBase createPlayerToHub() {
         Trajectory t_playerToHub = loadTrajectory("PlayerToHub");
 
         CommandBase playerToHub = genRamseteCommand(t_playerToHub);
-        return new ParallelDeadlineGroup(playerToHub, createIntakeIndex(), new SetHoodPosition(m_hood, () -> 180.0)).andThen(createShootInterpolated());
+        return new ParallelDeadlineGroup(playerToHub, new SetHoodPosition(m_hood, () -> 180.0), createIntakeIndex(), new ShootSetVelocity(m_shooter, () -> 7500.0))
+                .andThen(createShootInterpolated());
     }
 
     public Command createFullAuton() {
         CommandBase path1 = createHubToBall();
-
         CommandBase path2 = createBallToPlayer();
-
         CommandBase path3 = createPlayerToHub();
 
-        return new ParallelCommandGroup(path1.andThen(path2).andThen(new ParallelDeadlineGroup(new WaitCommand(0.5), createIntakeIndex())).andThen(path3), createTurretTarget());
+        return new ParallelCommandGroup(
+                path1.andThen(path2).andThen(createIntakeIndex().withTimeout(1.75)).andThen(path3), createTurretTarget());
     }
 
     public Command createTwoBall() {
@@ -407,7 +415,7 @@ public class RobotContainer {
             Supplier<Double> beltDelay) {
         return new ParallelCommandGroup(
                 new SequentialCommandGroup(
-                        new SetHoodPosition(m_hood, hoodAngle).withTimeout(0.5),
+                        new SetHoodPosition(m_hood, hoodAngle).withTimeout(1),
                         new WaitUntilCommand(m_shooter::isSetpointMet),
                         new RunIndexerKickupDelay(m_indexer, beltDelay)),
                 new ShootSetVelocity(m_shooter, velocity, false));
@@ -420,7 +428,7 @@ public class RobotContainer {
     private CommandBase createShootInterpolated() {
         return createShootSetVelocity(this::getSnapshotVelocity, this::getSnapshotHood, beltDelayPreference)
                 .beforeStarting(new ParallelRaceGroup(
-                        new WaitUntilStable(m_limelight::getDistance, 0.01, 10).withTimeout(1).andThen(m_limelight::snapshotDistance),
+                        createWaitUntilStable().withTimeout(1).andThen(m_limelight::snapshotDistance),
                         new ShootSetVelocity(m_shooter, this::getCalculatedVelocity)));
     }
 
@@ -430,5 +438,9 @@ public class RobotContainer {
 
     private CommandBase createTurretTarget() {
         return new SeekAndTarget(m_limelight, m_turret);
+    }
+
+    public WaitUntilStable createWaitUntilStable() {
+        return new WaitUntilStable(m_limelight::getDistance, 0.1, 20);
     }
 }
