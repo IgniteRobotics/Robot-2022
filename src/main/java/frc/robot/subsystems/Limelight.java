@@ -29,6 +29,8 @@ public class Limelight extends SubsystemBase {
   private NetworkTableEntry tv = netTable.getEntry("tv");
   private NetworkTableEntry camMode = netTable.getEntry("camMode");
   private NetworkTableEntry ledMode = netTable.getEntry("ledMode");
+  
+  private NetworkTableEntry pipeline = netTable.getEntry("pipeline");
 
   private ReportingNumber tyReporter = new ReportingNumber("Limelight ty", ReportingLevel.TEST);
   private ReportingNumber txReporter = new ReportingNumber("Limelight tx", ReportingLevel.TEST);
@@ -36,7 +38,8 @@ public class Limelight extends SubsystemBase {
   private ReportingBoolean tvReporter = new ReportingBoolean("Limelight tv", ReportingLevel.TEST);
 
   private final double h1 = 0.7112;
-  private final double h2 = 2.61;
+  //change h2 to be that of the demo target 85" == 2.159m
+  private final double h2 = 2.159;
   private final Measurement a1 = new Measurement(Unit.DEGREES, 35);
 
   private final int windowSize = 5;
@@ -53,6 +56,7 @@ public class Limelight extends SubsystemBase {
     tyReporter.set(getTy());
     txReporter.set(getTx());
     tvReporter.set(getTv());
+    pipeline.setNumber(1);
     distanceReporter.set(getDistanceAverage());
     appendWindow(getDistance());
   }
