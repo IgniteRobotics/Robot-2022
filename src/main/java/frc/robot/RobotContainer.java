@@ -229,30 +229,16 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
-        bumper_driveR.whileHeld(indexerIntakeGroup).whenReleased(new IndexBall(m_indexer).withTimeout(1));
+        bumper_driveR.whileHeld(new OuttakeIntake(m_intake));
         bumper_driveL.whileHeld(new RunIntake(m_intake, false));
 
-        btn_driveA.whenHeld(shootFenderLow);
-        btn_driveY.whileHeld(shootFenderHigh);
-        btn_driveB.whenHeld(shootInterpolated);
-        btn_driveX.whenHeld(shootEject);
+        btn_driveA.whenHeld(turretSeekAndTarget);
+        btn_driveY.whileHeld(shootEject);
+        //btn_driveB.whenHeld();
+        btn_driveX.whenHeld(shootFenderLow);
 
-        btn_manipA.whileHeld(turretSeekAndTarget);
-        btn_manipY.whenHeld(climbUp);
-        btn_manipB.whenHeld(climbDown);
-        btn_manipX.whileHeld(shootTest);
-
-        bumper_manipR.whileHeld(new OuttakeIntake(m_intake));
-        bumper_manipL.whileHeld(outtakeSingleBall);
-
-        dpad_manipUp.whenPressed(new ForwardSecondaryClimber(m_secondaryClimber, m_climber));
-        dpad_manipDown.whenPressed(new ReverseSecondaryClimber(m_secondaryClimber));
-
-        dpad_driverUp.whenPressed(() -> arcadeDriveCommand.setTurboMode(true))
-                .whenReleased(() -> arcadeDriveCommand.setTurboMode(false));
-
-        dpad_driverDown.whenPressed(() -> arcadeDriveCommand.setSlowMode(true))
-                .whenReleased(() -> arcadeDriveCommand.setSlowMode(false));
+        dpad_driverUp.whileHeld(climbUp);
+        dpad_driverDown.whileHeld(climbDown);
     }
 
     /**
@@ -260,7 +246,7 @@ public class RobotContainer {
      */
     private void configureSubsystemCommands() {
         m_driveTrain.setDefaultCommand(arcadeDriveCommand);
-        m_hood.setDefaultCommand(new SetHoodPosition(m_hood, this::getCalculatedHood).perpetually());
+        //m_hood.setDefaultCommand(new SetHoodPosition(m_hood, this::getCalculatedHood).perpetually());
         // TODO change to this default command after we verify soft limits are working
         // m_turret.setDefaultCommand(new ContinuousConditionalCommand(
         // new ReZeroTurret(m_turret, defaultTurrentPosition),
@@ -272,7 +258,7 @@ public class RobotContainer {
         // ).perpetually());
         m_turret.setDefaultCommand(new ReZeroTurret(m_turret, defaultTurrentPosition));
         m_limelight.setDefaultCommand(new LimelightSetLed(m_limelight, () -> true));
-        m_shooter.setDefaultCommand(runShooterPassive);
+        //m_shooter.setDefaultCommand(runShooterPassive);
     }
 
     /**
