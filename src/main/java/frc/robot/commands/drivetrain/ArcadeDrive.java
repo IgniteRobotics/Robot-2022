@@ -19,6 +19,8 @@ public class ArcadeDrive extends CommandBase { // TODO Figure out how to make a 
     private DoublePreference driveMultiplier = new DoublePreference("Forward Drive Multiplier", 0.7);
     private DoublePreference reverseDriveMultiplier = new DoublePreference("Reverse Drive Multiplier", 0.7);
     private DoublePreference slowMultiplier = new DoublePreference("Slow Mode Multiplier", 0.4);
+    private DoublePreference velocityRateLimit = new DoublePreference("Drive Slew Rate", 2.5);
+    private DoublePreference rotationRateLimit = new DoublePreference("Rotation Slew Rate", 3.0);
 
     private Drivetrain m_driveTrain = null;
     private XboxController driverController = null;
@@ -41,6 +43,7 @@ public class ArcadeDrive extends CommandBase { // TODO Figure out how to make a 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
+        this.m_driveTrain.updateSlewRates(velocityRateLimit.getValue(), rotationRateLimit.getValue());
     }
 
     // Called every time the scheduler runs while the command is scheduled.
