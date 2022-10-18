@@ -10,6 +10,7 @@ public class LinearServo extends Servo
     double m_length;
     double setPos;
     double curPos;
+    double lastUpdatedTime = 0;
 
     /**
      * Parameters for L16-R Actuonix Linear Actuators
@@ -37,17 +38,19 @@ public class LinearServo extends Servo
     {
         setPos = MathUtil.clamp(setpoint, 0, m_length);
         setSpeed((setPos / m_length * 2) - 1);
+        this.lastUpdatedTime = Timer.getFPGATimestamp();
     }
 
-    double lastTime = 0;
+    
 
     /**
      * Run this method in any periodic function to update the position estimation of
      * your servo
      */
     public void updateCurPos()
-    {
-        double dt = Timer.getFPGATimestamp() - lastTime;
+    {   
+        double now = Timer.getFPGATimestamp(); 
+        double dt =  now - lastUpdatedTime;
         if (curPos > setPos + m_speed * dt) {
             curPos -= m_speed * dt;
         } else if (curPos < setPos - m_speed * dt) {
@@ -55,6 +58,7 @@ public class LinearServo extends Servo
         } else {
             curPos = setPos;
         }
+        lastUpdatedTime = now;
     }
 
     /**
