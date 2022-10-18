@@ -47,13 +47,14 @@ public class RunIntake extends CommandBase {
       return;
     } else {
       //spin will extend
-      intake.spin();
-    }
-    // if (this.direction){
-    // intake.spin(Intake.INTAKE_SPEED);
-    // } else {
-    // intake.spin(Intake.OUTTAKE_SPEED);
+    //   intake.spin();
     // }
+      if (this.direction){
+      intake.spin();
+      } else {
+      intake.outtake();
+      }
+    }
 
   }
 
