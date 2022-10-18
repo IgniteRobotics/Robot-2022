@@ -52,27 +52,28 @@ public class Robot extends TimedRobot {
     pneumaticHub.enableCompressorAnalog(100, 120);
     compressor.enableDigital();
     m_robotContainer.m_driveTrain.setNeutralMode(NeutralMode.Coast);
-    final UsbCamera camera = CameraServer.startAutomaticCapture();
+    if (Robot.isReal()){
+      final UsbCamera camera = CameraServer.startAutomaticCapture();
 
-    visionThread = new Thread(() -> {
-      CvSink cvSink = CameraServer.getVideo();
-      CvSource outputStream = CameraServer.putVideo("Driver Camera", 600, 800);
+      visionThread = new Thread(() -> {
+        CvSink cvSink = CameraServer.getVideo();
+        CvSource outputStream = CameraServer.putVideo("Driver Camera", 600, 800);
 
-      Mat imageMat = new Mat();
+        Mat imageMat = new Mat();
 
-      Scalar color = new Scalar(255, 0, 0);
+        Scalar color = new Scalar(255, 0, 0);
 
-      while(!Thread.interrupted()) {
-        if(cvSink.grabFrame(imageMat) == 0) continue;
+        while(!Thread.interrupted()) {
+          if(cvSink.grabFrame(imageMat) == 0) continue;
 
-        Imgproc.circle(imageMat, new Point(imageMat.width() / 2, imageMat.height() / 2), 5, color);
+          Imgproc.circle(imageMat, new Point(imageMat.width() / 2, imageMat.height() / 2), 5, color);
 
-        outputStream.putFrame(imageMat);
-      }
-    });
+          outputStream.putFrame(imageMat);
+        }
+      });
 
-    visionThread.start();
-
+      visionThread.start();
+    }
     m_robotContainer.stableSensor.schedule();
   }
 

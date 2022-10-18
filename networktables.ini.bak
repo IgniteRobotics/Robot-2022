@@ -1,0 +1,12 @@
+[NetworkTables Storage 3.0]
+string "/Preferences/.type"="RobotPreferences"
+double "/Preferences/Belt Delay"=0.35
+double "/Preferences/Default Turret Position"=0
+double "/Preferences/Eject Velocity"=9000
+double "/Preferences/FenderHigh Velocity"=7000
+double "/Preferences/FenderLow Velocity"=2500
+double "/Preferences/Hood Set Position"=0
+double "/Preferences/Initial Turret Offset"=0
+double "/Preferences/Passive shooter velocity"=7500
+double "/Preferences/Shooter Set Velocity"=0
+double "/Preferences/VELOCITY OFFSET"=0
