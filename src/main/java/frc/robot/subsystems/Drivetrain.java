@@ -77,8 +77,8 @@ public class Drivetrain extends SubsystemBase {
 
     private final DifferentialDriveOdometry m_odometry;
 
-    private final SlewRateLimiter speedRateLimiter = new SlewRateLimiter(SPEED_RATE_LIMIT_ARCADE);
-    private final SlewRateLimiter rotationRateLimiter = new SlewRateLimiter(ROTATION_RATE_LIMIT_ARCADE);
+    private SlewRateLimiter speedRateLimiter = new SlewRateLimiter(SPEED_RATE_LIMIT_ARCADE);
+    private SlewRateLimiter rotationRateLimiter = new SlewRateLimiter(ROTATION_RATE_LIMIT_ARCADE);
 
     private SensorProfile sensorProfile = new SensorProfile(2048, 10);
 
@@ -180,6 +180,11 @@ public class Drivetrain extends SubsystemBase {
     public void resetOdometry(Pose2d startingPose) {
         resetEncoders();
         m_odometry.resetPosition(startingPose, navX.getRotation2d());
+    }
+
+    public void updateSlewRates(double velocityLimit, double rotationLimit){
+        this.speedRateLimiter = new SlewRateLimiter(velocityLimit);
+        this.rotationRateLimiter = new SlewRateLimiter(rotationLimit);
     }
 
     public void arcadeDrive(final double speed, final double rotation, final boolean useSquares) {
